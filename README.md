@@ -1,14 +1,30 @@
-# Welcome to your CDK TypeScript project
+# Launch Pad's StarPort
 
-This is a blank project for CDK development with TypeScript.
+StarPort is the whole "egnine" behind all our internal tooling. we house a number of APIs, features, logic here. This powers our Discord bot (Rover), our landing page and member portal (Cosmic Gateway)
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+## Features
 
-## Useful commands
+- set of APIs to handle members *(USERS API)*
+- set of APIs to handle projects *(PROJECTS API)*
+- set of APIs to handle postings *(POSTINGS API)*
+- logic to handle applications, interviews, and onboarding *(ONBOARDING LOGIC)*
+- Integrations with Discord *(ROVER INTEGRATION)*
+- Infrastructure as code (IAC) to deploy the backend
 
-* `npm run build`   compile typescript to js
-* `npm run watch`   watch for changes and compile
-* `npm run test`    perform the jest unit tests
-* `cdk deploy`      deploy this stack to your default AWS account/region
-* `cdk diff`        compare deployed stack with current state
-* `cdk synth`       emits the synthesized CloudFormation template
+**View the API Documentation (to be added)**
+**View complete changelog [here](./CHANGELOG.md)**
+
+## Contributing
+
+- [Contributing Guide](./CONTRIBUTING.md)
+
+- [Developer Guide](./docs/DEVELOPER.md)
+- [Code of Conduct](./CODE_OF_CONDUCT.md)
+
+## Roadmap
+
+(coming soon)
+
+## License
+
+(c) 2023 UBC Launch Pad

@@ -55,7 +55,6 @@ Similar to locally testing your lambdas, you can also run and test your APIs loc
 
 Refer to the AWS deployment guide for more information. However, we only allow cloud deployment via the CI/CD pipeline. So you should not be deploying to AWS manually; in fact you should not have the AWS credentials to do so or we have set up something wrong :).
 
-
 ## Useful commands
 
 - `npm run build`   compile typescript to js
