@@ -5,7 +5,7 @@
     "lib": [
       "es2020"
     ],
-    "declaration": true,
+    "declaration": false,
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -15,14 +15,22 @@
     "noUnusedParameters": false,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": false,
-    "inlineSourceMap": true,
-    "inlineSources": true,
+    "sourceMap": false,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
+    "rootDir": "service/src",
+    "isolatedModules": true, 
+    "esModuleInterop": true,
+    "moduleResolution": "node",
     "typeRoots": [
       "./node_modules/@types"
     ]
   },
+
+  "include": [
+    "service/src/**/*"
+],
+
   "exclude": [
     "node_modules",
     "cdk.out"
