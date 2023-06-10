@@ -1,21 +1,22 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { formatResponse, mysql } from "./util";
-import { PostingQueryI } from "./project";
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { formatResponse, mysql } from './util';
+import { PostingQueryI } from './project';
 
-export const handler = async function(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-  try {
-    const params = (event && event.queryStringParameters) || {}
-    const resp =  await getAll(params as PostingQueryI);
-    mysql.end();
-    return formatResponse(200, resp);
-
-  } catch(error) {
-    return formatResponse(200, {message: (error as any).message});
-  }
+export const handler = async function (
+    event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> {
+    try {
+        const params = (event && event.queryStringParameters) || {};
+        const resp = await getAll(params as PostingQueryI);
+        mysql.end();
+        return formatResponse(200, resp);
+    } catch (error) {
+        return formatResponse(200, { message: (error as any).message });
+    }
 };
 
 export async function getAll(postingQuery: PostingQueryI) {
-    let query =`SELECT
+    let query = `SELECT
     p.id AS id,
     p.title,
     p.project_role_id AS roleId,
@@ -44,19 +45,18 @@ export async function getAll(postingQuery: PostingQueryI) {
     }
 
     if (postingQuery.limit && postingQuery.offset) {
-      query += ` LIMIT ${postingQuery.limit} OFFSET ${postingQuery.offset}`;
+        query += ` LIMIT ${postingQuery.limit} OFFSET ${postingQuery.offset}`;
     } else {
-      query += ` LIMIT 20 OFFSET 0`;
+        query += ` LIMIT 20 OFFSET 0`;
     }
-  
-    const postings = await mysql.query(query) as any[];  
+
+    const postings = (await mysql.query(query)) as any[];
     if (!postings) {
-      throw new Error('posting(s) not found');
+        throw new Error('posting(s) not found');
     }
 
     if (postings.length === 0) {
         return [];
     }
     return postings;
-  }
-  
+}

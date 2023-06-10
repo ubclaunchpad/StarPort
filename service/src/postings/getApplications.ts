@@ -1,29 +1,30 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { formatResponse, mysql } from "./util";
-import { ApplicationsQueryI } from "./project";
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { formatResponse, mysql } from './util';
+import { ApplicationsQueryI } from './project';
 
-export const handler = async function(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-  try {
-    const params = (event && event.pathParameters) || {}
-    if (!params.id) {
-        return formatResponse(400, {message: "Missing pid"});
+export const handler = async function (
+    event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> {
+    try {
+        const params = (event && event.pathParameters) || {};
+        if (!params.id) {
+            return formatResponse(400, { message: 'Missing pid' });
+        }
+
+        const applicationsQuery: ApplicationsQueryI = {
+            pid: parseInt(params.id),
+        };
+
+        const resp = await getAll(applicationsQuery);
+        mysql.end();
+        return formatResponse(200, resp);
+    } catch (error) {
+        return formatResponse(200, { message: (error as any).message });
     }
-
-    const applicationsQuery: ApplicationsQueryI = {
-        pid: parseInt(params.id)
-    }
-
-    const resp =  await getAll(applicationsQuery);
-    mysql.end();
-    return formatResponse(200, resp);
-
-  } catch(error) {
-    return formatResponse(200, {message: (error as any).message});
-  }
 };
 
 export async function getAll(applicationsQuery: ApplicationsQueryI) {
-    let query =`SELECT
+    let query = `SELECT
     app.email as email,
     app.first_name as firstName,
     app.last_name as lastName,
@@ -50,23 +51,22 @@ export async function getAll(applicationsQuery: ApplicationsQueryI) {
         query += ` AND p.user_id IS NOT NULL`;
     }
 
-    const userApplications = await mysql.query(query) as any[];  
+    const userApplications = (await mysql.query(query)) as any[];
     if (!userApplications) {
-      throw new Error('posting(s) not found');
+        throw new Error('posting(s) not found');
     }
 
     if (userApplications.length === 0) {
         return {};
-    };
-
+    }
 
     const query2 = `SELECT
     application_status.id as id,
     application_status.status as status
     FROM
-    application_status;`
+    application_status;`;
 
-    const appStatus = await mysql.query(query2) as any[]; 
+    const appStatus = (await mysql.query(query2)) as any[];
 
     const applications: any = {};
 
@@ -76,11 +76,11 @@ export async function getAll(applicationsQuery: ApplicationsQueryI) {
 
     for (const userApplication of userApplications) {
         if (userApplication.applicationStatus) {
-            applications[userApplication.applicationStatus].push(userApplication);
+            applications[userApplication.applicationStatus].push(
+                userApplication
+            );
         }
     }
 
-  
     return applications;
-  }
-  
+}

@@ -1,31 +1,33 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { formatResponse, mysql } from "./util";
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { formatResponse, mysql } from './util';
 
-export const handler = async function(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-  console.log("HERE");
+export const handler = async function (
+    event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> {
+    console.log('HERE');
     try {
-     if (event === null) {
-        throw new Error('event not found');
-      }
-  
-      console.log("HERE2");
-      if (event.pathParameters === null || event.pathParameters.id === null) {
-          throw new Error('Project Id is missing');
-      }
-    
-     const resp = await getProject(Number(event.pathParameters.id ) );
-     console.log("error");
-     await mysql.end();
+        if (event === null) {
+            throw new Error('event not found');
+        }
 
-     return formatResponse(200, resp);
-      } catch(error) {
+        console.log('HERE2');
+        if (event.pathParameters === null || event.pathParameters.id === null) {
+            throw new Error('Project Id is missing');
+        }
+
+        const resp = await getProject(Number(event.pathParameters.id));
+        console.log('error');
+        await mysql.end();
+
+        return formatResponse(200, resp);
+    } catch (error) {
         console.log(error);
-    return formatResponse(200, {message: (error as any).message});
-      }
+        return formatResponse(200, { message: (error as any).message });
+    }
 };
 
 export async function getProject(projectId: number): Promise<any> {
-    let query =`SELECT
+    let query = `SELECT
     p.id AS id,
     p.name,
     p.description,
@@ -33,9 +35,9 @@ export async function getProject(projectId: number): Promise<any> {
     FROM project p
     WHERE ${projectId} = p.id`;
 
-    const projects = await mysql.query(query) as any[];  
+    const projects = (await mysql.query(query)) as any[];
     if (!projects) {
-      throw new Error('project not found');
+        throw new Error('project not found');
     }
     const project = projects[0];
     const projectUserQuery = `SELECT
@@ -48,8 +50,8 @@ export async function getProject(projectId: number): Promise<any> {
     p.faculty_id AS faculty,
     proj_person.role_id AS roleId
     FROM person p
-    INNER JOIN project_person proj_person ON proj_person.user_id = p.user_id AND proj_person.project_id = ${project.id}`
-    
+    INNER JOIN project_person proj_person ON proj_person.user_id = p.user_id AND proj_person.project_id = ${project.id}`;
+
     const projectUsers = await mysql.query(projectUserQuery);
     project.users = projectUsers || [];
 
@@ -64,6 +66,4 @@ export async function getProject(projectId: number): Promise<any> {
     project.resources = projectResourceQuery || [];
 
     return project;
-  }
-  
-
+}

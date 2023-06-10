@@ -1,26 +1,29 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { formatResponse, mysql } from "./util";
-import { ProjectQueryI } from "./project";
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { formatResponse, mysql } from './util';
+import { ProjectQueryI } from './project';
 
-export const handler = async function(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-  try {
-    const params = (event && event.queryStringParameters) || {}
-   
-    let projectQuery: ProjectQueryI = params;
-    if (params.userIds) {
-      projectQuery.userIds = params.userIds.split(',').map((id: string) => parseInt(id));
+export const handler = async function (
+    event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> {
+    try {
+        const params = (event && event.queryStringParameters) || {};
+
+        let projectQuery: ProjectQueryI = params;
+        if (params.userIds) {
+            projectQuery.userIds = params.userIds
+                .split(',')
+                .map((id: string) => parseInt(id));
+        }
+        const resp = await getAll(projectQuery as ProjectQueryI);
+        mysql.end();
+        return formatResponse(200, resp);
+    } catch (error) {
+        return formatResponse(200, { message: (error as any).message });
     }
-    const resp =  await getAll(projectQuery as ProjectQueryI);
-    mysql.end();
-    return formatResponse(200, resp);
-
-  } catch(error) {
-    return formatResponse(200, {message: (error as any).message});
-  }
 };
 
 export async function getAll(projectQuery: ProjectQueryI) {
-    let query =`SELECT
+    let query = `SELECT
     p.id AS id,
     p.name,
     p.description,
@@ -41,20 +44,22 @@ export async function getAll(projectQuery: ProjectQueryI) {
     }
 
     if (projectQuery.userIds) {
-        query += ` AND p.id IN (SELECT project_id FROM project_person WHERE user_id IN (${projectQuery.userIds.join(',')}))`;
+        query += ` AND p.id IN (SELECT project_id FROM project_person WHERE user_id IN (${projectQuery.userIds.join(
+            ','
+        )}))`;
     }
 
     console.log(query);
 
     if (projectQuery.limit && projectQuery.offset) {
-      query += ` LIMIT ${projectQuery.limit} OFFSET ${projectQuery.offset}`;
+        query += ` LIMIT ${projectQuery.limit} OFFSET ${projectQuery.offset}`;
     } else {
-      query += ` LIMIT 20 OFFSET 0`;
+        query += ` LIMIT 20 OFFSET 0`;
     }
-  
-    const projects = await mysql.query(query) as any[];  
+
+    const projects = (await mysql.query(query)) as any[];
     if (!projects) {
-      throw new Error('project(s) not found');
+        throw new Error('project(s) not found');
     }
 
     if (projects.length === 0) {
@@ -74,7 +79,7 @@ export async function getAll(projectQuery: ProjectQueryI) {
         proj_person.role_id AS roleId
         FROM person p
         INNER JOIN project_person proj_person ON proj_person.user_id = p.user_id AND proj_person.project_id = ${project.id}`;
-        
+
         const projectUsers = await mysql.query(projectUserQuery);
         project.users = projectUsers || [];
 
@@ -89,5 +94,4 @@ export async function getAll(projectQuery: ProjectQueryI) {
         project.resources = projectResourceQuery || [];
     }
     return projects;
-  }
-  
+}

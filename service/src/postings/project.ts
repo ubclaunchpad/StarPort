@@ -1,10 +1,7 @@
-
-
 export interface PaginationI {
     limit: number;
     offset: number;
-  }
-  
+}
 
 export interface PostingQueryI extends Partial<PaginationI> {
     pid?: number;

@@ -1,23 +1,25 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { formatResponse, mysql } from "./util";
-import { ApplicationsQueryI, PostingQueryI } from "./project";
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { formatResponse, mysql } from './util';
+import { ApplicationsQueryI, PostingQueryI } from './project';
 
-export const handler = async function(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-  try {
-    const params = (event && event.queryStringParameters) || {};
-    const applicationsQuery: ApplicationsQueryI = params as ApplicationsQueryI;
+export const handler = async function (
+    event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> {
+    try {
+        const params = (event && event.queryStringParameters) || {};
+        const applicationsQuery: ApplicationsQueryI =
+            params as ApplicationsQueryI;
 
-    const resp =  await getAll(applicationsQuery);
-    mysql.end();
-    return formatResponse(200, resp);
-
-  } catch(error) {
-    return formatResponse(200, {message: (error as any).message});
-  }
+        const resp = await getAll(applicationsQuery);
+        mysql.end();
+        return formatResponse(200, resp);
+    } catch (error) {
+        return formatResponse(200, { message: (error as any).message });
+    }
 };
 
 export async function getAll(applicationsQuery: ApplicationsQueryI) {
-    let query =`
+    let query = `
     SELECT
     app.application_status_id as applicationStatus,
     p.user_id as userId,
@@ -39,15 +41,14 @@ export async function getAll(applicationsQuery: ApplicationsQueryI) {
         query += ` AND app.email = '${applicationsQuery.applicantEmail}'`;
     }
 
-    const userApplications = await mysql.query(query) as any[];  
+    const userApplications = (await mysql.query(query)) as any[];
     if (!userApplications) {
-      throw new Error('no app(s) not found');
+        throw new Error('no app(s) not found');
     }
 
     if (userApplications.length === 0) {
         return [];
-    };
+    }
 
     return userApplications;
-  }
-  
+}

@@ -1,38 +1,29 @@
 {
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "commonjs",
-    "lib": [
-      "es2020"
-    ],
-    "declaration": false,
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": false,
-    "sourceMap": false,
-    "experimentalDecorators": true,
-    "strictPropertyInitialization": false,
-    "rootDir": "service/src",
-    "isolatedModules": true, 
-    "esModuleInterop": true,
-    "moduleResolution": "node",
-    "typeRoots": [
-      "./node_modules/@types"
-    ]
-  },
+    "compilerOptions": {
+        "target": "ES2020",
+        "module": "commonjs",
+        "lib": ["es2020"],
+        "declaration": false,
+        "strict": true,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "noImplicitThis": true,
+        "alwaysStrict": true,
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": false,
+        "sourceMap": false,
+        "experimentalDecorators": true,
+        "strictPropertyInitialization": false,
+        "rootDir": "service/src",
+        "isolatedModules": true,
+        "esModuleInterop": true,
+        "moduleResolution": "node",
+        "typeRoots": ["./node_modules/@types"]
+    },
 
-  "include": [
-    "service/src/**/*"
-],
+    "include": ["service/src/**/*"],
 
-  "exclude": [
-    "node_modules",
-    "cdk.out"
-  ]
+    "exclude": ["node_modules", "cdk.out"]
 }

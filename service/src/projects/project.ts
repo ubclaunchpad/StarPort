@@ -1,5 +1,3 @@
-
-
 export interface ProjectI {
     name: string;
     description: string;
@@ -9,8 +7,7 @@ export interface ProjectI {
 export interface PaginationI {
     limit: number;
     offset: number;
-  }
-  
+}
 
 export interface ProjectQueryI extends Partial<PaginationI> {
     pid?: number;
