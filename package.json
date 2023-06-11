@@ -1,16 +1,17 @@
 {
-    "name": "lpbe",
+    "name": "starport",
+    "description": "Launch Pad Backend",
     "version": "0.1.0",
     "bin": {
-        "lpbe": "bin/lpbe.js"
+        "app": "bin/app.js"
     },
     "scripts": {
-        "build:tsc": "tsc",
         "build": "rm -rf dist && esbuild ./service/src/**/*.ts --entry-names=[dir]/[name]/index --bundle   --platform=node --target=node16.14 --outdir=./dist/",
         "watch": "tsc -w",
-        "format": "prettier --write \"**/*.{js,ts,json}\"",
         "cdk": "cdk",
-        "lint": "eslint ."
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "format": "npm run lint:fix && prettier --write \"**/*.{js,ts,json}\""
     },
     "devDependencies": {
         "@types/aws-lambda": "^8.10.115",
