@@ -5,6 +5,7 @@
 // example test. To run these tests, uncomment this file along with the
 // example resource in lib/lpbe-stack.ts
 test('SQS Queue Created', () => {
+    expect(true).toBe(true);
     //   const app = new cdk.App();
     //     // WHEN
     //   const stack = new Lpbe.LpbeStack(app, 'MyTestStack');
