@@ -1,13 +1,13 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { formatResponse, mysql } from '../util/util';
-import { PostingQueryI } from './project';
+import { IPostingQuery } from '../util/types/project';
 
 export const handler = async function (
     event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
     try {
         const params = (event && event.queryStringParameters) || {};
-        const resp = await getAll(params as PostingQueryI);
+        const resp = await getAll(params as IPostingQuery);
         mysql.end();
         return formatResponse(200, resp);
     } catch (error) {
@@ -15,7 +15,7 @@ export const handler = async function (
     }
 };
 
-export async function getAll(postingQuery: PostingQueryI) {
+export async function getAll(postingQuery: IPostingQuery) {
     let query = `SELECT
     p.id AS id,
     p.title,

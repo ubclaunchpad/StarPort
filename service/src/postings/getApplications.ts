@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { formatResponse, mysql } from '../util/util';
-import { ApplicationsQueryI } from './project';
+import { IApplicationQuery } from '../util/types/project';
 
 export const handler = async function (
     event: APIGatewayProxyEvent
@@ -11,7 +11,7 @@ export const handler = async function (
             return formatResponse(400, { message: 'Missing pid' });
         }
 
-        const applicationsQuery: ApplicationsQueryI = {
+        const applicationsQuery: IApplicationQuery = {
             pid: parseInt(params.id),
         };
 
@@ -23,7 +23,7 @@ export const handler = async function (
     }
 };
 
-export async function getAll(applicationsQuery: ApplicationsQueryI) {
+export async function getAll(applicationsQuery: IApplicationQuery) {
     let query = `SELECT
     app.email as email,
     app.first_name as firstName,

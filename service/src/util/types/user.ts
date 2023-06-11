@@ -1,4 +1,6 @@
-export interface UserBasicI {
+import { IPagination } from './general';
+
+export interface IUserBasicInfo {
     firstName: string;
     prefName: string;
     lastName: string;
@@ -14,12 +16,7 @@ export interface UserInfo {
     resumeLink?: string;
 }
 
-export interface PaginationI {
-    limit: number;
-    offset: number;
-}
-
-export interface UserQueryI extends Partial<PaginationI> {
+export interface IUserQuery extends Partial<IPagination> {
     fid?: number;
     fn?: string;
     pn?: string;
@@ -30,5 +27,5 @@ export interface UserQueryI extends Partial<PaginationI> {
     sid?: number;
 }
 
-export interface UserI extends UserBasicI, UserInfo {}
+export interface UserI extends IUserBasicInfo, UserInfo {}
 export type UserUpdateI = Partial<UserI>;

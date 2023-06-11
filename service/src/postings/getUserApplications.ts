@@ -1,14 +1,14 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { formatResponse, mysql } from '../util/util';
-import { ApplicationsQueryI } from './project';
+import { IApplicationQuery } from '../util/types/project';
 
 export const handler = async function (
     event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
     try {
         const params = (event && event.queryStringParameters) || {};
-        const applicationsQuery: ApplicationsQueryI =
-            params as ApplicationsQueryI;
+        const applicationsQuery: IApplicationQuery =
+            params as IApplicationQuery;
 
         const resp = await getAll(applicationsQuery);
         mysql.end();
@@ -18,7 +18,7 @@ export const handler = async function (
     }
 };
 
-export async function getAll(applicationsQuery: ApplicationsQueryI) {
+export async function getAll(applicationsQuery: IApplicationQuery) {
     let query = `
     SELECT
     app.application_status_id as applicationStatus,

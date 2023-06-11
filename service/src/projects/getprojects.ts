@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { formatResponse, mysql } from './util';
-import { ProjectQueryI } from './project';
+import { formatResponse, mysql } from '../util/util';
+import { IProjectQuery } from '../util/types/posting';
 
 export const handler = async function (
     event: APIGatewayProxyEvent
@@ -8,13 +8,13 @@ export const handler = async function (
     try {
         const params = (event && event.queryStringParameters) || {};
 
-        const projectQuery: ProjectQueryI = params;
+        const projectQuery: IProjectQuery = params;
         if (params.userIds) {
             projectQuery.userIds = params.userIds
                 .split(',')
                 .map((id: string) => parseInt(id));
         }
-        const resp = await getAll(projectQuery as ProjectQueryI);
+        const resp = await getAll(projectQuery as IProjectQuery);
         mysql.end();
         return formatResponse(200, resp);
     } catch (error) {
@@ -22,7 +22,7 @@ export const handler = async function (
     }
 };
 
-export async function getAll(projectQuery: ProjectQueryI) {
+export async function getAll(projectQuery: IProjectQuery) {
     let query = `SELECT
     p.id AS id,
     p.name,

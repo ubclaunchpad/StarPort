@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { formatResponse, mysql } from '../util/util';
-import { UserUpdateI } from './user';
+import { UserUpdateI } from '../util/types/user';
 
 export const handler = async function (
     event: APIGatewayProxyEvent

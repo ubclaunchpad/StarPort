@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { formatResponse, mysql } from './util';
-import { ProjectI } from './project';
+import { formatResponse, mysql } from '../util/util';
+import { IProject } from '../util/types/posting';
 
 export const handler = async function (
     event: APIGatewayProxyEvent
@@ -14,7 +14,7 @@ export const handler = async function (
             throw new Error('Request body is missing');
         }
         const createProjectId = await createProject(
-            JSON.parse(event.body) as unknown as ProjectI
+            JSON.parse(event.body) as unknown as IProject
         );
         mysql.end();
         return formatResponse(
@@ -27,7 +27,7 @@ export const handler = async function (
 };
 
 export const createProject = async (
-    projectSetup: ProjectI
+    projectSetup: IProject
 ): Promise<string> => {
     const { name, description, status_id } = projectSetup;
     const result = (await mysql.query(
