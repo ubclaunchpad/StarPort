@@ -52,7 +52,7 @@ export const addUser = async (user: UserI): Promise<string> => {
         .query((r: any) => {
             createdUserId = r.insertId;
             // TODO: add 76 undisclosed program id
-            let pId = programId || 76;
+            const pId = programId || 76;
             return [
                 'INSERT INTO person_degree_program (user_id, program_id) VALUES (?, ?)',
                 [r.insertId, pId],

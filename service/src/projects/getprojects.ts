@@ -8,7 +8,7 @@ export const handler = async function (
     try {
         const params = (event && event.queryStringParameters) || {};
 
-        let projectQuery: ProjectQueryI = params;
+        const projectQuery: ProjectQueryI = params;
         if (params.userIds) {
             projectQuery.userIds = params.userIds
                 .split(',')

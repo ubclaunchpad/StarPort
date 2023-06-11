@@ -48,7 +48,7 @@ export const updateUser = async (
     } = userInfo;
     // TODO: update it to make it robust
     let query = 'UPDATE person SET ';
-    let values = [];
+    const values = [];
     if (email) {
         query += 'email = ?, ';
         values.push(email);

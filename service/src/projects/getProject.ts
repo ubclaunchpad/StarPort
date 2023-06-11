@@ -27,7 +27,7 @@ export const handler = async function (
 };
 
 export async function getProject(projectId: number): Promise<any> {
-    let query = `SELECT
+    const query = `SELECT
     p.id AS id,
     p.name,
     p.description,

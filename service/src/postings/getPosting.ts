@@ -23,7 +23,7 @@ export const handler = async function (
 };
 
 export async function getPosting(postingId: number): Promise<any> {
-    let query = `SELECT
+    const query = `SELECT
     p.id AS id,
     p.title,
     p.project_role_id AS roleId,
