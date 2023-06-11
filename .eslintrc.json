@@ -5,7 +5,13 @@
     "rules": {
         "@typescript-eslint/no-unused-vars": "error"
     },
-    "ignorePatterns": ["node_modules/", "dist/", "cdk.out/"],
+    "ignorePatterns": [
+        "node_modules/",
+        "dist/",
+        "cdk.out/",
+        "converage/",
+        "babel.config.js"
+    ],
 
     "parserOptions": {
         "ecmaVersion": 6,
