@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { formatResponse, mysql } from './util';
+import { formatResponse, mysql } from '../util/util';
 import { UserUpdateI } from './user';
 
 export const handler = async function (
@@ -44,7 +44,6 @@ export const updateUser = async (
         resumeLink,
         facultyId,
         standingId,
-        programId,
     } = userInfo;
     // TODO: update it to make it robust
     let query = 'UPDATE person SET ';

@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { formatResponse, mysql } from './util';
+import { formatResponse, mysql } from '../util/util';
 import jwt_decode from 'jwt-decode';
 
 export interface GoogleAuthUser {
@@ -23,8 +23,6 @@ export interface GoogleAuthUser {
 export const handler = async function (
     event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
-    // get api response time
-    const start = Date.now();
     try {
         if (event === null) {
             throw new Error('event not found');
@@ -35,10 +33,7 @@ export const handler = async function (
         if (auth === undefined) {
             throw new Error('Authorization header is missing');
         }
-        const b1 = Date.now();
         const googleAuthUser = jwt_decode(auth) as GoogleAuthUser;
-
-        const b2 = Date.now();
         const resp = await getUser(googleAuthUser.email);
         mysql.end();
         // calc api response time

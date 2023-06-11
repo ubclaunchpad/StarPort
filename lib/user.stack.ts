@@ -4,11 +4,30 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import { Cors } from 'aws-cdk-lib/aws-apigateway';
 import { config } from 'dotenv';
+import { LPStack, StackInfo } from './util/LPStack';
+import { IDatabaseConfig } from '../config/database.config';
 config();
 
-export class UserStack extends cdk.Stack {
-    constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+export const USER_STACK_INFO: StackInfo = { NAME: 'users-stack' };
+
+export interface UserStackProps extends cdk.StackProps {
+    databaseConfig: IDatabaseConfig;
+}
+
+export class UserStack extends LPStack {
+    public STACK_INFO: StackInfo = USER_STACK_INFO;
+
+    constructor(scope: Construct, id: string, props: UserStackProps) {
         super(scope, id, props);
+
+        const { databaseConfig } = props;
+
+        const dataBaseInfo = {
+            DB_HOST: databaseConfig.host,
+            DB_USERNAME: databaseConfig.user,
+            DB_PASSWORD: databaseConfig.password,
+            DB_NAME: databaseConfig.database,
+        };
 
         const api: apigateway.RestApi = new apigateway.RestApi(
             this,
@@ -28,10 +47,7 @@ export class UserStack extends cdk.Stack {
             code: lambda.Code.fromAsset('dist/users/getUsers'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
-                DB_HOST: process.env.DB_HOST!,
-                DB_USERNAME: process.env.DB_USERNAME!,
-                DB_PASSWORD: process.env.DB_PASSWORD!,
-                DB_NAME: process.env.DB_NAME!,
+                ...dataBaseInfo,
             },
         });
 
@@ -40,10 +56,7 @@ export class UserStack extends cdk.Stack {
             code: lambda.Code.fromAsset('dist/users/createUser'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
-                DB_HOST: process.env.DB_HOST!,
-                DB_USERNAME: process.env.DB_USERNAME!,
-                DB_PASSWORD: process.env.DB_PASSWORD!,
-                DB_NAME: process.env.DB_NAME!,
+                ...dataBaseInfo,
             },
         });
 
@@ -52,10 +65,7 @@ export class UserStack extends cdk.Stack {
             code: lambda.Code.fromAsset('dist/users/getUser'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
-                DB_HOST: process.env.DB_HOST!,
-                DB_USERNAME: process.env.DB_USERNAME!,
-                DB_PASSWORD: process.env.DB_PASSWORD!,
-                DB_NAME: process.env.DB_NAME!,
+                ...dataBaseInfo,
             },
         });
 
@@ -64,10 +74,7 @@ export class UserStack extends cdk.Stack {
             code: lambda.Code.fromAsset('dist/users/editUser'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
-                DB_HOST: process.env.DB_HOST!,
-                DB_USERNAME: process.env.DB_USERNAME!,
-                DB_PASSWORD: process.env.DB_PASSWORD!,
-                DB_NAME: process.env.DB_NAME!,
+                ...dataBaseInfo,
             },
         });
 
@@ -76,10 +83,7 @@ export class UserStack extends cdk.Stack {
             code: lambda.Code.fromAsset('dist/users/getFaculties'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
-                DB_HOST: process.env.DB_HOST!,
-                DB_USERNAME: process.env.DB_USERNAME!,
-                DB_PASSWORD: process.env.DB_PASSWORD!,
-                DB_NAME: process.env.DB_NAME!,
+                ...dataBaseInfo,
             },
         });
 
@@ -88,10 +92,7 @@ export class UserStack extends cdk.Stack {
             code: lambda.Code.fromAsset('dist/users/getPrograms'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
-                DB_HOST: process.env.DB_HOST!,
-                DB_USERNAME: process.env.DB_USERNAME!,
-                DB_PASSWORD: process.env.DB_PASSWORD!,
-                DB_NAME: process.env.DB_NAME!,
+                ...dataBaseInfo,
             },
         });
 
@@ -100,10 +101,7 @@ export class UserStack extends cdk.Stack {
             code: lambda.Code.fromAsset('dist/users/getStandings'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
-                DB_HOST: process.env.DB_HOST!,
-                DB_USERNAME: process.env.DB_USERNAME!,
-                DB_PASSWORD: process.env.DB_PASSWORD!,
-                DB_NAME: process.env.DB_NAME!,
+                ...dataBaseInfo,
             },
         });
 
@@ -112,10 +110,7 @@ export class UserStack extends cdk.Stack {
             code: lambda.Code.fromAsset('dist/users/getSocials'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
-                DB_HOST: process.env.DB_HOST!,
-                DB_USERNAME: process.env.DB_USERNAME!,
-                DB_PASSWORD: process.env.DB_PASSWORD!,
-                DB_NAME: process.env.DB_NAME!,
+                ...dataBaseInfo,
             },
         });
 
@@ -124,10 +119,7 @@ export class UserStack extends cdk.Stack {
             code: lambda.Code.fromAsset('dist/users/getUserId'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
-                DB_HOST: process.env.DB_HOST!,
-                DB_USERNAME: process.env.DB_USERNAME!,
-                DB_PASSWORD: process.env.DB_PASSWORD!,
-                DB_NAME: process.env.DB_NAME!,
+                ...dataBaseInfo,
             },
         });
 

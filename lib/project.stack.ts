@@ -4,11 +4,28 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import { Cors } from 'aws-cdk-lib/aws-apigateway';
 import { config } from 'dotenv';
+import { IDatabaseConfig } from '../config/database.config';
+import { StackInfo } from './util/LPStack';
 config();
 
-export class ProjectsStack extends cdk.Stack {
-    constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+export const PROJECT_STACK_INFO: StackInfo = { NAME: 'project-stack' };
+
+export interface ProjectStackProps extends cdk.StackProps {
+    databaseConfig: IDatabaseConfig;
+}
+
+export class ProjectStack extends cdk.Stack {
+    constructor(scope: Construct, id: string, props: ProjectStackProps) {
         super(scope, id, props);
+
+        const { databaseConfig } = props;
+
+        const dataBaseInfo = {
+            DB_HOST: databaseConfig.host,
+            DB_USERNAME: databaseConfig.user,
+            DB_PASSWORD: databaseConfig.password,
+            DB_NAME: databaseConfig.database,
+        };
 
         const api: apigateway.RestApi = new apigateway.RestApi(
             this,
@@ -28,10 +45,7 @@ export class ProjectsStack extends cdk.Stack {
             code: lambda.Code.fromAsset('dist/projects/getProjects'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
-                DB_HOST: process.env.DB_HOST!,
-                DB_USERNAME: process.env.DB_USERNAME!,
-                DB_PASSWORD: process.env.DB_PASSWORD!,
-                DB_NAME: process.env.DB_NAME!,
+                ...dataBaseInfo,
             },
         });
 
@@ -40,10 +54,7 @@ export class ProjectsStack extends cdk.Stack {
             code: lambda.Code.fromAsset('dist/projects/getProjects'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
-                DB_HOST: process.env.DB_HOST!,
-                DB_USERNAME: process.env.DB_USERNAME!,
-                DB_PASSWORD: process.env.DB_PASSWORD!,
-                DB_NAME: process.env.DB_NAME!,
+                ...dataBaseInfo,
             },
         });
 
@@ -52,10 +63,7 @@ export class ProjectsStack extends cdk.Stack {
             code: lambda.Code.fromAsset('dist/projects/getProjects'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
-                DB_HOST: process.env.DB_HOST!,
-                DB_USERNAME: process.env.DB_USERNAME!,
-                DB_PASSWORD: process.env.DB_PASSWORD!,
-                DB_NAME: process.env.DB_NAME!,
+                ...dataBaseInfo,
             },
         });
 
@@ -64,10 +72,7 @@ export class ProjectsStack extends cdk.Stack {
             code: lambda.Code.fromAsset('dist/projects/getProjects'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
-                DB_HOST: process.env.DB_HOST!,
-                DB_USERNAME: process.env.DB_USERNAME!,
-                DB_PASSWORD: process.env.DB_PASSWORD!,
-                DB_NAME: process.env.DB_NAME!,
+                ...dataBaseInfo,
             },
         });
 
@@ -76,10 +81,7 @@ export class ProjectsStack extends cdk.Stack {
             code: lambda.Code.fromAsset('dist/projects/getProjects'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
-                DB_HOST: process.env.DB_HOST!,
-                DB_USERNAME: process.env.DB_USERNAME!,
-                DB_PASSWORD: process.env.DB_PASSWORD!,
-                DB_NAME: process.env.DB_NAME!,
+                ...dataBaseInfo,
             },
         });
 
@@ -88,10 +90,7 @@ export class ProjectsStack extends cdk.Stack {
             code: lambda.Code.fromAsset('dist/projects/getProjects'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
-                DB_HOST: process.env.DB_HOST!,
-                DB_USERNAME: process.env.DB_USERNAME!,
-                DB_PASSWORD: process.env.DB_PASSWORD!,
-                DB_NAME: process.env.DB_NAME!,
+                ...dataBaseInfo,
             },
         });
 
@@ -108,10 +107,6 @@ export class ProjectsStack extends cdk.Stack {
             'GET',
             new apigateway.LambdaIntegration(getProject)
         );
-        // components2.addMethod("PATCH", new apigateway.LambdaIntegration(updateUser));
-
-        // const c3 = components.addResource("me");
-        // c3.addMethod("GET", new apigateway.LambdaIntegration(getProfile));
 
         const components3 = api.root.addResource('project-roles');
         components3.addMethod(

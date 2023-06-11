@@ -4,11 +4,28 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import { Cors } from 'aws-cdk-lib/aws-apigateway';
 import { config } from 'dotenv';
+import { IDatabaseConfig } from '../config/database.config';
+import { StackInfo } from './util/LPStack';
 config();
 
-export class PostingsStack extends cdk.Stack {
-    constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+export const POSTING_STACK_INFO: StackInfo = { NAME: 'posting-stack' };
+
+export interface PostingStackProps extends cdk.StackProps {
+    databaseConfig: IDatabaseConfig;
+}
+
+export class PostingStack extends cdk.Stack {
+    constructor(scope: Construct, id: string, props: PostingStackProps) {
         super(scope, id, props);
+
+        const { databaseConfig } = props;
+
+        const dataBaseInfo = {
+            DB_HOST: databaseConfig.host,
+            DB_USERNAME: databaseConfig.user,
+            DB_PASSWORD: databaseConfig.password,
+            DB_NAME: databaseConfig.database,
+        };
 
         const api: apigateway.RestApi = new apigateway.RestApi(
             this,
@@ -28,10 +45,7 @@ export class PostingsStack extends cdk.Stack {
             code: lambda.Code.fromAsset('dist/postings/getPostings'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
-                DB_HOST: process.env.DB_HOST!,
-                DB_USERNAME: process.env.DB_USERNAME!,
-                DB_PASSWORD: process.env.DB_PASSWORD!,
-                DB_NAME: process.env.DB_NAME!,
+                ...dataBaseInfo,
             },
         });
         components.addMethod(
@@ -44,10 +58,7 @@ export class PostingsStack extends cdk.Stack {
             code: lambda.Code.fromAsset('dist/postings/getApplications'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
-                DB_HOST: process.env.DB_HOST!,
-                DB_USERNAME: process.env.DB_USERNAME!,
-                DB_PASSWORD: process.env.DB_PASSWORD!,
-                DB_NAME: process.env.DB_NAME!,
+                ...dataBaseInfo,
             },
         });
         const getAppStatusTypes = new lambda.Function(
@@ -58,10 +69,7 @@ export class PostingsStack extends cdk.Stack {
                 code: lambda.Code.fromAsset('dist/postings/getAppStatusTypes'), // code loaded from "lambda" directory
                 handler: 'index.handler',
                 environment: {
-                    DB_HOST: process.env.DB_HOST!,
-                    DB_USERNAME: process.env.DB_USERNAME!,
-                    DB_PASSWORD: process.env.DB_PASSWORD!,
-                    DB_NAME: process.env.DB_NAME!,
+                    ...dataBaseInfo,
                 },
             }
         );
@@ -71,10 +79,7 @@ export class PostingsStack extends cdk.Stack {
             code: lambda.Code.fromAsset('dist/postings/getPosting'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
-                DB_HOST: process.env.DB_HOST!,
-                DB_USERNAME: process.env.DB_USERNAME!,
-                DB_PASSWORD: process.env.DB_PASSWORD!,
-                DB_NAME: process.env.DB_NAME!,
+                ...dataBaseInfo,
             },
         });
 
@@ -88,33 +93,30 @@ export class PostingsStack extends cdk.Stack {
                 ), // code loaded from "lambda" directory
                 handler: 'index.handler',
                 environment: {
-                    DB_HOST: process.env.DB_HOST!,
-                    DB_USERNAME: process.env.DB_USERNAME!,
-                    DB_PASSWORD: process.env.DB_PASSWORD!,
-                    DB_NAME: process.env.DB_NAME!,
+                    ...dataBaseInfo,
                 },
             }
         );
 
         const components2 = components.addResource('{id}');
         const components3 = components2.addResource('applications');
-        const components4 = components3.addMethod(
+        components3.addMethod(
             'GET',
             new apigateway.LambdaIntegration(getApplications)
         );
 
-        const components9 = components2.addMethod(
+        components2.addMethod(
             'GET',
             new apigateway.LambdaIntegration(getPosting)
         );
 
         const components7 = components.addResource('applications');
-        const components8 = components7.addMethod(
+        components7.addMethod(
             'GET',
             new apigateway.LambdaIntegration(getUserApplications)
         );
         const components5 = components7.addResource('status');
-        const components6 = components5.addMethod(
+        components5.addMethod(
             'GET',
             new apigateway.LambdaIntegration(getAppStatusTypes)
         );

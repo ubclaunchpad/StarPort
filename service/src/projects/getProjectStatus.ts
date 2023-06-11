@@ -1,9 +1,7 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyResult } from 'aws-lambda';
 import { formatResponse, mysql } from './util';
 
-export const handler = async function (
-    event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> {
+export const handler = async function (): Promise<APIGatewayProxyResult> {
     try {
         const result = await getProjectStatusIdsAndNames();
         mysql.end();
