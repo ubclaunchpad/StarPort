@@ -4,24 +4,20 @@ import { formatResponse, mysql } from '../util/util';
 export const handler = async function (
     event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
-    console.log('HERE');
     try {
         if (event === null) {
             throw new Error('event not found');
         }
 
-        console.log('HERE2');
         if (event.pathParameters === null || event.pathParameters.id === null) {
             throw new Error('Project Id is missing');
         }
 
         const resp = await getProject(Number(event.pathParameters.id));
-        console.log('error');
         await mysql.end();
 
         return formatResponse(200, resp);
     } catch (error) {
-        console.log(error);
         return formatResponse(200, { message: (error as any).message });
     }
 };

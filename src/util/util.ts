@@ -1,8 +1,7 @@
 import { APIGatewayProxyResult } from 'aws-lambda/trigger/api-gateway-proxy';
-import servlessSql from 'serverless-mysql';
+import serverlessMysql from 'serverless-mysql';
 import { config } from 'dotenv';
 config({ path: `.env.local`, override: true });
-export const mysql = null
 
 export interface IDatabaseConfig {
     host: string;
@@ -26,10 +25,6 @@ export class DATABASE_CONFIG {
         ) {
             throw new Error('Database configuration not found');
         }
-        console.log(DATABASE_CONFIG.DB_HOST);
-        console.log(DATABASE_CONFIG.DB_USERNAME);
-        console.log(DATABASE_CONFIG.DB_PASSWORD);
-        console.log(DATABASE_CONFIG.DB_NAME);
         return {
             host: DATABASE_CONFIG.DB_HOST,
             user: DATABASE_CONFIG.DB_USERNAME,
@@ -39,13 +34,16 @@ export class DATABASE_CONFIG {
     }
 }
 
-export const connectToDb =  (config: IDatabaseConfig) => {
-    return servlessSql({config: {
+const connectToDb =  (config: IDatabaseConfig) => {
+    return serverlessMysql({config: {
         ...config,
         port: 3306
         // password: "Armin1378!"
     }});
 }
+
+
+export const mysql = connectToDb(DATABASE_CONFIG.getDBConfig());
 
 export const formatResponse = (
     statusCode: number,
@@ -58,6 +56,6 @@ export const formatResponse = (
         },
         statusCode: statusCode,
         isBase64Encoded: false,
-        body: JSON.stringify(body),
+        body: body,
     };
 };

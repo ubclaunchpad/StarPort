@@ -1,7 +1,6 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
-import { formatResponse, connectToDb, DATABASE_CONFIG } from '../util/util';
+import { formatResponse, mysql } from '../util/util';
 import { IQueryObjectResult } from '../util/types/query';
-const mysql = connectToDb(DATABASE_CONFIG.getDBConfig());
 
 export const handler = async function (): Promise<APIGatewayProxyResult> {
     try {
@@ -14,11 +13,13 @@ export const handler = async function (): Promise<APIGatewayProxyResult> {
 };
 
 export const getFacultyIdsAndNames = async () => {
-    const result = await mysql.query<FacultyQueryResultArray>(
+    const result = await mysql.query<FacultyQueryResultArray[]>(
         `SELECT JSON_OBJECTAGG(faculty_id, faculty_name) as faculty FROM faculty `
     );
-    return JSON.parse(result[0].faculty) || {};
+    return result[0].faculty || {};
 };
 
 
-type FacultyQueryResultArray = IQueryObjectResult<string>[];
+export interface FacultyQueryResultArray {
+    faculty: IQueryObjectResult<string>;
+}

@@ -49,8 +49,6 @@ export async function getAll(projectQuery: IProjectQuery) {
         )}))`;
     }
 
-    console.log(query);
-
     if (projectQuery.limit && projectQuery.offset) {
         query += ` LIMIT ${projectQuery.limit} OFFSET ${projectQuery.offset}`;
     } else {
