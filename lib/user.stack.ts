@@ -6,7 +6,7 @@ import { Cors } from 'aws-cdk-lib/aws-apigateway';
 import { config } from 'dotenv';
 import { LPStack, StackInfo } from './util/LPStack';
 import { IDatabaseConfig } from '../config/database.config';
-config();
+config({ path: `.env.local`, override: true });
 
 export const USER_STACK_INFO: StackInfo = { NAME: 'users-stack' };
 
