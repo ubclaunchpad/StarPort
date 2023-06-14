@@ -1,5 +1,8 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
-import { formatResponse, mysql } from '../util/util';
+import { formatResponse, connectToDb, DATABASE_CONFIG } from '../util/util';
+
+const mysql = connectToDb(DATABASE_CONFIG.getDBConfig());
+
 
 export const handler = async function (): Promise<APIGatewayProxyResult> {
     try {
@@ -7,6 +10,7 @@ export const handler = async function (): Promise<APIGatewayProxyResult> {
         mysql.end();
         return formatResponse(200, result);
     } catch (error) {
+        console.log('error');
         return formatResponse(200, { message: (error as any).message });
     }
 };

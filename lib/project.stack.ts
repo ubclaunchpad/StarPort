@@ -51,7 +51,7 @@ export class ProjectStack extends cdk.Stack {
 
         const getProject = new lambda.Function(this, 'getProject', {
             runtime: lambda.Runtime.NODEJS_16_X, // execution environment
-            code: lambda.Code.fromAsset('dist/projects/getProjects'), // code loaded from "lambda" directory
+            code: lambda.Code.fromAsset('dist/projects/getProject'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
                 ...dataBaseInfo,
@@ -60,7 +60,7 @@ export class ProjectStack extends cdk.Stack {
 
         const createProject = new lambda.Function(this, 'createProject', {
             runtime: lambda.Runtime.NODEJS_16_X, // execution environment
-            code: lambda.Code.fromAsset('dist/projects/getProjects'), // code loaded from "lambda" directory
+            code: lambda.Code.fromAsset('dist/projects/createProject'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
                 ...dataBaseInfo,
@@ -69,7 +69,7 @@ export class ProjectStack extends cdk.Stack {
 
         const getResourceTypes = new lambda.Function(this, 'getResourceTypes', {
             runtime: lambda.Runtime.NODEJS_16_X, // execution environment
-            code: lambda.Code.fromAsset('dist/projects/getProjects'), // code loaded from "lambda" directory
+            code: lambda.Code.fromAsset('dist/projects/getResourceTypes'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
                 ...dataBaseInfo,
@@ -78,7 +78,7 @@ export class ProjectStack extends cdk.Stack {
 
         const getProjectRoles = new lambda.Function(this, 'getProjectRoles', {
             runtime: lambda.Runtime.NODEJS_16_X, // execution environment
-            code: lambda.Code.fromAsset('dist/projects/getProjects'), // code loaded from "lambda" directory
+            code: lambda.Code.fromAsset('dist/projects/getProjectRoles'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
                 ...dataBaseInfo,
@@ -87,7 +87,7 @@ export class ProjectStack extends cdk.Stack {
 
         const getProjectStatus = new lambda.Function(this, 'getProjectStatus', {
             runtime: lambda.Runtime.NODEJS_16_X, // execution environment
-            code: lambda.Code.fromAsset('dist/projects/getProjects'), // code loaded from "lambda" directory
+            code: lambda.Code.fromAsset('dist/projects/getProjectStatus'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
                 ...dataBaseInfo,

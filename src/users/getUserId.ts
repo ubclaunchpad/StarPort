@@ -1,6 +1,8 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { formatResponse, mysql } from '../util/util';
 import jwt_decode from 'jwt-decode';
+import { formatResponse, connectToDb, DATABASE_CONFIG } from '../util/util';
+
+const mysql = connectToDb(DATABASE_CONFIG.getDBConfig());
 
 export interface GoogleAuthUser {
     aud: string;

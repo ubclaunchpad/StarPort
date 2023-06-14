@@ -1,6 +1,8 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { formatResponse, mysql } from '../util/util';
 import { UserUpdateI } from '../util/types/user';
+import { formatResponse, connectToDb, DATABASE_CONFIG } from '../util/util';
+
+const mysql = connectToDb(DATABASE_CONFIG.getDBConfig());
 
 export const handler = async function (
     event: APIGatewayProxyEvent

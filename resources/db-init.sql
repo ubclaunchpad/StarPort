@@ -1,4 +1,4 @@
--- Active: 1684354600598@@lp-serverless-instance-1.cfooabqxr9fc.us-west-2.rds.amazonaws.com@3306@main
+-- Active: 1686616779488@@127.0.0.1@3306@main
 -- Create a stored procedure
 DELIMITER //
 
