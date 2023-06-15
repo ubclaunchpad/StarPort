@@ -10,6 +10,8 @@ export interface IUserBasicInfo {
     programId: number;
 }
 
+// keys of IUserBasicInfo
+
 export interface UserInfo {
     ethnicityId?: number[];
     genderId?: number[];
