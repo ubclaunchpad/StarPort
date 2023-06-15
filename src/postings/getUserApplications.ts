@@ -14,7 +14,7 @@ export const handler = async function (
         mysql.end();
         return formatResponse(200, resp);
     } catch (error) {
-        return formatResponse(200, { message: (error as any).message });
+        return formatResponse(200, { message: (error as Error).message });
     }
 };
 

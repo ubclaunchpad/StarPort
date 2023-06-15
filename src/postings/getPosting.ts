@@ -18,7 +18,7 @@ export const handler = async function (
 
         return formatResponse(200, resp);
     } catch (error) {
-        return formatResponse(200, { message: (error as any).message });
+        return formatResponse(200, { message: (error as Error).message });
     }
 };
 

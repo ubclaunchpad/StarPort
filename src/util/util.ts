@@ -12,7 +12,7 @@ export interface IDatabaseConfig {
 
 export class DATABASE_CONFIG {
     public static readonly DB_HOST = process.env.DB_HOST;
-    public static readonly DB_USERNAME =  process.env.DB_USERNAME;
+    public static readonly DB_USERNAME = process.env.DB_USERNAME;
     public static readonly DB_PASSWORD = process.env.DB_PASSWORD;
     public static readonly DB_NAME = process.env.DB_NAME;
 
@@ -29,19 +29,20 @@ export class DATABASE_CONFIG {
             host: DATABASE_CONFIG.DB_HOST,
             user: DATABASE_CONFIG.DB_USERNAME,
             password: DATABASE_CONFIG.DB_PASSWORD,
-            database: DATABASE_CONFIG.DB_NAME
+            database: DATABASE_CONFIG.DB_NAME,
         };
     }
 }
 
-const connectToDb =  (config: IDatabaseConfig) => {
-    return serverlessMysql({config: {
-        ...config,
-        port: 3306
-        // password: "Armin1378!"
-    }});
-}
-
+const connectToDb = (config: IDatabaseConfig) => {
+    return serverlessMysql({
+        config: {
+            ...config,
+            port: 3306,
+            // password: "Armin1378!"
+        },
+    });
+};
 
 export const mysql = connectToDb(DATABASE_CONFIG.getDBConfig());
 
@@ -52,7 +53,7 @@ export const formatResponse = (
     return {
         headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            'Access-Control-Allow-Origin': '*',
         },
         statusCode: statusCode,
         isBase64Encoded: false,

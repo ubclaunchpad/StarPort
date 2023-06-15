@@ -22,7 +22,7 @@ export const handler = async function (
             `Project with id : ${createProjectId} created`
         );
     } catch (error) {
-        return formatResponse(200, { message: (error as any).message });
+        return formatResponse(200, { message: (error as Error).message });
     }
 };
 

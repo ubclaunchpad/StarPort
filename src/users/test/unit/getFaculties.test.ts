@@ -1,9 +1,10 @@
-import { facultyQueryResult } from "../seed";
-import { getFacultyIdsAndNames } from "../../getFaculties";
-import { mysql } from "../../../util/util";
+import { facultyQueryResult } from '../seed';
+import { getFacultyIdsAndNames } from '../../getFaculties';
+import { mysql } from '../../../util/util';
 
-jest.spyOn(mysql, 'query').mockImplementation(() => Promise.resolve(facultyQueryResult));
-
+jest.spyOn(mysql, 'query').mockImplementation(() =>
+    Promise.resolve(facultyQueryResult)
+);
 
 describe('getFaculties', () => {
     it('should return a list of faculties', async () => {

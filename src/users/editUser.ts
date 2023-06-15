@@ -2,7 +2,6 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { UserUpdateI } from '../util/types/user';
 import { formatResponse, mysql } from '../util/util';
 
-
 export const handler = async function (
     event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
@@ -29,7 +28,7 @@ export const handler = async function (
         mysql.end();
         return formatResponse(200, resp);
     } catch (error) {
-        return formatResponse(200, { message: (error as any).message });
+        return formatResponse(200, { message: (error as Error).message });
     }
 };
 

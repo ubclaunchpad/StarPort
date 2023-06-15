@@ -8,7 +8,6 @@ import { IDatabaseConfig } from '../config/database.config';
 import { StackInfo } from './util/LPStack';
 config({ path: `.env.local`, override: true });
 
-
 export const POSTING_STACK_INFO: StackInfo = { NAME: 'posting-stack' };
 
 export interface PostingStackProps extends cdk.StackProps {

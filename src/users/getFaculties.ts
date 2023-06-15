@@ -19,7 +19,6 @@ export const getFacultyIdsAndNames = async () => {
     return result[0].faculty || {};
 };
 
-
 export interface FacultyQueryResultArray {
     faculty: IQueryObjectResult<string>;
 }

@@ -7,7 +7,7 @@ export const handler = async function (): Promise<APIGatewayProxyResult> {
         mysql.end();
         return formatResponse(200, result);
     } catch (error) {
-        return formatResponse(400, { message: (error as any).message });
+        return formatResponse(400, { message: (error as Error).message });
     }
 };
 

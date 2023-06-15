@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { formatResponse, mysql} from '../util/util';
+import { formatResponse, mysql } from '../util/util';
 
 export const handler = async function (
     event: APIGatewayProxyEvent
@@ -18,7 +18,7 @@ export const handler = async function (
 
         return formatResponse(200, resp);
     } catch (error) {
-        return formatResponse(200, { message: (error as any).message });
+        return formatResponse(200, { message: (error as Error).message });
     }
 };
 
