@@ -69,6 +69,16 @@ export class UserStack extends LPStack {
             },
         });
 
+        const deleteUser = new lambda.Function(this, 'deleteUser', {
+            runtime: lambda.Runtime.NODEJS_16_X, // execution environment
+            code: lambda.Code.fromAsset('dist/users/deleteUser'), // code loaded from "lambda" directory
+            handler: 'index.handler',
+            environment: {
+                ...dataBaseInfo,
+            },
+        });
+
+
         const updateUser = new lambda.Function(this, 'updateUser', {
             runtime: lambda.Runtime.NODEJS_16_X, // execution environment
             code: lambda.Code.fromAsset('dist/users/editUser'), // code loaded from "lambda" directory
@@ -134,6 +144,7 @@ export class UserStack extends LPStack {
             'PATCH',
             new apigateway.LambdaIntegration(updateUser)
         );
+        components2.addMethod('DELETE', new apigateway.LambdaIntegration(deleteUser));
 
         const c3 = components.addResource('me');
         c3.addMethod('GET', new apigateway.LambdaIntegration(getProfile));

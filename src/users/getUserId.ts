@@ -36,7 +36,6 @@ export const handler = async function (
         const googleAuthUser = jwt_decode(auth) as GoogleAuthUser;
         const resp = await getUser(googleAuthUser.email);
         mysql.end();
-        // calc api response time
         return formatResponse(200, resp);
     } catch (error) {
         return formatResponse(200, { message: (error as Error).message });

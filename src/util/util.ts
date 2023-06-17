@@ -57,6 +57,6 @@ export const formatResponse = (
         },
         statusCode: statusCode,
         isBase64Encoded: false,
-        body: body,
+        body: JSON.stringify(body),
     };
 };

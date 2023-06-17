@@ -1,11 +1,14 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { UserI } from '../util/types/user';
+import { IIntegrations, UserI } from '../util/types/user';
 import { formatResponse, mysql } from '../util/util';
+import bcrypt from 'bcryptjs';
+import fetch from 'node-fetch';
 import {
     FACULTIES,
     PROGRAMS,
     STANDINGS,
     UndisclosedProgramId,
+    UnsetRole,
 } from '../constants/userConstants';
 
 export const handler = async function (
@@ -30,8 +33,9 @@ export const handler = async function (
 };
 
 export const CreateUser = async (user: UserI): Promise<number> => {
-    validateUserInformation(user);
+    await validateUserInformation(user);
     const createdUserId = await AddUserToDatabase(user);
+    await addIntegrations(createdUserId, user.integrations);
     return createdUserId;
 };
 
@@ -45,13 +49,21 @@ export const validateUserInformation = async (user: UserI): Promise<void> => {
         'standingId',
     ];
 
+    const missingFields: string[] = [];
+
     for (const field of manadatoryFields) {
         if (!user[field]) {
-            throw new Error(`${field} is missing`);
+           missingFields.push(field);
         }
     }
 
-    validateEmail(user.email);
+    if (missingFields.length > 0) {
+        throw new Error(
+            `Missing fields: ${missingFields.join(', ')}`
+        );
+    }
+
+    await validateEmail(user.email);
     validateFacultyId(user.facultyId);
     validateStandingId(user.standingId);
 
@@ -60,13 +72,20 @@ export const validateUserInformation = async (user: UserI): Promise<void> => {
     }
 };
 
-export const validateEmail = (email: string): void => {
+export const validateEmail = async (email: string): Promise<void> => {
     const emailRegex = /\S+@gmail.com/;
     if (!emailRegex.test(email)) {
         throw new Error(
             'email is invalid. Must be a valid google email address'
         );
     }
+
+    const result = await mysql.query(`SELECT * FROM person WHERE email = ?`, [email]);
+    console.log(result);
+    if (result.length > 0) {
+        throw new Error('email already exists');
+    }
+    
 };
 
 export const validateFacultyId = (facultyId: number): void => {
@@ -117,10 +136,16 @@ export const AddUserToDatabase = async (user: UserI): Promise<number> => {
         )
         .query((result: { insertId: number }) => {
             createdUserId = result.insertId;
-            const pId = UserInfo.programId || UndisclosedProgramId;
+            const pId: number = Number(UserInfo.programId) || UndisclosedProgramId;
             return [
                 'INSERT INTO person_degree_program (user_id, program_id) VALUES (?, ?)',
                 [result.insertId, pId],
+            ];
+        })
+        .query(() => {
+            return [
+                'INSERT INTO person_role (user_id, role_id) VALUES (?, ?)',
+                [createdUserId, UnsetRole],
             ];
         })
         .rollback((e: Error) => {
@@ -136,3 +161,47 @@ export const AddUserToDatabase = async (user: UserI): Promise<number> => {
     }
     return createdUserId;
 };
+
+async function addIntegrations(createdUserId, integrations: IIntegrations) {
+    if (integrations === undefined) {
+        return;
+    }
+    if (integrations.GithubCode) {
+        const githubInfo = await verifyGithub(integrations.GithubCode);
+        const hash = await bcrypt.hashSync(githubInfo.access_token, 8);
+        console.log(hash);
+
+        await mysql.query(
+            'INSERT INTO user_auth (user_id, auth_integration_name, hash_token) VALUES (?, ?, ?)',
+            [createdUserId, 'github', hash]
+        );
+    }
+}
+
+async function verifyGithub(githubCode) {
+    console.log(githubCode);
+    try {
+        const response = await fetch(
+            'https://github.com/login/oauth/access_token',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'access-control-allow-origin': '*',
+                    'referrer-policy': 'no-referrer',
+                },
+                body: JSON.stringify({
+                    client_id: 'Iv1.bfff0a578d157ec8',
+                    client_secret: '636f28fd21527eed08d50c801777aeb8a2c7d7cf',
+                    code: githubCode,
+                }),
+            }
+        );
+        const data = await response.json();
+        console.log(data);
+        return data;
+    } catch (error) {
+        console.log('error', error);
+    }
+}

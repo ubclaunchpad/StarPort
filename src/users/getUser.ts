@@ -46,12 +46,29 @@ FROM
 
     const users = result as any[];
 
+    if (users.length === 0) {
+        throw new Error('User not found');
+    }
+
+    const user = users[0];
+    user.programs = await getUserPrograms(userId);
+    user.socialMedia = await getUserSocialMedia(userId);
+    return user;
+}
+
+export const getUserPrograms = async (userId: number) => {
     const programs = await mysql.query(
         `SELECT
-    p.program_id AS id FROM person_degree_program p WHERE p.user_id = ?`,
+    p.program_id AS id, dp.program_name as name FROM person_degree_program p 
+    INNER JOIN degree_program dp ON p.program_id = dp.program_id
+    WHERE p.user_id = ?`,
         [userId]
     );
 
+    return programs;
+};
+
+export const getUserSocialMedia = async (userId: number) => {
     const socialMedia = await mysql.query(
         `SELECT
     psm.social_media_id AS id,
@@ -64,13 +81,5 @@ WHERE
         [userId]
     );
 
-    if (users.length === 0) {
-        throw new Error('User not found');
-    }
-
-    const user = users[0];
-
-    user.socialMedia = socialMedia;
-    user.programs = programs;
-    return user;
-}
+    return socialMedia;
+};

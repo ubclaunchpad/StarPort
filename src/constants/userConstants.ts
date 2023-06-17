@@ -100,3 +100,62 @@ export const PROGRAMS = {
     75: "Women's and gender studies",
     [UndisclosedProgramId]: 'Undisclosed',
 };
+
+export const SOCIALS = {
+    1: {
+        name: 'GitHub',
+        domain: 'github.com',
+        id: 1,
+    },
+    2: {
+        name: 'Facebook',
+        domain: 'facebook.com',
+        id: 2,
+    },
+    3: {
+        name: 'Instagram',
+        domain: 'instagram.com',
+        id: 3,
+    },
+    4: {
+        name: 'LinkedIn',
+        domain: 'linkedin.com',
+        id: 4,
+    },
+    5: {
+        name: 'Twitter',
+        domain: 'twitter.com',
+        id: 5,
+    },
+    6: {
+        name: 'Website',
+        domain: null,
+        id: 6,
+    },
+    7: {
+        name: 'Figma',
+        domain: 'figma.com',
+        id: 7,
+    },
+    8: {
+        name: 'Other',
+        domain: null,
+        id: 8,
+    },
+};
+
+
+export const UnsetRole = 1;
+
+export const USER_ROLES = {
+    [UnsetRole]: 'Explorer',
+    2: 'Admin',
+    3: 'Member',
+    4: 'Lead',
+    5: 'Tech Leadd',
+    6: 'Design Lead',
+    7: 'Marketing Lead',
+    8: 'Co-president',
+    9: 'Developer',
+    10: 'Designer'
+};

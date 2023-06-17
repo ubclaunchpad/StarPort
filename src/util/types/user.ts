@@ -10,12 +10,17 @@ export interface IUserBasicInfo {
     programId: number;
 }
 
+export interface IIntegrations {
+    GithubCode?: string;
+}
+
 // keys of IUserBasicInfo
 
 export interface UserInfo {
     ethnicityId?: number[];
     genderId?: number[];
     resumeLink?: string;
+    integrations: IIntegrations;
 }
 
 export interface IUserQuery extends Partial<IPagination> {

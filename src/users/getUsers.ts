@@ -24,8 +24,10 @@ export async function getAll(userQuery: IUserQuery) {
     p.last_name AS lastName,
     p.resumelink AS resumeLink,
     p.standing_id as standing,
-    p.faculty_id as faculty
+    p.faculty_id as faculty,
+    r.role_id as role
     FROM person p
+    LEFT JOIN person_role r ON r.user_id = p.user_id
     WHERE 1=1 `;
 
     if (userQuery.fn) {
