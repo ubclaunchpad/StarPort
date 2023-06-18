@@ -53,14 +53,12 @@ export const validateUserInformation = async (user: UserI): Promise<void> => {
 
     for (const field of manadatoryFields) {
         if (!user[field]) {
-           missingFields.push(field);
+            missingFields.push(field);
         }
     }
 
     if (missingFields.length > 0) {
-        throw new Error(
-            `Missing fields: ${missingFields.join(', ')}`
-        );
+        throw new Error(`Missing fields: ${missingFields.join(', ')}`);
     }
 
     await validateEmail(user.email);
@@ -80,12 +78,13 @@ export const validateEmail = async (email: string): Promise<void> => {
         );
     }
 
-    const result = await mysql.query(`SELECT * FROM person WHERE email = ?`, [email]);
+    const result = await mysql.query(`SELECT * FROM person WHERE email = ?`, [
+        email,
+    ]);
     console.log(result);
     if (result.length > 0) {
         throw new Error('email already exists');
     }
-    
 };
 
 export const validateFacultyId = (facultyId: number): void => {
@@ -136,7 +135,8 @@ export const AddUserToDatabase = async (user: UserI): Promise<number> => {
         )
         .query((result: { insertId: number }) => {
             createdUserId = result.insertId;
-            const pId: number = Number(UserInfo.programId) || UndisclosedProgramId;
+            const pId: number =
+                Number(UserInfo.programId) || UndisclosedProgramId;
             return [
                 'INSERT INTO person_degree_program (user_id, program_id) VALUES (?, ?)',
                 [result.insertId, pId],

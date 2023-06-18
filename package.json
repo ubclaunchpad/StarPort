@@ -2,6 +2,7 @@
     "name": "starport",
     "description": "Launch Pad Backend",
     "version": "0.1.0",
+    "type": "module",
     "bin": {
         "app": "bin/app.js"
     },
@@ -11,6 +12,7 @@
         "cdk": "cdk",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
+        "prettier": "prettier --write \"**/*.{js,ts,json}\"",
         "format": "npm run lint:fix && prettier --write \"**/*.{js,ts,json}\"",
         "test": "jest",
         "test:watch": "jest --watch",
@@ -20,11 +22,13 @@
         "test:api": "sam local start-api -t ./cdk.out/users-stack.template.json  --port 8000 --warm-containers EAGER  ",
         "test:api:2": "sam local start-api -t ./cdk.out/project-stack.template.json  --port 3000   ",
         "test:api:3": "sam local start-api -t ./cdk.out/posting-stack.template.json  --port 8080  ",
-        "start:local:lambdas": "sam local start-lambda -t ./cdk.out/$npm_config_stack.template.json ${npm_config_port:3000} ${npm_config_warm-containers=LAZY}"
+        "start:local:lambdas": "sam local start-lambda -t ./cdk.out/$npm_config_stack.template.json ${npm_config_port:3000} ${npm_config_warm-containers=LAZY}",
+        "db:setup": "tsc && node ./dist/setup.js"
     },
     "dependencies": {
         "aws-cdk-lib": "2.70.0",
         "bcryptjs": "^2.4.3",
+        "chalk": "^5.2.0",
         "constructs": "^10.0.0",
         "dotenv": "^16.0.3",
         "jwt-decode": "^3.1.2",
