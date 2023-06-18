@@ -1,4 +1,3 @@
--- Active: 1686616779488@@127.0.0.1@3306@main
 -- Project Status table
 CREATE TABLE project_status (
     id INT PRIMARY KEY AUTO_INCREMENT,

@@ -1,4 +1,3 @@
--- Active: 1684354600598@@lp-serverless-instance-1.cfooabqxr9fc.us-west-2.rds.amazonaws.com@3306@main
 -- create auth integration TABLE
 CREATE TABLE auth_integration (
     name VARCHAR(255) PRIMARY KEY
