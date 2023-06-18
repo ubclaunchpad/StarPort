@@ -13,7 +13,6 @@ export const handler = async function (
             throw new Error('User Id is missing');
         }
 
-
         const resp = await deleteUser(event.pathParameters.id as string);
         mysql.end();
         return formatResponse(200, resp);

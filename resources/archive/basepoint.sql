@@ -1,4 +1,3 @@
--- Active: 1684354600598@@lp-serverless-instance-1.cfooabqxr9fc.us-west-2.rds.amazonaws.com@3306@main
 INSERT INTO faculty (faculty_name) VALUES 
 ('Forestry'),
 ('Land and Food Systems'),
