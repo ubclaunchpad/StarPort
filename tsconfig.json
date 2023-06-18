@@ -8,8 +8,7 @@
         "removeComments": true,
         "preserveConstEnums": true,
         "sourceMap": false,
-        "outDir": "./dist",
+        "outDir": "./dist"
     },
     "include": ["resources/**/*"]
-
 }

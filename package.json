@@ -23,7 +23,7 @@
         "test:api:2": "sam local start-api -t ./cdk.out/project-stack.template.json  --port 3000   ",
         "test:api:3": "sam local start-api -t ./cdk.out/posting-stack.template.json  --port 8080  ",
         "start:local:lambdas": "sam local start-lambda -t ./cdk.out/$npm_config_stack.template.json ${npm_config_port:3000} ${npm_config_warm-containers=LAZY}",
-        "db:setup": "tsc && node ./dist/setup.js"
+        "db:up": "tsc && node ./dist/setup.js "
     },
     "dependencies": {
         "aws-cdk-lib": "2.70.0",
