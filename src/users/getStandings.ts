@@ -1,13 +1,18 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 import { formatResponse, mysql } from '../util/util';
 
+let standings;
+
 export const handler = async function (): Promise<APIGatewayProxyResult> {
     try {
-        const result = await getStandingIdsAndNames();
-        await mysql.end();
-        return formatResponse(200, result);
+        if (!standings) {
+            standings = await getStandingIdsAndNames();
+        }
+        return formatResponse(200, standings);
     } catch (error) {
-        return formatResponse(200, { message: (error as Error).message });
+        return formatResponse(400, { message: (error as Error).message });
+    } finally {
+        mysql.end();
     }
 };
 

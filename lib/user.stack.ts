@@ -96,9 +96,9 @@ export class UserStack extends LPStack {
             },
         });
 
-        const getPrograms = new lambda.Function(this, 'getPrograms', {
+        const getSpecializations = new lambda.Function(this, 'getSpecializations', {
             runtime: lambda.Runtime.NODEJS_16_X, // execution environment
-            code: lambda.Code.fromAsset('dist/users/getPrograms'), // code loaded from "lambda" directory
+            code: lambda.Code.fromAsset('dist/users/getSpecializations'), // code loaded from "lambda" directory
             handler: 'index.handler',
             environment: {
                 ...dataBaseInfo,
@@ -113,7 +113,6 @@ export class UserStack extends LPStack {
                 ...dataBaseInfo,
             },
         });
-
 
         const getProfile = new lambda.Function(this, 'getUserId', {
             runtime: lambda.Runtime.NODEJS_16_X, // execution environment
@@ -152,7 +151,7 @@ export class UserStack extends LPStack {
         const components4 = api.root.addResource('programs');
         components4.addMethod(
             'GET',
-            new apigateway.LambdaIntegration(getPrograms)
+            new apigateway.LambdaIntegration(getSpecializations)
         );
 
         const components5 = api.root.addResource('standings');
@@ -160,7 +159,5 @@ export class UserStack extends LPStack {
             'GET',
             new apigateway.LambdaIntegration(getStandings)
         );
-
-       
     }
 }

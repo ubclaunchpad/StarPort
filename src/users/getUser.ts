@@ -14,11 +14,11 @@ export const handler = async function (
         }
 
         const resp = await getUser(Number(event.pathParameters.id));
-        mysql.end();
-
         return formatResponse(200, resp);
     } catch (error) {
-        return formatResponse(200, { message: (error as Error).message });
+        return formatResponse(400, { message: (error as Error).message });
+    } finally {
+        mysql.end();
     }
 };
 
@@ -51,8 +51,6 @@ FROM
     }
 
     const user = users[0];
-    user.programs = await getUserPrograms(userId);
-    user.socialMedia = await getUserSocialMedia(userId);
     return user;
 }
 
@@ -66,20 +64,4 @@ export const getUserPrograms = async (userId: number) => {
     );
 
     return programs;
-};
-
-export const getUserSocialMedia = async (userId: number) => {
-    const socialMedia = await mysql.query(
-        `SELECT
-    psm.social_media_id AS id,
-    psm.url,
-    psm.handle
-FROM
-    person_social_media psm
-WHERE
-    psm.user_id = ?`,
-        [userId]
-    );
-
-    return socialMedia;
 };

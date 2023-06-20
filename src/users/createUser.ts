@@ -3,7 +3,7 @@ import { UserI } from '../util/types/user';
 import { formatResponse, mysql } from '../util/util';
 import { UnsetRole } from '../constants/userConstants';
 import { getFacultyIdsAndNames } from './getFaculties';
-import { getSpecializationIdsAndNames } from './getPrograms';
+import { getSpecializationIdsAndNames } from './getSpecializations';
 import { getStandingIdsAndNames } from './getStandings';
 
 export const handler = async function (
@@ -21,11 +21,8 @@ export const handler = async function (
             JSON.parse(event.body) as unknown as UserI
         );
 
-        console.log(createdUserId);
-
         return formatResponse(200, `user with id : ${createdUserId} created`);
     } catch (error) {
-        console.log(error);
         try {
             return formatResponse(400, (error as Error).message);
         } catch (e) {
@@ -141,9 +138,14 @@ export const AddUserToDatabase = async (user: UserI): Promise<number> => {
         )
         .query((result: { insertId: number }) => {
             createdUserId = result.insertId;
+            return ['SELECT id from role where role.name = ?', ['Explorer']];
+        })
+        .query((result: any[]) => {
+            console.log(result);
+
             return [
                 'INSERT INTO person_role (user_id, role_id) VALUES (?, ?)',
-                [createdUserId, UnsetRole],
+                [createdUserId, result[0].id],
             ];
         })
         .rollback((e: Error) => {
@@ -187,8 +189,8 @@ export const AddUserToDatabase = async (user: UserI): Promise<number> => {
 //                     'referrer-policy': 'no-referrer',
 //                 },
 //                 body: JSON.stringify({
-//                     client_id: 'Iv1.bfff0a578d157ec8',
-//                     client_secret: '636f28fd21527eed08d50c801777aeb8a2c7d7cf',
+//                     client_id: '',
+//                     client_secret: '',
 //                     code: githubCode,
 //                 }),
 //             }

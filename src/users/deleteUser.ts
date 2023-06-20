@@ -14,15 +14,14 @@ export const handler = async function (
         }
 
         const resp = await deleteUser(event.pathParameters.id as string);
-        mysql.end();
         return formatResponse(200, resp);
     } catch (error) {
-        return formatResponse(200, { message: (error as Error).message });
+        return formatResponse(400, { message: (error as Error).message });
+    } finally {
+        mysql.end();
     }
 };
 
 export const deleteUser = async (userId: string): Promise<void> => {
-    await mysql.query(`DELETE FROM person WHERE user_id = ?`, [userId]);
-
-    return;
+    return mysql.query(`DELETE FROM person WHERE id = ?`, [userId]);
 };

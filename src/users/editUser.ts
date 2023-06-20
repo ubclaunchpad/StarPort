@@ -25,10 +25,11 @@ export const handler = async function (
             event.pathParameters.userId as string,
             event.body as UserUpdateI
         );
-        mysql.end();
         return formatResponse(200, resp);
     } catch (error) {
-        return formatResponse(200, { message: (error as Error).message });
+        return formatResponse(400, { message: (error as Error).message });
+    } finally {
+        mysql.end();
     }
 };
 
@@ -37,21 +38,18 @@ export const updateUser = async (
     userInfo: UserUpdateI
 ): Promise<void> => {
     const {
-        email,
         firstName,
         prefName,
         lastName,
         resumeLink,
         facultyId,
         standingId,
+        specializationId
     } = userInfo;
     // TODO: update it to make it robust
     let query = 'UPDATE person SET ';
     const values = [];
-    if (email) {
-        query += 'email = ?, ';
-        values.push(email);
-    }
+
     if (firstName) {
         query += 'first_name = ?, ';
         values.push(firstName);
@@ -75,6 +73,11 @@ export const updateUser = async (
     if (standingId) {
         query += 'standing_id = ?, ';
         values.push(standingId);
+    }
+
+    if (specializationId) {
+        query += 'specialization_id = ?, ';
+        values.push(specializationId);
     }
     query += ' WHERE id = ?';
     values.push(userId);

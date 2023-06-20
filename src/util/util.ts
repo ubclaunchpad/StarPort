@@ -46,10 +46,14 @@ const connectToDb = (config: IDatabaseConfig) => {
 
 export const mysql = connectToDb(DATABASE_CONFIG.getDBConfig());
 
+
+
 export const formatResponse = (
     statusCode: number,
     body: any
 ): APIGatewayProxyResult => {
+
+    console.log(JSON.stringify(body))
     return {
         headers: {
             'Content-Type': 'application/json',
@@ -57,6 +61,6 @@ export const formatResponse = (
         },
         statusCode: statusCode,
         isBase64Encoded: false,
-        body: JSON.stringify(body),
+        body: JSON.stringify(body)
     };
 };
