@@ -75,6 +75,7 @@ jobs:
     - name: Build and deploy CDK stack
       run: |
         npm install
+        echo "${{ secrets.ENV_FILE }}" > .env
         npm run build
         cdk synth
         cdk bootstrap
