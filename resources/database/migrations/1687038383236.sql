@@ -1,4 +1,3 @@
--- Active: 1686797894067@@127.0.0.1@3306@tes2
 -- Script to set up the database for Launch Pad Portal
 
 -- Create the faculty table

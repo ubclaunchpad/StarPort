@@ -173,7 +173,7 @@ const run = (): void => {
         console.log(error);
         return;
     }
-    setUpDatabase(db)
+    setUpDatabase(db, true)
         .then(() => {
             console.log(chalk.bgGreen('Database setup completed'));
         })
