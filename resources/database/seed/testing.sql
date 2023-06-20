@@ -1,4 +1,5 @@
-INSERT INTO faculty (faculty_name) VALUES 
+-- Active: 1686797894067@@127.0.0.1@3306@main
+INSERT INTO faculty (name) VALUES 
 ('Forestry'),
 ('Land and Food Systems'),
 ('Education'),
@@ -10,17 +11,20 @@ INSERT INTO faculty (faculty_name) VALUES
 ('Other');
 
 
-INSERT INTO standing (standing_name) VALUES 
+INSERT INTO standing (name) VALUES 
 ('First Year'),
 ('Second Year'),
 ('Third Year'),
-('Fourth Year'),
-('Fifth Year and up'),
+('Fourth Year and up'),
 ('Graduate Student'),
 ('Alumni'),
 ('Other');
 
-INSERT INTO role (role_name) VALUES
+INSERT INTO role (id, name) VALUES
+(1, 'Explorer');
+
+
+INSERT INTO role (name) VALUES
 ('Co-pres'),
 ('Tech Lead'),
 ('Design Lead'),
@@ -32,8 +36,7 @@ INSERT INTO role (role_name) VALUES
 
 
 -- Populate degree_program table
--- Insert the UBC specializations into the table
-INSERT INTO degree_program (program_name)
+INSERT INTO specialization (name)
 VALUES
   ('Accounting'),
   ('African Studies'),
@@ -109,4 +112,4 @@ VALUES
   ('Sustainability'),
   ('Theatre'),
   ('Urban Planning'),
-  ('Women''s and Gender Studies');
+  ('Other');

@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS person (
   first_name VARCHAR(255) NOT NULL,
   pref_name VARCHAR(255) NOT NULL,
   last_name VARCHAR(255) NOT NULL,
-  username VARCHAR(100) UNIQUE NOT NULL,
+  username VARCHAR(100) UNIQUE NOT NULL DEFAULT (email),
   resumelink VARCHAR(100),
   faculty_id INT NOT NULL,
   standing_id INT  NOT NULL,
@@ -58,16 +58,6 @@ CREATE TABLE IF NOT EXISTS person (
   FOREIGN KEY (standing_id) REFERENCES standing (id),
   FOREIGN KEY (specialization_id) REFERENCES specialization (id)
 );
-
-DELIMITER //
-CREATE TRIGGER set_username_trigger
-BEFORE INSERT ON person
-FOR EACH ROW
-BEGIN
-  SET NEW.username = CONCAT(NEW.first_name, '-', NEW.id)
-END //
-DELIMITER ;
-
 
 -- Create the person_role table
 CREATE TABLE IF NOT EXISTS person_role (

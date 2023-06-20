@@ -11,23 +11,33 @@ export const handler = async function (
         mysql.end();
         return formatResponse(200, resp);
     } catch (error) {
+        console.log(error);
         return formatResponse(200, { message: (error as Error).message });
     }
 };
 
 export async function getAll(userQuery: IUserQuery) {
     let query = `SELECT 
-    p.user_id AS userId,
+    p.id AS id,
+    p.username AS username,
     p.email,
     p.first_name AS firstName,
     p.pref_name AS prefName,
     p.last_name AS lastName,
     p.resumelink AS resumeLink,
-    p.standing_id as standing,
-    p.faculty_id as faculty,
-    r.role_id as role
+    st.name AS standing,
+    f.name AS faculty,
+    sp.name AS specialization,
+    p.created_at AS createdAt,
+    p.updated_at AS updatedAt,
+    p.member_since AS meberSince,
+    role.name AS role
     FROM person p
-    LEFT JOIN person_role r ON r.user_id = p.user_id
+    INNER JOIN person_role r ON r.user_id = p.id
+    INNER JOIN role role ON role.id = r.role_id 
+    INNER JOIN faculty f ON f.id = p.faculty_id
+    INNER JOIN specialization sp ON sp.id = p.specialization_id
+    INNER JOIN standing st ON st.id = p.standing_id
     WHERE 1=1 `;
 
     if (userQuery.fn) {

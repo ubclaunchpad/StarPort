@@ -7,7 +7,7 @@ export interface IUserBasicInfo {
     email: string;
     standingId: number;
     facultyId: number;
-    programId: number;
+    specializationId: number;
 }
 
 export interface IIntegrations {

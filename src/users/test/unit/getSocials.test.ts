@@ -1,5 +1,5 @@
 import { socialQueryResult } from '../seed';
-import { getSocialIdsAndNames } from '../../getSocials';
+import { getSocialIdsAndNames } from '../../../../resources/archive/code/getSocials';
 import { mysql } from '../../../util/util';
 
 jest.spyOn(mysql, 'query').mockImplementation(() =>

@@ -114,14 +114,6 @@ export class UserStack extends LPStack {
             },
         });
 
-        const getSocials = new lambda.Function(this, 'getSocials', {
-            runtime: lambda.Runtime.NODEJS_16_X, // execution environment
-            code: lambda.Code.fromAsset('dist/users/getSocials'), // code loaded from "lambda" directory
-            handler: 'index.handler',
-            environment: {
-                ...dataBaseInfo,
-            },
-        });
 
         const getProfile = new lambda.Function(this, 'getUserId', {
             runtime: lambda.Runtime.NODEJS_16_X, // execution environment
@@ -169,10 +161,6 @@ export class UserStack extends LPStack {
             new apigateway.LambdaIntegration(getStandings)
         );
 
-        const components6 = api.root.addResource('socials');
-        components6.addMethod(
-            'GET',
-            new apigateway.LambdaIntegration(getSocials)
-        );
+       
     }
 }

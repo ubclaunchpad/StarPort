@@ -1,16 +1,19 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
-import { formatResponse } from '../util/util';
-import { PROGRAMS } from '../constants/userConstants';
+import { formatResponse, mysql } from '../util/util';
 
 export const handler = async function (): Promise<APIGatewayProxyResult> {
     try {
-        const result = getProgramIdsAndNames();
+        const result = await getSpecializationIdsAndNames();
+        mysql.end();
         return formatResponse(200, result);
     } catch (error) {
-        return formatResponse(200, { message: (error as Error).message });
+        return formatResponse(400, { message: (error as Error).message });
     }
 };
 
-export const getProgramIdsAndNames = async () => {
-    return PROGRAMS;
+export const getSpecializationIdsAndNames = async () => {
+    const result = await mysql.query(`
+        SELECT id, name FROM specialization
+        `);
+    return result || [];
 };
