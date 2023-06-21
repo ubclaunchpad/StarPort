@@ -17,9 +17,7 @@ jobs:
       run: | 
             echo "${{ secrets.ENV_FILE }}" > .env
             npm run build
-            cd src/projects
-            pwd
-            ls
+            git branch -v
             cdk synth
   
   eslint:
