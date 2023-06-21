@@ -16,14 +16,14 @@ export const handler = async function (
 
         if (
             event.pathParameters === null ||
-            event.pathParameters.userId === null
+            event.pathParameters.id === null
         ) {
             throw new Error('User Id is missing');
         }
 
         const resp = await updateUser(
-            event.pathParameters.userId as string,
-            event.body as UserUpdateI
+            event.pathParameters.id as string,
+            JSON.parse(event.body) as UserUpdateI
         );
         return formatResponse(200, resp);
     } catch (error) {
@@ -46,40 +46,41 @@ export const updateUser = async (
         standingId,
         specializationId
     } = userInfo;
-    // TODO: update it to make it robust
-    let query = 'UPDATE person SET ';
+
     const values = [];
+    const columns = [];
 
     if (firstName) {
-        query += 'first_name = ?, ';
+        columns.push('first_name = ?');
         values.push(firstName);
     }
     if (prefName) {
-        query += 'pref_name = ?, ';
+        columns.push('pref_name = ?');
         values.push(prefName);
     }
     if (lastName) {
-        query += 'last_name = ?, ';
+        columns.push('last_name = ?');
         values.push(lastName);
     }
     if (resumeLink) {
-        query += 'resumelink = ?, ';
+        columns.push('resume_link = ?');
         values.push(resumeLink);
     }
     if (facultyId) {
-        query += 'faculty_id = ?, ';
+        columns.push('faculty_id = ?');
         values.push(facultyId);
     }
     if (standingId) {
-        query += 'standing_id = ?, ';
+        columns.push('standing_id = ?');
         values.push(standingId);
     }
 
     if (specializationId) {
-        query += 'specialization_id = ?, ';
+        columns.push('specialization_id = ?');
         values.push(specializationId);
     }
-    query += ' WHERE id = ?';
+
+    const updateQuery = `UPDATE person SET ${columns.join(", ")}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
     values.push(userId);
-    mysql.query(query, values);
+    await mysql.query(updateQuery, values);
 };

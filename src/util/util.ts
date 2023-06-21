@@ -52,8 +52,6 @@ export const formatResponse = (
     statusCode: number,
     body: any
 ): APIGatewayProxyResult => {
-
-    console.log(JSON.stringify(body))
     return {
         headers: {
             'Content-Type': 'application/json',

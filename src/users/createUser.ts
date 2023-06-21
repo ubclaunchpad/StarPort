@@ -78,7 +78,6 @@ export const validateEmail = async (email: string): Promise<void> => {
         email,
     ]);
 
-    console.log(result);
     if (result.length > 0) {
         throw new Error('email already exists');
     }
@@ -141,8 +140,6 @@ export const AddUserToDatabase = async (user: UserI): Promise<number> => {
             return ['SELECT id from role where role.name = ?', ['Explorer']];
         })
         .query((result: any[]) => {
-            console.log(result);
-
             return [
                 'INSERT INTO person_role (user_id, role_id) VALUES (?, ?)',
                 [createdUserId, result[0].id],
@@ -159,46 +156,3 @@ export const AddUserToDatabase = async (user: UserI): Promise<number> => {
     }
     return createdUserId;
 };
-
-// async function addIntegrations(createdUserId, integrations: IIntegrations) {
-//     if (integrations === undefined) {
-//         return;
-//     }
-//     if (integrations.GithubCode) {
-//         const githubInfo = await verifyGithub(integrations.GithubCode);
-//         const hash = await bcrypt.hashSync(githubInfo.access_token, 8);
-//         console.log(hash);
-
-//         await mysql.query(
-//             'INSERT INTO user_auth (user_id, auth_integration_name, hash_token) VALUES (?, ?, ?)',
-//             [createdUserId, 'github', hash]
-//         );
-//     }
-// }
-
-// async function verifyGithub(githubCode) {
-//     try {
-//         const response = await fetch(
-//             'https://github.com/login/oauth/access_token',
-//             {
-//                 method: 'POST',
-//                 headers: {
-//                     'Content-Type': 'application/json',
-//                     Accept: 'application/json',
-//                     'access-control-allow-origin': '*',
-//                     'referrer-policy': 'no-referrer',
-//                 },
-//                 body: JSON.stringify({
-//                     client_id: '',
-//                     client_secret: '',
-//                     code: githubCode,
-//                 }),
-//             }
-//         );
-//         const data = await response.json();
-//         console.log(data);
-//         return data;
-//     } catch (error) {
-//         console.log('error', error);
-//     }
-// }

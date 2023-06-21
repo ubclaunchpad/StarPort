@@ -40,6 +40,8 @@ export class UserStack extends LPStack {
             }
         );
 
+
+
         const components = api.root.addResource('users');
 
         const getUsers = new lambda.Function(this, 'getUsers', {
@@ -114,6 +116,15 @@ export class UserStack extends LPStack {
             },
         });
 
+        const getRoles = new lambda.Function(this, 'getRoles', {
+            runtime: lambda.Runtime.NODEJS_16_X, // execution environment
+            code: lambda.Code.fromAsset('dist/users/getRoles'), // code loaded from "lambda" directory
+            handler: 'index.handler',
+            environment: {
+                ...dataBaseInfo,
+            },
+        });
+
         const getProfile = new lambda.Function(this, 'getUserId', {
             runtime: lambda.Runtime.NODEJS_16_X, // execution environment
             code: lambda.Code.fromAsset('dist/users/getUserId'), // code loaded from "lambda" directory
@@ -142,13 +153,17 @@ export class UserStack extends LPStack {
         const c3 = components.addResource('me');
         c3.addMethod('GET', new apigateway.LambdaIntegration(getProfile));
 
-        const components3 = api.root.addResource('faculties');
-        components3.addMethod(
+         api.root.addResource('faculties').addMethod(
             'GET',
             new apigateway.LambdaIntegration(getFaculties)
         );
 
-        const components4 = api.root.addResource('programs');
+        api.root.addResource('roles').addMethod(
+            'GET',
+            new apigateway.LambdaIntegration(getRoles)
+        );
+
+        const components4 = api.root.addResource('specializations');
         components4.addMethod(
             'GET',
             new apigateway.LambdaIntegration(getSpecializations)
