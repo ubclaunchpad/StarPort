@@ -17,10 +17,6 @@ jobs:
       run: | 
             echo "${{ secrets.ENV_FILE }}" > .env
             npm run build
-            ls
-            pwd
-            cd ..
-            ls
             cdk synth
   
   eslint:
