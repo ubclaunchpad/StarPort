@@ -58,13 +58,36 @@ export async function getUser(userId: number) {
 
     const user = users[0];
 
-    user.faculty = {id: user.faculty_id, name: user.faculty_name};
-    user.standing = {id: user.standing_id, name: user.standing_name};
-    user.specialization = {id: user.specialization_id, name: user.specialization_name};
+    user.faculty = { id: user.faculty_id, name: user.faculty_name };
+    user.standing = { id: user.standing_id, name: user.standing_name };
+    user.specialization = {
+        id: user.specialization_id,
+        name: user.specialization_name,
+    };
 
-    user.roles = await mysql.query(`SELECT role.id, role.name FROM role INNER JOIN person_role pr ON pr.role_id = role.id WHERE pr.user_id = ?`, [userId]);
+    user.roles = await mysql.query(
+        `SELECT role.id, role.name FROM role INNER JOIN person_role pr ON pr.role_id = role.id WHERE pr.user_id = ?`,
+        [userId]
+    );
 
-    const fields = ["id", "username","firstName", "lastName", "prefName", "resumeLink", "faculty", "standing", "specialization", "roles", "email", "username", "createdAt", "updatedAt", "memberSince"];
-    return Object.fromEntries(Object.entries(user).filter(([key]) => fields.includes(key)));
-   
+    const fields = [
+        'id',
+        'username',
+        'firstName',
+        'lastName',
+        'prefName',
+        'resumeLink',
+        'faculty',
+        'standing',
+        'specialization',
+        'roles',
+        'email',
+        'username',
+        'createdAt',
+        'updatedAt',
+        'memberSince',
+    ];
+    return Object.fromEntries(
+        Object.entries(user).filter(([key]) => fields.includes(key))
+    );
 }

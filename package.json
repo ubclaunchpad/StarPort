@@ -8,7 +8,7 @@
     "scripts": {
         "build": "rm -rf dist && esbuild ./src/**/*.ts --entry-names=[dir]/[name]/index --bundle   --platform=node --target=node16.14 --outdir=./dist/",
         "watch": "tsc -w",
-        "cdk": "cdk",
+        "cdk:synth": "cdk synth",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "prettier": "prettier --write \"**/*.{js,ts,json}\"",
@@ -18,9 +18,7 @@
         "test:src": "jest --verbose ./src",
         "start:local:api": "sam local start-api -t ./cdk.out/$npm_config_stack.template.json  --port 8000 --container-host-interface host.docker.internal",
         "invoke:lambda": "sam local invoke -t ./cdk.out/$npm_config_stack.template.json -e $npm_config_event ${npm_config_warm-containers=LAZY}",
-        "test:api": "sam local start-api -t ./cdk.out/users-stack.template.json  --port 8000  ",
-        "test:api:2": "sam local start-api -t ./cdk.out/project-stack.template.json  --port 3000   ",
-        "test:api:3": "sam local start-api -t ./cdk.out/posting-stack.template.json  --port 8080  ",
+        "test:api": "sam local start-api -t ./cdk.out/users-stack.template.json  --port 8000  --warm-containers EAGER ",
         "start:local:lambdas": "sam local start-lambda -t ./cdk.out/$npm_config_stack.template.json ${npm_config_port:3000} ${npm_config_warm-containers=LAZY}",
         "db:up": "tsc && node ./dist/setup.js "
     },

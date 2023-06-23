@@ -1,25 +1,23 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
-import * as apigateway from 'aws-cdk-lib/aws-apigateway';
-import { Cors } from 'aws-cdk-lib/aws-apigateway';
 import { config } from 'dotenv';
 import { LPStack, StackInfo } from './util/LPStack';
 import { IDatabaseConfig } from '../config/database.config';
+import { ApiService, IApiResources } from './templates/apigateway';
 config({ path: `.env.local`, override: true });
 
 export const USER_STACK_INFO: StackInfo = { NAME: 'users-stack' };
-
 export interface UserStackProps extends cdk.StackProps {
     databaseConfig: IDatabaseConfig;
 }
 
 export class UserStack extends LPStack {
     public STACK_INFO: StackInfo = USER_STACK_INFO;
+    apiService: ApiService;
 
     constructor(scope: Construct, id: string, props: UserStackProps) {
         super(scope, id, props);
-
         const { databaseConfig } = props;
 
         const dataBaseInfo = {
@@ -29,150 +27,98 @@ export class UserStack extends LPStack {
             DB_NAME: databaseConfig.database,
         };
 
-        const api: apigateway.RestApi = new apigateway.RestApi(
-            this,
-            'users-api',
-            {
-                restApiName: 'users-api',
-                defaultCorsPreflightOptions: {
-                    allowOrigins: Cors.ALL_ORIGINS,
+        const lambdaConfigs = {
+            runtime: lambda.Runtime.NODEJS_16_X,
+            handler: 'index.handler',
+            environment: {
+                ...dataBaseInfo,
+            },
+        };
+
+        const baseLambdaDir = 'dist/users';
+
+        const apiResources: IApiResources = {
+            subresources: {
+                users: {
+                    endpoints: {
+                        GET: {
+                            id: 'getUsers',
+                            path: `${baseLambdaDir}/getUsers`,
+                        },
+                        POST: {
+                            id: 'createUser',
+                            path: `${baseLambdaDir}/createUser`,
+                        },
+                    },
+
+                    subresources: {
+                        '{id}': {
+                            endpoints: {
+                                GET: {
+                                    id: 'getUser',
+                                    path: `${baseLambdaDir}/getUser`,
+                                },
+                                PATCH: {
+                                    id: 'editUser',
+                                    path: `${baseLambdaDir}/editUser`,
+                                },
+                                DELETE: {
+                                    id: 'deleteUser',
+                                    path: `${baseLambdaDir}/deleteUser`,
+                                },
+                            },
+                        },
+
+                        me: {
+                            endpoints: {
+                                GET: {
+                                    id: 'getUserId',
+                                    path: `${baseLambdaDir}/getUserId`,
+                                },
+                            },
+                        },
+                    },
                 },
-            }
-        );
-
-
-
-        const components = api.root.addResource('users');
-
-        const getUsers = new lambda.Function(this, 'getUsers', {
-            runtime: lambda.Runtime.NODEJS_16_X, // execution environment
-            code: lambda.Code.fromAsset('dist/users/getUsers'), // code loaded from "lambda" directory
-            handler: 'index.handler',
-            environment: {
-                ...dataBaseInfo,
+                faculties: {
+                    endpoints: {
+                        GET: {
+                            id: 'getFaculties',
+                            path: `${baseLambdaDir}/getFaculties`,
+                        },
+                    },
+                },
+                roles: {
+                    endpoints: {
+                        GET: {
+                            id: 'getRoles',
+                            path: `${baseLambdaDir}/getRoles`,
+                        },
+                    },
+                },
+                specializations: {
+                    endpoints: {
+                        GET: {
+                            id: 'getSpecializations',
+                            path: `${baseLambdaDir}/getSpecializations`,
+                        },
+                    },
+                },
+                standings: {
+                    endpoints: {
+                        GET: {
+                            id: 'getStandings',
+                            path: `${baseLambdaDir}/getStandings`,
+                        },
+                    },
+                },
             },
-        });
+        };
 
-        const createUsers = new lambda.Function(this, 'createUsers', {
-            runtime: lambda.Runtime.NODEJS_16_X, // execution environment
-            code: lambda.Code.fromAsset('dist/users/createUser'), // code loaded from "lambda" directory
-            handler: 'index.handler',
-            environment: {
-                ...dataBaseInfo,
-            },
-        });
-
-        const getUser = new lambda.Function(this, 'getUser', {
-            runtime: lambda.Runtime.NODEJS_16_X, // execution environment
-            code: lambda.Code.fromAsset('dist/users/getUser'), // code loaded from "lambda" directory
-            handler: 'index.handler',
-            environment: {
-                ...dataBaseInfo,
-            },
-        });
-
-        const deleteUser = new lambda.Function(this, 'deleteUser', {
-            runtime: lambda.Runtime.NODEJS_16_X, // execution environment
-            code: lambda.Code.fromAsset('dist/users/deleteUser'), // code loaded from "lambda" directory
-            handler: 'index.handler',
-            environment: {
-                ...dataBaseInfo,
-            },
-        });
-
-        const updateUser = new lambda.Function(this, 'updateUser', {
-            runtime: lambda.Runtime.NODEJS_16_X, // execution environment
-            code: lambda.Code.fromAsset('dist/users/editUser'), // code loaded from "lambda" directory
-            handler: 'index.handler',
-            environment: {
-                ...dataBaseInfo,
-            },
-        });
-
-        const getFaculties = new lambda.Function(this, 'getFaculties', {
-            runtime: lambda.Runtime.NODEJS_16_X, // execution environment
-            code: lambda.Code.fromAsset('dist/users/getFaculties'), // code loaded from "lambda" directory
-            handler: 'index.handler',
-            environment: {
-                ...dataBaseInfo,
-            },
-        });
-
-        const getSpecializations = new lambda.Function(this, 'getSpecializations', {
-            runtime: lambda.Runtime.NODEJS_16_X, // execution environment
-            code: lambda.Code.fromAsset('dist/users/getSpecializations'), // code loaded from "lambda" directory
-            handler: 'index.handler',
-            environment: {
-                ...dataBaseInfo,
-            },
-        });
-
-        const getStandings = new lambda.Function(this, 'getStandings', {
-            runtime: lambda.Runtime.NODEJS_16_X, // execution environment
-            code: lambda.Code.fromAsset('dist/users/getStandings'), // code loaded from "lambda" directory
-            handler: 'index.handler',
-            environment: {
-                ...dataBaseInfo,
-            },
-        });
-
-        const getRoles = new lambda.Function(this, 'getRoles', {
-            runtime: lambda.Runtime.NODEJS_16_X, // execution environment
-            code: lambda.Code.fromAsset('dist/users/getRoles'), // code loaded from "lambda" directory
-            handler: 'index.handler',
-            environment: {
-                ...dataBaseInfo,
-            },
-        });
-
-        const getProfile = new lambda.Function(this, 'getUserId', {
-            runtime: lambda.Runtime.NODEJS_16_X, // execution environment
-            code: lambda.Code.fromAsset('dist/users/getUserId'), // code loaded from "lambda" directory
-            handler: 'index.handler',
-            environment: {
-                ...dataBaseInfo,
-            },
-        });
-
-        components.addMethod('GET', new apigateway.LambdaIntegration(getUsers));
-        components.addMethod(
-            'POST',
-            new apigateway.LambdaIntegration(createUsers)
-        );
-        const components2 = components.addResource('{id}');
-        components2.addMethod('GET', new apigateway.LambdaIntegration(getUser));
-        components2.addMethod(
-            'PATCH',
-            new apigateway.LambdaIntegration(updateUser)
-        );
-        components2.addMethod(
-            'DELETE',
-            new apigateway.LambdaIntegration(deleteUser)
-        );
-
-        const c3 = components.addResource('me');
-        c3.addMethod('GET', new apigateway.LambdaIntegration(getProfile));
-
-         api.root.addResource('faculties').addMethod(
-            'GET',
-            new apigateway.LambdaIntegration(getFaculties)
-        );
-
-        api.root.addResource('roles').addMethod(
-            'GET',
-            new apigateway.LambdaIntegration(getRoles)
-        );
-
-        const components4 = api.root.addResource('specializations');
-        components4.addMethod(
-            'GET',
-            new apigateway.LambdaIntegration(getSpecializations)
-        );
-
-        const components5 = api.root.addResource('standings');
-        components5.addMethod(
-            'GET',
-            new apigateway.LambdaIntegration(getStandings)
+        this.apiService = new ApiService(
+            this,
+            apiResources,
+            `${USER_STACK_INFO}-API`,
+            lambdaConfigs
         );
     }
 }

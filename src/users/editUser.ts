@@ -14,10 +14,7 @@ export const handler = async function (
             throw new Error('Request body is missing');
         }
 
-        if (
-            event.pathParameters === null ||
-            event.pathParameters.id === null
-        ) {
+        if (event.pathParameters === null || event.pathParameters.id === null) {
             throw new Error('User Id is missing');
         }
 
@@ -44,7 +41,7 @@ export const updateUser = async (
         resumeLink,
         facultyId,
         standingId,
-        specializationId
+        specializationId,
     } = userInfo;
 
     const values = [];
@@ -63,7 +60,7 @@ export const updateUser = async (
         values.push(lastName);
     }
     if (resumeLink) {
-        columns.push('resume_link = ?');
+        columns.push('resumelink = ?');
         values.push(resumeLink);
     }
     if (facultyId) {
@@ -80,7 +77,9 @@ export const updateUser = async (
         values.push(specializationId);
     }
 
-    const updateQuery = `UPDATE person SET ${columns.join(", ")}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
+    const updateQuery = `UPDATE person SET ${columns.join(
+        ', '
+    )}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
     values.push(userId);
     await mysql.query(updateQuery, values);
 };

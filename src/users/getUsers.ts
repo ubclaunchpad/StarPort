@@ -54,21 +54,45 @@ export async function getAll(userQuery: IUserQuery) {
         throw new Error('No user found');
     }
 
-    let users = [];
+    const users = [];
 
-    for (const row of result) { 
-        const user = await getUserDetails(row);       
+    for (const row of result) {
+        const user = await getUserDetails(row);
         users.push(user);
     }
 
-    return  users;
+    return users;
 }
 
-const getUserDetails = async  (user) => {
-    user.faculty = {id: user.faculty_id, name: user.faculty_name};
-    user.standing = {id: user.standing_id, name: user.standing_name};
-    user.specialization = {id: user.specialization_id, name: user.specialization_name};
-    user.roles = await mysql.query(`SELECT role.id, role.name FROM role INNER JOIN person_role pr ON pr.role_id = role.id WHERE pr.user_id = ?`, [user.id]);
-    const fields = ["id", "username","firstName", "lastName", "prefName", "resumeLink", "faculty", "standing", "specialization", "roles", "email", "username", "createdAt", "updatedAt", "memberSince"];
-    return Object.fromEntries(Object.entries(user).filter(([key]) => fields.includes(key)));
-}
+const getUserDetails = async (user) => {
+    user.faculty = { id: user.faculty_id, name: user.faculty_name };
+    user.standing = { id: user.standing_id, name: user.standing_name };
+    user.specialization = {
+        id: user.specialization_id,
+        name: user.specialization_name,
+    };
+    user.roles = await mysql.query(
+        `SELECT role.id, role.name FROM role INNER JOIN person_role pr ON pr.role_id = role.id WHERE pr.user_id = ?`,
+        [user.id]
+    );
+    const fields = [
+        'id',
+        'username',
+        'firstName',
+        'lastName',
+        'prefName',
+        'resumeLink',
+        'faculty',
+        'standing',
+        'specialization',
+        'roles',
+        'email',
+        'username',
+        'createdAt',
+        'updatedAt',
+        'memberSince',
+    ];
+    return Object.fromEntries(
+        Object.entries(user).filter(([key]) => fields.includes(key))
+    );
+};

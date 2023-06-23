@@ -1,7 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { UserI } from '../util/types/user';
 import { formatResponse, mysql } from '../util/util';
-import { UnsetRole } from '../constants/userConstants';
 import { getFacultyIdsAndNames } from './getFaculties';
 import { getSpecializationIdsAndNames } from './getSpecializations';
 import { getStandingIdsAndNames } from './getStandings';
