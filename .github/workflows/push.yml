@@ -25,5 +25,5 @@ jobs:
         cdk diff
         cdk synth
         cdk bootstrap
-        cdk deploy
+        cdk deploy --all
     
