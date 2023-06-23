@@ -22,6 +22,7 @@ jobs:
         npm install
         echo "${{ secrets.ENV_FILE }}" > .env
         npm run build
+        cdk diff
         cdk synth
         cdk bootstrap
         cdk deploy
