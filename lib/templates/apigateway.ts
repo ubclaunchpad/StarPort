@@ -48,10 +48,9 @@ export class ApiService {
             defaultCorsPreflightOptions: {
                 allowOrigins: apigateway.Cors.ALL_ORIGINS,
             },
-            cloudWatchRole: true
+            cloudWatchRole: true,
         });
 
-        this.setupBaseStatus(restApi.root, apiResources);
         this.defineResources(restApi.root, apiResources);
     }
 
@@ -65,15 +64,14 @@ export class ApiService {
                 restApi.addMethod(
                     method,
                     new apigateway.LambdaIntegration(lambda, {
-                        allowTestInvoke: true
+                        allowTestInvoke: true,
                     }),
                     {
                         methodResponses: [
-                            {statusCode: "200" },
-                            {statusCode: "400" }
-                        ]
+                            { statusCode: '200' },
+                            { statusCode: '400' },
+                        ],
                     }
-                
                 );
             });
 
@@ -107,21 +105,5 @@ export class ApiService {
                 code: lambda.Code.fromAsset(lambdaConfig.path),
             }
         );
-    }
-
-    setupBaseStatus( restApi: apigateway.IResource, resource: IApiResources) {
-
-        //  const lmbda = new lambda.Function(
-        //     this.scope,
-        //     lambdaConfig.id,
-        //     {
-        //         ...this.lambdaConfig,
-        //         code: 
-        //     }
-        // );
-
-        // restApi.addMethod(new apigateway.LambdaIntegration(lmbda))
-
-
     }
 }
