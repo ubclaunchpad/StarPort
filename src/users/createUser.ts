@@ -138,7 +138,7 @@ export const AddUserToDatabase = async (user: UserI): Promise<number> => {
             createdUserId = result.insertId;
             return ['SELECT id from role where role.name = ?', ['Explorer']];
         })
-        .query((result: any[]) => {
+        .query((result: { id: string }) => {
             return [
                 'INSERT INTO person_role (user_id, role_id) VALUES (?, ?)',
                 [createdUserId, result[0].id],

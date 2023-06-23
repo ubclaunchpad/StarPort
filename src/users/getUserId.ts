@@ -52,7 +52,7 @@ export async function getUser(userEmail: string) {
     WHERE p.email = ?`,
         [userEmail]
     );
-    const users = result as any[];
+    const users = result as { id: number; email: string }[];
     if (users.length === 0) {
         throw new Error('User not found');
     }

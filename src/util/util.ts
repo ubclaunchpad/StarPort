@@ -39,7 +39,6 @@ const connectToDb = (config: IDatabaseConfig) => {
         config: {
             ...config,
             port: 3306,
-            // password: "Armin1378!"
         },
     });
 };
@@ -48,7 +47,7 @@ export const mysql = connectToDb(DATABASE_CONFIG.getDBConfig());
 
 export const formatResponse = (
     statusCode: number,
-    body: any
+    body: unknown
 ): APIGatewayProxyResult => {
     return {
         headers: {

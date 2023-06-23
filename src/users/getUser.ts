@@ -1,5 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { formatResponse, mysql } from '../util/util';
+import { IUserQueryResult, IUserInfo } from '../util/types/user';
 
 export const handler = async function (
     event: APIGatewayProxyEvent
@@ -23,7 +24,7 @@ export const handler = async function (
 };
 
 export async function getUser(userId: number) {
-    const result = await mysql.query(
+    const result = await mysql.query<IUserQueryResult[]>(
         ` SELECT 
         p.id AS id,
         p.username AS username,
@@ -51,18 +52,22 @@ export async function getUser(userId: number) {
         [userId]
     );
 
-    const users = result as any[];
-    if (users.length === 0) {
+    if (result.length === 0) {
         throw new Error('User not found');
     }
 
-    const user = users[0];
+    const userResult = result[0];
 
-    user.faculty = { id: user.faculty_id, name: user.faculty_name };
-    user.standing = { id: user.standing_id, name: user.standing_name };
+    const user: Partial<IUserInfo> = {};
+
+    user.faculty = { id: userResult.faculty_id, name: userResult.faculty_name };
+    user.standing = {
+        id: userResult.standing_id,
+        name: userResult.standing_name,
+    };
     user.specialization = {
-        id: user.specialization_id,
-        name: user.specialization_name,
+        id: userResult.specialization_id,
+        name: userResult.specialization_name,
     };
 
     user.roles = await mysql.query(
