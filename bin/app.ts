@@ -6,7 +6,7 @@ import { DATABASE_CONFIG } from '../config/database.config';
 import { deploymentEnvironments } from '../config/deployment.config';
 import { config } from 'dotenv';
 
-config({ path: `.env.local`, override: true });
+config();
 
 const app = new cdk.App();
 

@@ -5,7 +5,7 @@ import { config } from 'dotenv';
 import { LPStack, StackInfo } from './util/LPStack';
 import { IDatabaseConfig } from '../config/database.config';
 import { ApiService, IApiResources } from './templates/apigateway';
-config({ path: `.env.local`, override: true });
+config();
 
 export const USER_STACK_INFO: StackInfo = { NAME: 'users-stack' };
 export interface UserStackProps extends cdk.StackProps {

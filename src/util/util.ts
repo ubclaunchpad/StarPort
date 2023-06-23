@@ -1,7 +1,7 @@
 import { APIGatewayProxyResult } from 'aws-lambda/trigger/api-gateway-proxy';
 import serverlessMysql from 'serverless-mysql';
 import { config } from 'dotenv';
-config({ path: `.env.local`, override: true });
+config();
 
 export interface IDatabaseConfig {
     host: string;
