@@ -1,8 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import jwt_decode from 'jwt-decode';
-import { formatResponse, connectToDb, DATABASE_CONFIG } from '../util/util';
-
-const mysql = connectToDb(DATABASE_CONFIG.getDBConfig());
+import { formatResponse, mysql } from '../util/util';
 
 export interface GoogleAuthUser {
     aud: string;
@@ -29,7 +27,6 @@ export const handler = async function (
         if (event === null) {
             throw new Error('event not found');
         }
-
         const auth = event.headers.Authorization;
 
         if (auth === undefined) {
@@ -37,33 +34,27 @@ export const handler = async function (
         }
         const googleAuthUser = jwt_decode(auth) as GoogleAuthUser;
         const resp = await getUser(googleAuthUser.email);
-        mysql.end();
-        // calc api response time
         return formatResponse(200, resp);
     } catch (error) {
-        return formatResponse(200, { message: (error as any).message });
+        return formatResponse(400, { message: (error as Error).message });
+    } finally {
+        mysql.end();
     }
 };
 
 export async function getUser(userEmail: string) {
     const result = await mysql.query(
         `SELECT
-    p.user_id AS userId,
-    p.email,
-    p.first_name AS firstName,
-    p.pref_name AS prefName,
-    p.last_name AS lastName,
-    p.standing_id AS standing,
-    p.faculty_id AS faculty
-    FROM
+    p.id AS id,
+    p.email
+    FROM 
     person p
     WHERE p.email = ?`,
         [userEmail]
     );
-    const users = result as any[];
+    const users = result as { id: number; email: string }[];
     if (users.length === 0) {
         throw new Error('User not found');
     }
-    const user = users[0];
-    return user;
+    return users[0];
 }

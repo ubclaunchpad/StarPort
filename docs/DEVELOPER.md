@@ -2,11 +2,13 @@
 
 This page is intended for developers who want to contribute to the project. This is the backend engine of Launch Pad. We use AWS CDK to deploy the backend infrastructure.
 
-*AWS CDK is a software development framework for defining cloud infrastructure in code and provisioning it through AWS CloudFormation. It offers a high-level object-oriented abstraction to define AWS resources imperatively using the power of modern programming languages. Using the CDK’s library of infrastructure constructs, you can easily encapsulate AWS best practices in your infrastructure definition and share it without worrying about boilerplate logic.*
+---
 
 ## Prerequisites
 
 [AWS Getting Started](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-typescript.html)
+
+> Check [Resources](./Resources.md) for a list of links, guides, etc contributors have found helpful for this project.
 
 ## Setup
 
@@ -14,20 +16,99 @@ This page is intended for developers who want to contribute to the project. This
 
     ```git clone https://github.com/ubclaunchpad/StarPort.git```
 
-2. Installation
+### Installation
 
-- install Typescript globally by running `npm install -g typescript`
-- install AWS CDK  `npm install -g aws-cdk`
-- install dependencies `npm install`
+1. Check you have node and npm installed. you can run the following to see if they are installed
 
-## Development
+   ```bash
+   node -v
+   npm -v
+   ```
 
-Even though the project is the infrastructure as code, we house all our logic here to speed up development as the scope of the project is still manageable.
-Still, we want to keep the codebase as separated as possbile. Inside the `service` directory, we have a `src` folder that contains all the logic for the Lambdas.
+   if not installed refer to their docs for installation steps: [node](https://nodejs.org/en/download), [npm](https://www.npmjs.com/)
+
+2. install Typescript (optionally) globally by running `npm install -g typescript`
+
+3. install AWS CDK  `npm install -g aws-cdk`. verify by running `cdk --version`
+
+4. install dependencies:
+
+   ```bash
+   cd starport
+   npm install
+   ```
+
+## Background
+
+The repository offers/implementes a lot of different things. Here is a briefly overview:
+
+- AWS CDK is used for cloud deployment. Everything in the project gets bundled together with CDK. So CDK is responsible for creating all our resources. APIs, Database, running our scripts and so on.
+  - we test our deployment process with Jest (A testing framework)
+- The APIs are based on a serverless model. everything in the src folder serves as the source code. With CDK and the AWS Lambda we create our APIs (if familiar with Express, it's same end-result but different implementation)
+  - we test our API source code locally by using Jest
+  - Additonally we use AWS SAM to live-test our api (lambdas + cdk integration)
+- The database is a MySQL flavour of SQL. We use Aurora Serverless to adapt to flexible traffic.
+  - We keep our database identicial throughout development by running migration scripts
+
+## Developing
+
+To start developing after you run the setup steps you should do the following.
+
+1. since our api is connected to a database to run it fully we recommend setting up a MySQL server on your machine or if familiar with Docker, on there. After setting up your database, store your db credentials in a `env.local` file at the source directory *(during deployment we will use `.env` that has the cloud database credentials)*
+
+An example of how the file will look
+
+```txt
+DB_HOST="localhost"
+DB_USERNAME="myuser"
+DB_PASSWORD="mypassword"
+DB_NAME="mydbname"
+```
+
+> Tip: lots of good resources to set up on your laptop quickly, and to verify it's connected first try connecting to it either via your terminal or with a client like `Workbench`
+
+Following steps varies depending on how you want to run the project
+
+### Test-driven Development/Writing tests
+
+you can easily write tests for each of the lambda groups in their test folder. you can run the tests by running
+
+```bash
+npm run test:src
+```
+
+if you're writing tests for the deployment stacks too you can just do `npm run test`
+
+### Developing with CDK
+
+Cdk is a toolkit for AWS cloudformation. after all our code we want to tell AWS what is what and how things are related. Assuming you have looked up basic AWS CDK resources you can run the follwing to build your assets
+
+```bash
+npm run build
+cdk synth
+```
+
+first transpiles our .ts and the next, synthesizes our stacks and constructs (to make it ready for deployment)
+
+## Local Emulation
+
+To test your lambda functions or API integrations locally, AWS SAM helps here. Sam emulates a porduction environment that AWS would have used to run our project. SAM is a framework for building serverless applications on AWS. It provides a Lambda-like execution environment that lets you locally build, test, and debug applications defined by SAM templates.
+
+To do this, you need to first install [SAM](https://aws.amazon.com/serverless/sam/) and [Docker](https://www.docker.com/).
+
+check you have them installed:
+
+```bash
+docker version
+```
+
+```bash
+sam --version
+```
 
 ### Running  Lambdas Locally
 
-To avoid the hassle of deploying the Lambdas to AWS every time we make a change, we can run and test the Lambdas locally. We do this by using the [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html). SAM is a framework for building serverless applications on AWS. It provides a Lambda-like execution environment that lets you locally build, test, and debug applications defined by SAM templates.
+>Tip: check `package.json` for some frequently used scripts related to this
 
 You can test your functions in two ways:
 
@@ -44,6 +125,12 @@ You can test your functions in two ways:
     - To run your lambda function locally as an API, run `sam local start-api`
     - To run your lambda function locally as an API with a debugger, run `sam local start-api -d 5858`
 
+---
+
+> Note: invoking just runs your function and exits. great for integration/e2e testing. Second one keep the function running
+
+---
+
 ### Running APIs Locally
 
 Similar to locally testing your lambdas, you can also run and test your APIs locally. THis is helpful when you have a few lambdas or stepfunctions, etc integrated to your API and you want to test the whole flow.
@@ -51,15 +138,17 @@ Similar to locally testing your lambdas, you can also run and test your APIs loc
 - To run your API locally, run `sam local start-api`
 - To run your API locally with a debugger, run `sam local start-api -d 5858`
 
+> Note: For all the sam scripts to run the correct stack, you need to provide the template cdk generates
+
+so before emulation you should run
+
+```bash
+npm run build
+cdk synth
+```
+
+*and then with all your stacks you should provide the relative path to the stack's template - check package.json for examples*
+
 ## Deployment
 
 Refer to the AWS deployment guide for more information. However, we only allow cloud deployment via the CI/CD pipeline. So you should not be deploying to AWS manually; in fact you should not have the AWS credentials to do so or we have set up something wrong :).
-
-## Useful commands
-
-- `npm run build`   compile typescript to js
-- `npm run watch`   watch for changes and compile
-- `npm run test`    perform the jest unit tests
-- `cdk deploy`      deploy this stack to your default AWS account/region
-- `cdk diff`        compare deployed stack with current state
-- `cdk synth`       emits the synthesized CloudFormation template

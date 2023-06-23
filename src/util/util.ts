@@ -1,8 +1,7 @@
 import { APIGatewayProxyResult } from 'aws-lambda/trigger/api-gateway-proxy';
-import servlessSql from 'serverless-mysql';
+import serverlessMysql from 'serverless-mysql';
 import { config } from 'dotenv';
 config();
-export const mysql = null
 
 export interface IDatabaseConfig {
     host: string;
@@ -13,7 +12,7 @@ export interface IDatabaseConfig {
 
 export class DATABASE_CONFIG {
     public static readonly DB_HOST = process.env.DB_HOST;
-    public static readonly DB_USERNAME =  process.env.DB_USERNAME;
+    public static readonly DB_USERNAME = process.env.DB_USERNAME;
     public static readonly DB_PASSWORD = process.env.DB_PASSWORD;
     public static readonly DB_NAME = process.env.DB_NAME;
 
@@ -26,35 +25,34 @@ export class DATABASE_CONFIG {
         ) {
             throw new Error('Database configuration not found');
         }
-        console.log(DATABASE_CONFIG.DB_HOST);
-        console.log(DATABASE_CONFIG.DB_USERNAME);
-        console.log(DATABASE_CONFIG.DB_PASSWORD);
-        console.log(DATABASE_CONFIG.DB_NAME);
         return {
             host: DATABASE_CONFIG.DB_HOST,
             user: DATABASE_CONFIG.DB_USERNAME,
             password: DATABASE_CONFIG.DB_PASSWORD,
-            database: DATABASE_CONFIG.DB_NAME
+            database: DATABASE_CONFIG.DB_NAME,
         };
     }
 }
 
-export const connectToDb =  (config: IDatabaseConfig) => {
-    return servlessSql({config: {
-        ...config,
-        port: 3306
-        // password: "Armin1378!"
-    }});
-}
+const connectToDb = (config: IDatabaseConfig) => {
+    return serverlessMysql({
+        config: {
+            ...config,
+            port: 3306,
+        },
+    });
+};
+
+export const mysql = connectToDb(DATABASE_CONFIG.getDBConfig());
 
 export const formatResponse = (
     statusCode: number,
-    body: any
+    body: unknown
 ): APIGatewayProxyResult => {
     return {
         headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            'Access-Control-Allow-Origin': '*',
         },
         statusCode: statusCode,
         isBase64Encoded: false,

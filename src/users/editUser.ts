@@ -1,8 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { UserUpdateI } from '../util/types/user';
-import { formatResponse, connectToDb, DATABASE_CONFIG } from '../util/util';
-
-const mysql = connectToDb(DATABASE_CONFIG.getDBConfig());
+import { formatResponse, mysql } from '../util/util';
 
 export const handler = async function (
     event: APIGatewayProxyEvent
@@ -16,21 +14,19 @@ export const handler = async function (
             throw new Error('Request body is missing');
         }
 
-        if (
-            event.pathParameters === null ||
-            event.pathParameters.userId === null
-        ) {
+        if (event.pathParameters === null || event.pathParameters.id === null) {
             throw new Error('User Id is missing');
         }
 
         const resp = await updateUser(
-            event.pathParameters.userId as string,
-            event.body as UserUpdateI
+            event.pathParameters.id as string,
+            JSON.parse(event.body) as UserUpdateI
         );
-        mysql.end();
         return formatResponse(200, resp);
     } catch (error) {
-        return formatResponse(200, { message: (error as any).message });
+        return formatResponse(400, { message: (error as Error).message });
+    } finally {
+        mysql.end();
     }
 };
 
@@ -39,46 +35,51 @@ export const updateUser = async (
     userInfo: UserUpdateI
 ): Promise<void> => {
     const {
-        email,
         firstName,
         prefName,
         lastName,
         resumeLink,
         facultyId,
         standingId,
+        specializationId,
     } = userInfo;
-    // TODO: update it to make it robust
-    let query = 'UPDATE person SET ';
+
     const values = [];
-    if (email) {
-        query += 'email = ?, ';
-        values.push(email);
-    }
+    const columns = [];
+
     if (firstName) {
-        query += 'first_name = ?, ';
+        columns.push('first_name = ?');
         values.push(firstName);
     }
     if (prefName) {
-        query += 'pref_name = ?, ';
+        columns.push('pref_name = ?');
         values.push(prefName);
     }
     if (lastName) {
-        query += 'last_name = ?, ';
+        columns.push('last_name = ?');
         values.push(lastName);
     }
     if (resumeLink) {
-        query += 'resumelink = ?, ';
+        columns.push('resumelink = ?');
         values.push(resumeLink);
     }
     if (facultyId) {
-        query += 'faculty_id = ?, ';
+        columns.push('faculty_id = ?');
         values.push(facultyId);
     }
     if (standingId) {
-        query += 'standing_id = ?, ';
+        columns.push('standing_id = ?');
         values.push(standingId);
     }
-    query += ' WHERE id = ?';
+
+    if (specializationId) {
+        columns.push('specialization_id = ?');
+        values.push(specializationId);
+    }
+
+    const updateQuery = `UPDATE person SET ${columns.join(
+        ', '
+    )}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
     values.push(userId);
-    mysql.query(query, values);
+    await mysql.query(updateQuery, values);
 };

@@ -1,21 +1,25 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
-import { formatResponse, connectToDb, DATABASE_CONFIG } from '../util/util';
+import { formatResponse, mysql } from '../util/util';
 
-const mysql = connectToDb(DATABASE_CONFIG.getDBConfig());
+let standings;
 
 export const handler = async function (): Promise<APIGatewayProxyResult> {
     try {
-        const result = await getStandingIdsAndNames();
-        mysql.end();
-        return formatResponse(200, result);
+        if (!standings) {
+            standings = await getStandingIdsAndNames();
+        }
+        return formatResponse(200, standings);
     } catch (error) {
-        return formatResponse(200, { message: (error as any).message });
+        return formatResponse(400, { message: (error as Error).message });
+    } finally {
+        mysql.end();
     }
 };
 
 export const getStandingIdsAndNames = async () => {
-    const result = await mysql.query(
-        `SELECT JSON_OBJECTAGG(standing_id, standing_name) FROM standing`
-    );
-    return (await result) || {};
+    const result = await mysql.query(`
+        SELECT id, name FROM standing
+        `);
+
+    return result || [];
 };
