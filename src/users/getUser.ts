@@ -58,7 +58,7 @@ export async function getUser(userId: number) {
 
     const userResult = result[0];
 
-    const user: Partial<IUserInfo> = {};
+    const user: Partial<IUserInfo> = {...userResult};
 
     user.faculty = { id: userResult.faculty_id, name: userResult.faculty_name };
     user.standing = {

@@ -48,8 +48,10 @@ export class ApiService {
             defaultCorsPreflightOptions: {
                 allowOrigins: apigateway.Cors.ALL_ORIGINS,
             },
+            cloudWatchRole: true
         });
 
+        this.setupBaseStatus(restApi.root, apiResources);
         this.defineResources(restApi.root, apiResources);
     }
 
@@ -62,7 +64,16 @@ export class ApiService {
                 const lambda = this.getLambda(lambdaId);
                 restApi.addMethod(
                     method,
-                    new apigateway.LambdaIntegration(lambda)
+                    new apigateway.LambdaIntegration(lambda, {
+                        allowTestInvoke: true
+                    }),
+                    {
+                        methodResponses: [
+                            {statusCode: "200" },
+                            {statusCode: "400" }
+                        ]
+                    }
+                
                 );
             });
 
@@ -96,5 +107,21 @@ export class ApiService {
                 code: lambda.Code.fromAsset(lambdaConfig.path),
             }
         );
+    }
+
+    setupBaseStatus( restApi: apigateway.IResource, resource: IApiResources) {
+
+        //  const lmbda = new lambda.Function(
+        //     this.scope,
+        //     lambdaConfig.id,
+        //     {
+        //         ...this.lambdaConfig,
+        //         code: 
+        //     }
+        // );
+
+        // restApi.addMethod(new apigateway.LambdaIntegration(lmbda))
+
+
     }
 }

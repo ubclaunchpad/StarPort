@@ -117,7 +117,7 @@ export class UserStack extends LPStack {
         this.apiService = new ApiService(
             this,
             apiResources,
-            `${USER_STACK_INFO}-API`,
+            `${USER_STACK_INFO.NAME}-API`,
             lambdaConfigs
         );
     }
