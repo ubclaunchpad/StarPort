@@ -1,15 +1,28 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { mysql, formatResponse } from '../util/util';
 import { IUserQuery } from '../util/types/user';
+import { verifyUserIsLoggedIn } from '../util/authorization';
 
 export const handler = async function (
     event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
     try {
+        if (event === null) {
+            throw new Error('event not found');
+        }
+        const auth = event.headers.Authorization;
+
+        if (auth === undefined) {
+            throw new Error('Authorization header is missing');
+        }
+
+        await verifyUserIsLoggedIn(auth);
         const params = (event && event.queryStringParameters) || {};
         const resp = await getAll(params as IUserQuery);
         return formatResponse(200, resp);
     } catch (error) {
+        console.log(error);
+
         return formatResponse(400, { message: (error as Error).message });
     } finally {
         mysql.end();
@@ -36,8 +49,6 @@ export async function getAll(userQuery: IUserQuery) {
         p.updated_at AS updatedAt,
         p.member_since AS memberSince
         FROM person p
-        INNER JOIN person_role r ON r.user_id = p.id
-        INNER JOIN role role ON role.id = r.role_id 
         INNER JOIN faculty f ON f.id = p.faculty_id
         INNER JOIN specialization sp ON sp.id = p.specialization_id
         INNER JOIN standing st ON st.id = p.standing_id `;

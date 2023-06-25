@@ -4,6 +4,7 @@ import { formatResponse, mysql } from '../util/util';
 import { getFacultyIdsAndNames } from './getFaculties';
 import { getSpecializationIdsAndNames } from './getSpecializations';
 import { getStandingIdsAndNames } from './getStandings';
+import { verifyUserIsLoggedIn } from '../util/authorization';
 
 export const handler = async function (
     event: APIGatewayProxyEvent
@@ -12,13 +13,19 @@ export const handler = async function (
         if (event === null) {
             throw new Error('event not found');
         }
+        const auth = event.headers.Authorization;
+
+        if (auth === undefined) {
+            throw new Error('Authorization header is missing');
+        }
 
         if (event.body === null) {
             throw new Error('Request body is missing');
         }
-        const createdUserId = await CreateUser(
-            JSON.parse(event.body) as unknown as UserI
-        );
+
+        const body = JSON.parse(event.body) as UserI;
+        await verifyUserIsLoggedIn(auth, body.email);
+        const createdUserId = await CreateUser(body);
 
         return formatResponse(200, `user with id : ${createdUserId} created`);
     } catch (error) {

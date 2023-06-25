@@ -67,6 +67,20 @@ export class UserStack extends LPStack {
                                     path: `${baseLambdaDir}/deleteUser`,
                                 },
                             },
+                            subresources: {
+                                roles: {
+                                    endpoints: {
+                                        POST: {
+                                            id: 'addUserRoles',
+                                            path: `${baseLambdaDir}/addUserRole`,
+                                        },
+                                        DELETE: {
+                                            id: 'deleteUserRoles',
+                                            path: `${baseLambdaDir}/deleteUserRoles`,
+                                        },
+                                    },
+                                },
+                            },
                         },
 
                         me: {

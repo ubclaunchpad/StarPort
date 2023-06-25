@@ -1,5 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { formatResponse, mysql } from '../util/util';
+import { verifyUserIsLoggedIn } from '../util/authorization';
 
 export const handler = async function (
     event: APIGatewayProxyEvent
@@ -8,6 +9,13 @@ export const handler = async function (
         if (event === null) {
             throw new Error('event not found');
         }
+        const auth = event.headers.Authorization;
+
+        if (auth === undefined) {
+            throw new Error('Authorization header is missing');
+        }
+
+        await verifyUserIsLoggedIn(auth);
 
         if (event.pathParameters === null || event.pathParameters.id === null) {
             throw new Error('User Id is missing');
