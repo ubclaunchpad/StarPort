@@ -6,8 +6,9 @@ node_modules
 .cdk.staging
 cdk.out
 dist
-.env.**
+tenv.local.tx
 .env
 coverage
 .vscode
 resources/archive
+.idea

@@ -6,7 +6,8 @@
         "app": "bin/app.js"
     },
     "scripts": {
-        "build": "rm -rf dist && esbuild ./src/**/*.ts --entry-names=[dir]/[name]/index --bundle   --platform=node --target=node16.14 --outdir=./dist/",
+        "clean": "rm -rf dist",
+        "build": " esbuild ./src/**/*.ts --entry-names=[dir]/[name]/index --bundle   --platform=node --target=node16.14 --outdir=./dist/ ",
         "watch": "tsc -w",
         "cdk:synth": "cdk synth",
         "lint": "eslint .",
@@ -20,23 +21,26 @@
         "invoke:lambda": "sam local invoke -t ./cdk.out/$npm_config_stack.template.json -e $npm_config_event ${npm_config_warm-containers=LAZY}",
         "test:api": "sam local start-api -t ./cdk.out/users-stack.template.json  --port 8000  --warm-containers LAZY ",
         "start:local:lambdas": "sam local start-lambda -t ./cdk.out/$npm_config_stack.template.json ${npm_config_port:3000} ${npm_config_warm-containers=LAZY}",
-        "db:up": "tsc && node ./dist/setup.js "
+        "db:up": "esbuild ./resources/**/*.ts --entry-names=[dir]/[name]/index --bundle   --platform=node --target=node16.14 --outdir=./dist/migrations && node ./dist/migrations/setup/index.js"
     },
     "dependencies": {
+        "@aws-sdk/client-s3": "^3.363.0",
         "aws-cdk-lib": "^2.70.0",
         "bcryptjs": "^2.4.3",
         "chalk": "^5.2.0",
         "constructs": "^10.0.0",
         "dotenv": "^16.0.3",
         "jwt-decode": "^3.1.2",
+        "kysely": "^0.26.0",
         "node-fetch": "^3.3.1",
-        "serverless-mysql": "^1.5.5"
+        "pg": "^8.11.1"
     },
     "devDependencies": {
         "@babel/core": "^7.22.5",
         "@babel/preset-env": "^7.22.5",
         "@babel/preset-typescript": "^7.22.5",
         "@types/aws-lambda": "^8.10.115",
+        "@types/aws-sdk": "^2.7.0",
         "@types/jest": "^29.5.2",
         "@types/node": "18.14.6",
         "@typescript-eslint/eslint-plugin": "^5.59.9",

@@ -1,35 +1,24 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { formatResponse, mysql } from '../util/util';
-import { verifyUserIsLoggedIn } from '../util/authorization';
+import { APIGatewayProxyEvent } from 'aws-lambda';
+import { getDatabase } from '../util/db';
+import { LambdaBuilder } from '../util/middleware/middleware';
+import { SuccessResponse } from '../util/middleware/response';
+import { InputValidator } from '../util/middleware/inputValidator';
+import { Authorizer } from '../util/middleware/authorizer';
 
-export const handler = async function (
-    event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> {
-    try {
-        if (event === null) {
-            throw new Error('event not found');
-        }
-        const auth = event.headers.Authorization;
+const db = getDatabase();
 
-        if (auth === undefined) {
-            throw new Error('Authorization header is missing');
-        }
+export const handler = new LambdaBuilder(router)
+    .use(new InputValidator())
+    .use(new Authorizer())
+    .build();
 
-        await verifyUserIsLoggedIn(auth);
-
-        if (event.pathParameters === null || event.pathParameters.id === null) {
-            throw new Error('User Id is missing');
-        }
-
-        const resp = await deleteUser(event.pathParameters.id as string);
-        return formatResponse(200, resp);
-    } catch (error) {
-        return formatResponse(400, { message: (error as Error).message });
-    } finally {
-        mysql.end();
-    }
-};
+export async function router(event: APIGatewayProxyEvent): Promise<any> {
+    await deleteUser(event.pathParameters.id as string);
+    return new SuccessResponse({
+        message: `user with id : ${event.pathParameters.id} deleted`,
+    });
+}
 
 export const deleteUser = async (userId: string): Promise<void> => {
-    return mysql.query(`DELETE FROM person WHERE id = ?`, [userId]);
+    await db.deleteFrom('person').where('id', '=', userId).execute();
 };
