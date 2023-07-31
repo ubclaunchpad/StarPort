@@ -1,31 +1,31 @@
-import { getDatabase, NewFaculty } from '../util/db';
+import { getDatabase, UpdateRole } from '../util/db';
 import { LambdaBuilder } from '../util/middleware/middleware';
 import { SuccessResponse } from '../util/middleware/response';
 import { InputValidator } from '../util/middleware/inputValidator';
-import { getFaculties, refreshCache } from './faculties';
+import { getRoles, refreshCache } from './roles';
 import { APIGatewayEvent } from 'aws-lambda';
 import { Authorizer } from '../util/middleware/authorizer';
 import {ConnectionHandler} from "../util/middleware/connectionHandler";
 
 const db = getDatabase();
-export const handler = new LambdaBuilder(createFacultyRequest)
+export const handler = new LambdaBuilder(updateRoleRequest)
     .use(new InputValidator())
     .use(new Authorizer())
     .useAfter(new ConnectionHandler(db))
     .build();
 
-async function createFacultyRequest(event: APIGatewayEvent) {
+async function updateRoleRequest(event: APIGatewayEvent) {
     const { label } = JSON.parse(event.body);
-    await createFaculty({ label });
+    const { id } = event.pathParameters;
+    await updateRole({ id, label });
     await refreshCache(db);
-    return new SuccessResponse(await getFaculties(db));
+    return new SuccessResponse(await getRoles(db));
 }
 
-export const createFaculty = async (newFaculty: NewFaculty) => {
-    const { id } = await db
-        .insertInto('faculty')
-        .values(newFaculty)
-        .returning('id')
-        .executeTakeFirst();
-    return id;
+export const updateRole = async (updateRole: UpdateRole) => {
+    await db
+        .updateTable('role')
+        .set(updateRole)
+        .where('id', '=', updateRole.id)
+        .execute();
 };

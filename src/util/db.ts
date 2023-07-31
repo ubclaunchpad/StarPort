@@ -16,6 +16,7 @@ export interface Database {
     role: RoleTable;
     specialization: SpecializationTable;
     person: PersonTable;
+    person_role: PersonRoleTable;
 }
 
 export function getDatabase() {
@@ -64,8 +65,8 @@ export interface PersonTable {
     faculty_id: string;
     standing_id: string;
     specialization_id: string;
-    created_at: Date;
-    updated_at: Date;
+    created_at: string;
+    updated_at: string;
     member_since: Date | null;
     resume_link: string | null;
 }
@@ -73,3 +74,12 @@ export interface PersonTable {
 export type Person = Selectable<PersonTable>;
 export type NewPerson = Insertable<PersonTable>;
 export type UpdatePerson = Updateable<PersonTable>;
+
+export interface PersonRoleTable {
+    user_id: string;
+    role_id: string;
+}
+
+export type PersonRole = Selectable<PersonRoleTable>;
+export type NewPersonRole = Insertable<PersonRoleTable>;
+export type UpdatePersonRole = Updateable<PersonRoleTable>;

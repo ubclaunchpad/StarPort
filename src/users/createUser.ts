@@ -3,7 +3,11 @@ import { getDatabase, NewPerson, Person } from '../util/db';
 import { LambdaBuilder } from '../util/middleware/middleware';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { Authorizer } from '../util/middleware/authorizer';
-import { SuccessResponse } from '../util/middleware/response';
+import {
+    APIResponse,
+    BadRequestError,
+    SuccessResponse,
+} from '../util/middleware/response';
 
 const db = getDatabase();
 
@@ -12,7 +16,9 @@ export const handler = new LambdaBuilder(router)
     .use(new Authorizer())
     .build();
 
-export async function router(event: APIGatewayProxyEvent): Promise<any> {
+export async function router(
+    event: APIGatewayProxyEvent
+): Promise<APIResponse> {
     const body = JSON.parse(event.body) as Person;
     const createdUserId = await CreateUser(body);
     return new SuccessResponse({
@@ -46,7 +52,9 @@ export const validateUserInformation = async (
     }
 
     if (missingFields.length > 0) {
-        throw new Error(`Missing fields: ${missingFields.join(', ')}`);
+        throw new BadRequestError(
+            `Missing fields: ${missingFields.join(', ')}`
+        );
     }
     await validateEmail(person.email);
     await validateFacultyId(person.faculty_id);
@@ -55,18 +63,21 @@ export const validateUserInformation = async (
 };
 
 export const validateEmail = async (email: string): Promise<void> => {
-    const emailRegex = /\S+@gmail.com/;
-    if (!emailRegex.test(email)) {
-        throw new Error('email is invalid. Must be a valid gmail address');
-    }
+    // const emailRegex = /\S+@gmail.com/;
+    // if (!emailRegex.test(email)) {
+    //     throw new BadRequestError(
+    //         'email is invalid. Must be a valid gmail address'
+    //     );
+    // }
     const person = await db
         .selectFrom('person')
         .select(['email'])
         .where('email', '=', email)
         .executeTakeFirst();
 
+    console.log(person);
     if (person) {
-        throw new Error('email already exists');
+        throw new BadRequestError('email already exists');
     }
 };
 
@@ -77,7 +88,7 @@ export const validateFacultyId = async (facultyId: string): Promise<void> => {
         .where('id', '=', facultyId)
         .executeTakeFirst();
     if (!faculty) {
-        throw new Error('Faculty is invalid');
+        throw new BadRequestError('Faculty is invalid');
     }
 };
 
@@ -88,7 +99,7 @@ export const validateStandingId = async (standingId: string): Promise<void> => {
         .where('id', '=', standingId)
         .executeTakeFirst();
     if (!standing) {
-        throw new Error('Standing is invalid');
+        throw new BadRequestError('Standing is invalid');
     }
 };
 
@@ -101,7 +112,7 @@ export const validateSpecializationId = async (
         .where('id', '=', specializationId)
         .executeTakeFirst();
     if (!specialization) {
-        throw new Error('Specialization is invalid');
+        throw new BadRequestError('Specialization is invalid');
     }
 };
 

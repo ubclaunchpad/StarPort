@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { getDatabase } from '../util/db';
 import { LambdaBuilder } from '../util/middleware/middleware';
-import { SuccessResponse } from '../util/middleware/response';
+import { APIResponse, SuccessResponse } from '../util/middleware/response';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { Authorizer } from '../util/middleware/authorizer';
 
@@ -12,7 +12,9 @@ export const handler = new LambdaBuilder(router)
     .use(new Authorizer())
     .build();
 
-export async function router(event: APIGatewayProxyEvent): Promise<any> {
+export async function router(
+    event: APIGatewayProxyEvent
+): Promise<APIResponse> {
     await deleteUser(event.pathParameters.id as string);
     return new SuccessResponse({
         message: `user with id : ${event.pathParameters.id} deleted`,

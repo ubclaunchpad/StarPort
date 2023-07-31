@@ -1,67 +1,37 @@
-// import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-// import { formatResponse } from '../../util/util';
-// import { verifyUserIsLoggedIn } from '../util/authorization';
-// import { Client } from 'pg';
-//
-// const client = new Client(process.env.MAIN_DATABASE_URL);
-// console.log(process.env.MAIN_DATABASE_URL);
-// (async () => {
-//     await client.connect();
-// })();
-//
-// export const handler = async function (
-//     event: APIGatewayProxyEvent
-// ): Promise<APIGatewayProxyResult> {
-//     try {
-//         if (event === null) {
-//             throw new Error('event not found');
-//         }
-//         const auth = event.headers.Authorization;
-//
-//         if (auth === undefined) {
-//             throw new Error('Authorization header is missing');
-//         }
-//
-//         await verifyUserIsLoggedIn(auth);
-//
-//         if (event.body === null) {
-//             throw new Error('Request body is missing');
-//         }
-//
-//         const roles = JSON.parse(event.body) as { roleIds: number[] };
-//
-//         if (roles.roleIds === null || roles.roleIds.length === 0) {
-//             throw new Error('Role ids are missing');
-//         }
-//
-//         if (event.pathParameters === null || event.pathParameters.id === null) {
-//             throw new Error('User id is missing');
-//         }
-//
-//         await addUserRoles(event.pathParameters.id as string, roles);
-//         return formatResponse(200, {
-//             message: 'User roles added successfully',
-//         });
-//     } catch (error) {
-//         return formatResponse(400, { message: (error as Error).message });
-//     } finally {
-//         client.end();
-//     }
-// };
-//
-// export const addUserRoles = async (
-//     userId: string,
-//     userRoles: { roleIds: number[] }
-// ): Promise<void> => {
-//     const roles: string[] = [];
-//
-//     for (const roleId of userRoles.roleIds) {
-//         roles.push(`(${userId}, ${roleId})`);
-//     }
-//
-//     await client.query(
-//         `INSERT INTO person_role (user_id, role_id) VALUES ${roles.join(
-//             ', '
-//         )} ON DUPLICATE KEY UPDATE role_id=role_id`
-//     );
-// };
+import { getDatabase } from '../util/db';
+import { LambdaBuilder } from '../util/middleware/middleware';
+import { BadRequestError, SuccessResponse } from '../util/middleware/response';
+import { InputValidator } from '../util/middleware/inputValidator';
+import { APIGatewayEvent } from 'aws-lambda';
+import { Authorizer } from '../util/middleware/authorizer';
+import {ConnectionHandler} from "../util/middleware/connectionHandler";
+
+const db = getDatabase();
+export const handler = new LambdaBuilder(addUserRoleRequest)
+    .use(new InputValidator())
+    .use(new Authorizer())
+    .useAfter(new ConnectionHandler(db))
+    .build();
+
+async function addUserRoleRequest(event: APIGatewayEvent) {
+    const { id, roleId } = event.pathParameters;
+    await addRole(id, roleId);
+    return new SuccessResponse({ message: 'Role added successfully' });
+}
+
+export const addRole = async (userId: string, roleId: string) => {
+    const verifyRole = await db
+        .selectFrom('role')
+        .select('id')
+        .where('id', '=', roleId)
+        .executeTakeFirst();
+
+    if (!verifyRole) {
+        throw new BadRequestError(`Invalid role id: ${roleId}`);
+    }
+
+    await db
+        .insertInto('person_role')
+        .values({ user_id: userId, role_id: roleId })
+        .execute();
+};

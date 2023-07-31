@@ -5,11 +5,13 @@ import { InputValidator } from '../util/middleware/inputValidator';
 import { getFaculties, refreshCache } from './faculties';
 import { APIGatewayEvent } from 'aws-lambda';
 import { Authorizer } from '../util/middleware/authorizer';
+import {ConnectionHandler} from "../util/middleware/connectionHandler";
 
 const db = getDatabase();
 export const handler = new LambdaBuilder(updateFacultyRequest)
     .use(new InputValidator())
     .use(new Authorizer())
+    .useAfter(new ConnectionHandler(db))
     .build();
 
 async function updateFacultyRequest(event: APIGatewayEvent) {

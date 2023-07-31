@@ -11,6 +11,7 @@ import { IMiddleware, isRouter, LambdaHandler, Router } from './types';
 export class LambdaBuilder {
     private readonly entry: Router | LambdaHandler;
     private middlewares: IMiddleware[] = [];
+    private cleanupFunctions: IMiddleware[] = [];
 
     constructor(entry: Router | LambdaHandler) {
         this.entry = entry;
@@ -50,6 +51,11 @@ export class LambdaBuilder {
         return this;
     }
 
+    public useAfter(middleware: IMiddleware) {
+        this.cleanupFunctions.push(middleware);
+        return this;
+    }
+
     public build(): LambdaHandler {
         return async (event: APIGatewayProxyEvent) => {
             try {
@@ -59,6 +65,10 @@ export class LambdaBuilder {
                     input = { ...input, ...output };
                 }
                 const res = await this.router(input);
+                for (const middleware of this.cleanupFunctions) {
+                    const output = await middleware.handler(input);
+                    input = { ...input, ...output };
+                }
                 return new APIReturnResponse(res);
             } catch (error) {
                 const eventError = error as APIError;

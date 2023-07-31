@@ -2,6 +2,7 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import { Construct, IDependable } from 'constructs';
 import { Role } from 'aws-cdk-lib/aws-iam';
+import {Duration} from "aws-cdk-lib";
 
 export type Method = 'GET' | 'POST' | 'PUT' | 'OPTIONS' | 'PATCH' | 'DELETE';
 
@@ -106,8 +107,10 @@ export class ApiService {
     initializeLambda(lambdaConfig: ILambdaConfig) {
         this.lambdas[lambdaConfig.id] = new lambda.Function(
             this.scope,
+
             lambdaConfig.id,
             {
+                timeout: Duration.minutes(1),
                 ...this.lambdaConfig,
                 code: lambda.Code.fromAsset(lambdaConfig.path),
             }

@@ -8,16 +8,13 @@ export class Authorizer implements IMiddleware<IHandlerEvent, object> {
     public handler = async (event: APIGatewayProxyEvent) => {
         const auth = event.headers.Authorization;
         if (auth === undefined) {
-            throw new Error('Authorization header is missing');
+            throw new UnauthorizedError('Authorization header is missing');
         }
         const googleAuth = await this.verifyUserIsLoggedIn(auth);
         return { googleAccount: googleAuth };
     };
 
     verifyUserIsLoggedIn = async (auth: string) => {
-        if (!auth) {
-            throw new UnauthorizedError('Authorization header is missing');
-        }
         const googleAuthUser = jwt_decode(auth) as GoogleAuthUser;
 
         if (!googleAuthUser.email) {

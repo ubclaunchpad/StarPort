@@ -1,30 +1,30 @@
-import { getDatabase, NewFaculty } from '../util/db';
+import { getDatabase, NewRole } from '../util/db';
 import { LambdaBuilder } from '../util/middleware/middleware';
 import { SuccessResponse } from '../util/middleware/response';
 import { InputValidator } from '../util/middleware/inputValidator';
-import { getFaculties, refreshCache } from './faculties';
+import { getRoles, refreshCache } from './roles';
 import { APIGatewayEvent } from 'aws-lambda';
 import { Authorizer } from '../util/middleware/authorizer';
 import {ConnectionHandler} from "../util/middleware/connectionHandler";
 
 const db = getDatabase();
-export const handler = new LambdaBuilder(createFacultyRequest)
+export const handler = new LambdaBuilder(createRoleRequest)
     .use(new InputValidator())
     .use(new Authorizer())
     .useAfter(new ConnectionHandler(db))
     .build();
 
-async function createFacultyRequest(event: APIGatewayEvent) {
+async function createRoleRequest(event: APIGatewayEvent) {
     const { label } = JSON.parse(event.body);
-    await createFaculty({ label });
+    await createRole({ label });
     await refreshCache(db);
-    return new SuccessResponse(await getFaculties(db));
+    return new SuccessResponse(await getRoles(db));
 }
 
-export const createFaculty = async (newFaculty: NewFaculty) => {
+export const createRole = async (newRole: NewRole) => {
     const { id } = await db
-        .insertInto('faculty')
-        .values(newFaculty)
+        .insertInto('role')
+        .values(newRole)
         .returning('id')
         .executeTakeFirst();
     return id;

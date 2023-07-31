@@ -3,7 +3,11 @@ import { getDatabase } from '../util/db';
 import { LambdaBuilder } from '../util/middleware/middleware';
 import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
-import { NotFoundError, SuccessResponse } from '../util/middleware/response';
+import {
+    APIResponse,
+    NotFoundError,
+    SuccessResponse,
+} from '../util/middleware/response';
 
 const db = getDatabase();
 export const handler = new LambdaBuilder(router)
@@ -11,7 +15,9 @@ export const handler = new LambdaBuilder(router)
     .use(new Authorizer())
     .build();
 
-export async function router(event: APIGatewayProxyEvent): Promise<any> {
+export async function router(
+    event: APIGatewayProxyEvent
+): Promise<APIResponse> {
     const userEmail = (event as unknown as { googleAccount: { email: string } })
         .googleAccount.email;
     const user = await getUser(userEmail);
