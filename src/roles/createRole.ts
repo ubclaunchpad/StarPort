@@ -1,20 +1,20 @@
 import { getDatabase, NewRole } from '../util/db';
-import { LambdaBuilder } from '../util/middleware/middleware';
+import {LambdaBuilder, LambdaInput} from '../util/middleware/middleware';
 import { SuccessResponse } from '../util/middleware/response';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { getRoles, refreshCache } from './roles';
-import { APIGatewayEvent } from 'aws-lambda';
 import { Authorizer } from '../util/middleware/authorizer';
-import {ConnectionHandler} from "../util/middleware/connectionHandler";
+import {ScopeController} from "../util/middleware/scopeHandler";
 
 const db = getDatabase();
 export const handler = new LambdaBuilder(createRoleRequest)
     .use(new InputValidator())
     .use(new Authorizer())
-    .useAfter(new ConnectionHandler(db))
+    .use(new ScopeController(db))
     .build();
 
-async function createRoleRequest(event: APIGatewayEvent) {
+async function createRoleRequest(event: LambdaInput) {
+    ScopeController.verifyScopes(event.userScopes, ['admin:write'])
     const { label } = JSON.parse(event.body);
     await createRole({ label });
     await refreshCache(db);

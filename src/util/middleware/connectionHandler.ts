@@ -10,6 +10,6 @@ export class ConnectionHandler implements IMiddleware {
     }
 
     public handler = async () => {
-        await this.connection.destroy();
+       // TODO: Implement
     };
 }

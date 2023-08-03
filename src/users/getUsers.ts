@@ -1,27 +1,30 @@
-import { APIGatewayProxyEvent } from 'aws-lambda';
 import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { getDatabase } from '../util/db';
 import { IPersonQuery } from '../util/types/general';
-import { LambdaBuilder } from '../util/middleware/middleware';
+import {LambdaBuilder, LambdaInput} from '../util/middleware/middleware';
 import { APIResponse, SuccessResponse } from '../util/middleware/response';
+import {ScopeController} from "../util/middleware/scopeHandler";
 
 const db = getDatabase();
 
 export const handler = new LambdaBuilder(getRequest)
     .use(new InputValidator())
     .use(new Authorizer())
+    .use(new ScopeController(db))
     .build();
 
 export async function getRequest(
-    event: APIGatewayProxyEvent
+    event: LambdaInput
 ): Promise<APIResponse> {
     const personQuery = ((event && event.queryStringParameters) ||
         {}) as unknown as IPersonQuery;
-    return new SuccessResponse(await getAll(personQuery));
+    return new SuccessResponse(await getAll(personQuery, event.userScopes));
 }
 
-export async function getAll(personQuery: IPersonQuery) {
+export async function getAll(personQuery: IPersonQuery, userScopes: string[]) {
+    const hasReadScope = userScopes.includes('profile:read:others')
+
     const res = await db
         .selectFrom('person')
         .innerJoin('faculty', 'person.faculty_id', 'faculty.id')
@@ -31,18 +34,16 @@ export async function getAll(personQuery: IPersonQuery) {
             'person.specialization_id',
             'specialization.id'
         )
-        .select([
+        .select( ['person.last_name',
             'person.id',
-            'person.last_name',
             'person.pref_name',
-            'person.email',
             'person.faculty_id',
             'person.standing_id',
             'person.specialization_id',
             'faculty.label as faculty_label',
             'standing.label as standing_label',
-            'specialization.label as specialization_label',
-        ])
+            'specialization.label as specialization_label'])
+        .$if(hasReadScope, (qb) => qb.select( 'person.email'))
         .limit(personQuery.limit || 10)
         .offset(personQuery.offset || 0)
         .execute();

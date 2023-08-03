@@ -17,6 +17,8 @@ export interface Database {
     specialization: SpecializationTable;
     person: PersonTable;
     person_role: PersonRoleTable;
+    scope: ScopeTable;
+    scope_role: ScopeRole;
 }
 
 export function getDatabase() {
@@ -83,3 +85,21 @@ export interface PersonRoleTable {
 export type PersonRole = Selectable<PersonRoleTable>;
 export type NewPersonRole = Insertable<PersonRoleTable>;
 export type UpdatePersonRole = Updateable<PersonRoleTable>;
+
+export interface ScopeTable {
+ label: string;
+ description: string;
+}
+
+export type Scope = Selectable<ScopeTable>;
+export type NewScope = Insertable<ScopeTable>;
+export type UpdateScope = Updateable<ScopeTable>;
+
+export interface ScopeRoleTable {
+    role_label: string;
+    scope_label: string;
+}
+
+export type ScopeRole = Selectable<ScopeRoleTable>;
+export type NewScopeRole = Insertable<ScopeRoleTable>;
+export type UpdateScopeRole = Updateable<ScopeRole>;

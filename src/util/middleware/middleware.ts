@@ -1,4 +1,4 @@
-import { APIGatewayEvent, APIGatewayProxyEvent } from 'aws-lambda';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import {
     APIError,
     APIErrorResponse,
@@ -8,6 +8,9 @@ import {
 } from './response';
 import { IMiddleware, isRouter, LambdaHandler, Router } from './types';
 
+export interface LambdaInput extends APIGatewayProxyEvent {
+    [key: string]: any;
+}
 export class LambdaBuilder {
     private readonly entry: Router | LambdaHandler;
     private middlewares: IMiddleware[] = [];
@@ -17,7 +20,7 @@ export class LambdaBuilder {
         this.entry = entry;
     }
 
-    async router(event: APIGatewayEvent): Promise<APIResponse> {
+    async router(event: LambdaInput): Promise<APIResponse> {
         if (isRouter(this.entry)) {
             const router = this.entry as Router;
             if (router[event.httpMethod.toLowerCase()] === undefined) {
