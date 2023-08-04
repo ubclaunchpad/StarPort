@@ -5,9 +5,9 @@ export interface IUserBasicInfo {
     prefName: string;
     lastName: string;
     email: string;
-    standingId: number;
-    facultyId: number;
-    specializationId: number;
+    standingId: string;
+    facultyId: string;
+    specializationId: string;
 }
 
 export interface IIntegrations {

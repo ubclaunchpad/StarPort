@@ -32,10 +32,16 @@ export class UserStack extends LPStack {
             handler: 'index.handler',
             environment: {
                 ...dataBaseInfo,
+                MAIN_DATABASE_URL: process.env.MAIN_DATABASE_URL || '',
             },
         };
 
-        const baseLambdaDir = 'dist/users';
+        const baseLambdaDir = 'dist/';
+        const usersLambdaDir = `${baseLambdaDir}/users`;
+        const rolesLambdaDir = `${baseLambdaDir}/roles`;
+        const facultiesLambdaDir = `${baseLambdaDir}/faculties`;
+        const standingsLambdaDir = `${baseLambdaDir}/standings`;
+        const specializationsLambdaDir = `${baseLambdaDir}/specializations`;
 
         const apiResources: IApiResources = {
             subresources: {
@@ -43,28 +49,52 @@ export class UserStack extends LPStack {
                     endpoints: {
                         GET: {
                             id: 'getUsers',
-                            path: `${baseLambdaDir}/getUsers`,
+                            path: `${usersLambdaDir}/getUsers`,
                         },
                         POST: {
                             id: 'createUser',
-                            path: `${baseLambdaDir}/createUser`,
+                            path: `${usersLambdaDir}/createUser`,
                         },
                     },
-
                     subresources: {
                         '{id}': {
                             endpoints: {
                                 GET: {
                                     id: 'getUser',
-                                    path: `${baseLambdaDir}/getUser`,
+                                    path: `${usersLambdaDir}/getUser`,
                                 },
                                 PATCH: {
                                     id: 'editUser',
-                                    path: `${baseLambdaDir}/editUser`,
+                                    path: `${usersLambdaDir}/editUser`,
                                 },
                                 DELETE: {
                                     id: 'deleteUser',
-                                    path: `${baseLambdaDir}/deleteUser`,
+                                    path: `${usersLambdaDir}/deleteUser`,
+                                },
+                            },
+                            subresources: {
+                                roles: {
+                                    endpoints: {
+
+                                        GET: {
+                                            id: 'getUserRoles',
+                                            path: `${baseLambdaDir}/roles/getUserRoles`,
+                                        }
+                                    },
+                                    subresources: {
+                                        "{roleId}": {
+                                            endpoints: {
+                                                POST: {
+                                                    id: 'addUserRole',
+                                                    path: `${baseLambdaDir}/roles/addUserRole`,
+                                                },
+                                                DELETE: {
+                                                    id: 'deleteUserRole',
+                                                    path: `${baseLambdaDir}/roles/deleteUserRole`,
+                                                },
+                                            }
+                                        }
+                                    }
                                 },
                             },
                         },
@@ -73,7 +103,7 @@ export class UserStack extends LPStack {
                             endpoints: {
                                 GET: {
                                     id: 'getUserId',
-                                    path: `${baseLambdaDir}/getUserId`,
+                                    path: `${usersLambdaDir}/getUserId`,
                                 },
                             },
                         },
@@ -83,7 +113,19 @@ export class UserStack extends LPStack {
                     endpoints: {
                         GET: {
                             id: 'getFaculties',
-                            path: `${baseLambdaDir}/getFaculties`,
+                            path: `${facultiesLambdaDir}/getFaculties`,
+                        },
+                        POST: {
+                            id: 'createFaculty',
+                            path: `${facultiesLambdaDir}/createFaculty`,
+                        },
+                        PATCH: {
+                            id: 'updateFaculty',
+                            path: `${facultiesLambdaDir}/updateFaculty`,
+                        },
+                        DELETE: {
+                            id: 'deleteFaculty',
+                            path: `${facultiesLambdaDir}/deleteFaculty`,
                         },
                     },
                 },
@@ -91,15 +133,48 @@ export class UserStack extends LPStack {
                     endpoints: {
                         GET: {
                             id: 'getRoles',
-                            path: `${baseLambdaDir}/getRoles`,
+                            path: `${rolesLambdaDir}/getRoles`,
                         },
+                        POST: {
+                            id: 'createRole',
+                            path: `${rolesLambdaDir}/createRole`,
+                        },
+
+
                     },
+                    subresources: {
+                        "{id}": {
+                            endpoints: {
+                                PATCH: {
+                                    id: 'updateRole',
+                                    path: `${rolesLambdaDir}/updateRole`,
+                                },
+                                DELETE: {
+                                    id: 'deleteRole',
+                                    path: `${rolesLambdaDir}/deleteRole`,
+                                },
+                            }
+
+                        }
+                    }
                 },
                 specializations: {
                     endpoints: {
                         GET: {
                             id: 'getSpecializations',
-                            path: `${baseLambdaDir}/getSpecializations`,
+                            path: `${specializationsLambdaDir}/getSpecializations`,
+                        },
+                        POST: {
+                            id: 'createSpecialization',
+                            path: `${specializationsLambdaDir}/createSpecialization`,
+                        },
+                        PATCH: {
+                            id: 'updateSpecialization',
+                            path: `${specializationsLambdaDir}/updateSpecialization`,
+                        },
+                        DELETE: {
+                            id: 'deleteSpecialization',
+                            path: `${specializationsLambdaDir}/deleteSpecialization`,
                         },
                     },
                 },
@@ -107,7 +182,19 @@ export class UserStack extends LPStack {
                     endpoints: {
                         GET: {
                             id: 'getStandings',
-                            path: `${baseLambdaDir}/getStandings`,
+                            path: `${standingsLambdaDir}/getStandings`,
+                        },
+                        POST: {
+                            id: 'createStanding',
+                            path: `${standingsLambdaDir}/createStanding`,
+                        },
+                        PATCH: {
+                            id: 'updateStanding',
+                            path: `${standingsLambdaDir}/updateStanding`,
+                        },
+                        DELETE: {
+                            id: 'deleteStanding',
+                            path: `${standingsLambdaDir}/deleteStanding`,
                         },
                     },
                 },

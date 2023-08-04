@@ -1,6 +1,8 @@
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
-import { Construct } from 'constructs';
+import { Construct, IDependable } from 'constructs';
+import { Role } from 'aws-cdk-lib/aws-iam';
+import {Duration} from "aws-cdk-lib";
 
 export type Method = 'GET' | 'POST' | 'PUT' | 'OPTIONS' | 'PATCH' | 'DELETE';
 
@@ -13,6 +15,7 @@ export interface ILambdaEnvironment {
     runtime: lambda.Runtime;
     handler: string;
     environment: { [key: string]: string };
+    role?: Role;
 }
 
 export type IEndpoint = {
@@ -38,7 +41,8 @@ export class ApiService {
         scope: Construct,
         apiResources: IApiResources,
         id: string,
-        lambdaConfig: ILambdaEnvironment
+        lambdaConfig: ILambdaEnvironment,
+        deps?: IDependable
     ) {
         this.lambdaConfig = lambdaConfig;
         this.scope = scope;
@@ -50,6 +54,10 @@ export class ApiService {
             },
             cloudWatchRole: true,
         });
+
+        if (deps) {
+            restApi.node.addDependency(deps);
+        }
 
         this.defineResources(restApi.root, apiResources);
     }
@@ -99,8 +107,10 @@ export class ApiService {
     initializeLambda(lambdaConfig: ILambdaConfig) {
         this.lambdas[lambdaConfig.id] = new lambda.Function(
             this.scope,
+
             lambdaConfig.id,
             {
+                timeout: Duration.minutes(1),
                 ...this.lambdaConfig,
                 code: lambda.Code.fromAsset(lambdaConfig.path),
             }
