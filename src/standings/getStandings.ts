@@ -1,10 +1,10 @@
-import { getDatabase } from '../util/db';
+import { getDatabaseParser } from '../util/db';
 import { LambdaBuilder } from '../util/middleware/middleware';
 import { SuccessResponse } from '../util/middleware/response';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { standings, refreshCache } from './standings';
 
-const db = getDatabase();
+const db = getDatabaseParser();
 export const handler = new LambdaBuilder(getStandingRequest)
     .use(new InputValidator())
     .build();

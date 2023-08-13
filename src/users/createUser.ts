@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { getDatabase, NewPerson, Person } from '../util/db';
+import {getDatabaseParser, NewPerson, Person, queryDatabaseAPI} from '../util/db';
 import { LambdaBuilder } from '../util/middleware/middleware';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { Authorizer } from '../util/middleware/authorizer';
@@ -9,7 +9,7 @@ import {
     SuccessResponse,
 } from '../util/middleware/response';
 
-const db = getDatabase();
+const db = getDatabaseParser();
 
 export const handler = new LambdaBuilder(router)
     .use(new InputValidator())
@@ -69,13 +69,14 @@ export const validateEmail = async (email: string): Promise<void> => {
     //         'email is invalid. Must be a valid gmail address'
     //     );
     // }
-    const person = await db
+    const query = await db
         .selectFrom('person')
         .select(['email'])
         .where('email', '=', email)
-        .executeTakeFirst();
+        .compile();
 
-    console.log(person);
+    const person = (await queryDatabaseAPI(query)).rows[0];
+
     if (person) {
         throw new BadRequestError('email already exists');
     }

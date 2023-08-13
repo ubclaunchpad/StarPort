@@ -1,6 +1,6 @@
 import { IMiddleware } from './types';
-import {Kysely} from "kysely";
-import {Database} from "../db";
+import { Kysely } from 'kysely';
+import { Database } from '../db';
 
 export class ConnectionHandler implements IMiddleware {
     connection: Kysely<Database>;
@@ -10,6 +10,6 @@ export class ConnectionHandler implements IMiddleware {
     }
 
     public handler = async () => {
-       // TODO: Implement
+        // TODO: Implement
     };
 }

@@ -1,11 +1,11 @@
-import { getDatabase } from '../util/db';
+import { getDatabaseParser, queryDatabaseAPI } from '../util/db';
 import { LambdaBuilder } from '../util/middleware/middleware';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { APIResponse, SuccessResponse } from '../util/middleware/response';
 import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
 
-const db = getDatabase();
+const db = getDatabaseParser();
 
 export const handler = new LambdaBuilder(router)
     .use(new InputValidator())
@@ -20,7 +20,7 @@ export async function router(
 }
 
 export async function getUser(userId: string) {
-    const res = await db
+    const query = await db
         .selectFrom('person')
         .innerJoin('faculty', 'person.faculty_id', 'faculty.id')
         .innerJoin('standing', 'person.standing_id', 'standing.id')
@@ -48,7 +48,9 @@ export async function getUser(userId: string) {
             'specialization.label as specialization_label',
         ])
         .where('person.id', '=', userId)
-        .executeTakeFirst();
+        .compile();
+
+    const res = (await queryDatabaseAPI(query)).rows[0];
 
     if (!res) {
         throw new Error('User not found');

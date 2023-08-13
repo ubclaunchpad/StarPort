@@ -1,4 +1,4 @@
-import { getDatabase, UpdateStanding } from '../util/db';
+import { getDatabaseParser, UpdateStanding } from '../util/db';
 import { LambdaBuilder } from '../util/middleware/middleware';
 import { SuccessResponse } from '../util/middleware/response';
 import { InputValidator } from '../util/middleware/inputValidator';
@@ -6,7 +6,7 @@ import { getStandings, refreshCache } from './standings';
 import { APIGatewayEvent } from 'aws-lambda';
 import { Authorizer } from '../util/middleware/authorizer';
 
-const db = getDatabase();
+const db = getDatabaseParser();
 export const handler = new LambdaBuilder(updateStandingRequest)
     .use(new InputValidator())
     .use(new Authorizer())

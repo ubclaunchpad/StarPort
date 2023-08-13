@@ -75,14 +75,13 @@ export class UserStack extends LPStack {
                             subresources: {
                                 roles: {
                                     endpoints: {
-
                                         GET: {
                                             id: 'getUserRoles',
                                             path: `${baseLambdaDir}/roles/getUserRoles`,
-                                        }
+                                        },
                                     },
                                     subresources: {
-                                        "{roleId}": {
+                                        '{roleId}': {
                                             endpoints: {
                                                 POST: {
                                                     id: 'addUserRole',
@@ -92,9 +91,9 @@ export class UserStack extends LPStack {
                                                     id: 'deleteUserRole',
                                                     path: `${baseLambdaDir}/roles/deleteUserRole`,
                                                 },
-                                            }
-                                        }
-                                    }
+                                            },
+                                        },
+                                    },
                                 },
                             },
                         },
@@ -139,11 +138,9 @@ export class UserStack extends LPStack {
                             id: 'createRole',
                             path: `${rolesLambdaDir}/createRole`,
                         },
-
-
                     },
                     subresources: {
-                        "{id}": {
+                        '{id}': {
                             endpoints: {
                                 PATCH: {
                                     id: 'updateRole',
@@ -153,10 +150,9 @@ export class UserStack extends LPStack {
                                     id: 'deleteRole',
                                     path: `${rolesLambdaDir}/deleteRole`,
                                 },
-                            }
-
-                        }
-                    }
+                            },
+                        },
+                    },
                 },
                 specializations: {
                     endpoints: {

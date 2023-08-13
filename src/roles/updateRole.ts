@@ -1,13 +1,13 @@
-import { getDatabase, UpdateRole } from '../util/db';
+import { getDatabaseParser, UpdateRole } from '../util/db';
 import { LambdaBuilder } from '../util/middleware/middleware';
 import { SuccessResponse } from '../util/middleware/response';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { getRoles, refreshCache } from './roles';
 import { APIGatewayEvent } from 'aws-lambda';
 import { Authorizer } from '../util/middleware/authorizer';
-import {ConnectionHandler} from "../util/middleware/connectionHandler";
+import { ConnectionHandler } from '../util/middleware/connectionHandler';
 
-const db = getDatabase();
+const db = getDatabaseParser();
 export const handler = new LambdaBuilder(updateRoleRequest)
     .use(new InputValidator())
     .use(new Authorizer())

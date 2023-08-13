@@ -3,9 +3,9 @@ import { LambdaBuilder } from '../util/middleware/middleware';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { Authorizer } from '../util/middleware/authorizer';
 import { APIResponse, SuccessResponse } from '../util/middleware/response';
-import { getDatabase, UpdatePerson } from '../util/db';
+import {getDatabaseParser, queryDatabaseAPI, UpdatePerson} from '../util/db';
 
-const db = getDatabase();
+const db = getDatabaseParser();
 
 export const handler = new LambdaBuilder(updateRequest)
     .use(new InputValidator())
@@ -32,11 +32,12 @@ export const updateUser = async (
         ...UpdatePerson,
         updated_at: new Date().toISOString(),
     };
-    await db
+    const query = db
         .updateTable('person')
         .set({
             ...updatedUser,
         })
         .where('id', '=', userId)
-        .execute();
+        .compile();
+    await queryDatabaseAPI(query);
 };

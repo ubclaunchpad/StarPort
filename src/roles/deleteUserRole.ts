@@ -1,12 +1,12 @@
-import { getDatabase } from '../util/db';
+import { getDatabaseParser } from '../util/db';
 import { LambdaBuilder } from '../util/middleware/middleware';
 import { BadRequestError, SuccessResponse } from '../util/middleware/response';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { APIGatewayEvent } from 'aws-lambda';
 import { Authorizer } from '../util/middleware/authorizer';
-import {ConnectionHandler} from "../util/middleware/connectionHandler";
+import { ConnectionHandler } from '../util/middleware/connectionHandler';
 
-const db = getDatabase();
+const db = getDatabaseParser();
 export const handler = new LambdaBuilder(deleteUserRoleRequest)
     .use(new InputValidator())
     .use(new Authorizer())
@@ -27,7 +27,9 @@ export const deleteUserRole = async (userId: string, roleId: string) => {
         .where('role_id', '=', roleId)
         .executeTakeFirst();
     if (!verifyRole) {
-        throw new BadRequestError(`role id: ${roleId} does not exist for user id: ${userId}`);
+        throw new BadRequestError(
+            `role id: ${roleId} does not exist for user id: ${userId}`
+        );
     }
 
     await db

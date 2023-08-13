@@ -1,11 +1,11 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { getDatabase } from '../util/db';
+import {getDatabaseParser, queryDatabaseAPI} from '../util/db';
 import { LambdaBuilder } from '../util/middleware/middleware';
 import { APIResponse, SuccessResponse } from '../util/middleware/response';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { Authorizer } from '../util/middleware/authorizer';
 
-const db = getDatabase();
+const db = getDatabaseParser();
 
 export const handler = new LambdaBuilder(router)
     .use(new InputValidator())
@@ -22,5 +22,6 @@ export async function router(
 }
 
 export const deleteUser = async (userId: string): Promise<void> => {
-    await db.deleteFrom('person').where('id', '=', userId).execute();
+    const query = db.deleteFrom('person').where('id', '=', userId).compile();
+    await queryDatabaseAPI(query);
 };

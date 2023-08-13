@@ -134,8 +134,17 @@ class UnsupportedEndpointError extends APIError {
     }
 }
 
+class DatabaseError extends APIError {
+    statusCode = 500;
+    constructor(message: string) {
+        super(message);
+        this.name = 'DatabaseError';
+    }
+}
+
 export {
     ValidationError,
+    DatabaseError,
     NotFoundError,
     UnauthorizedError,
     ForbiddenError,

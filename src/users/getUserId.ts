@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { getDatabase } from '../util/db';
+import { getDatabaseParser, queryDatabaseAPI } from '../util/db';
 import { LambdaBuilder } from '../util/middleware/middleware';
 import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
@@ -9,7 +9,7 @@ import {
     SuccessResponse,
 } from '../util/middleware/response';
 
-const db = getDatabase();
+const db = getDatabaseParser();
 export const handler = new LambdaBuilder(router)
     .use(new InputValidator())
     .use(new Authorizer())
@@ -25,11 +25,15 @@ export async function router(
 }
 
 export async function getUser(userEmail: string) {
-    const user = await db
+    const query = await db
         .selectFrom('person')
         .select(['id', 'email'])
         .where('email', '=', userEmail)
-        .executeTakeFirst();
+        .compile();
+
+    const res = (await queryDatabaseAPI(query)).rows;
+
+    const user = res[0];
 
     if (!user) {
         throw new NotFoundError(`User with email ${userEmail} not found`);

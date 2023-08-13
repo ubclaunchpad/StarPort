@@ -1,4 +1,4 @@
-import { getDatabase, UpdateSpecialization } from '../util/db';
+import { getDatabaseParser, UpdateSpecialization } from '../util/db';
 import { LambdaBuilder } from '../util/middleware/middleware';
 import { SuccessResponse } from '../util/middleware/response';
 import { InputValidator } from '../util/middleware/inputValidator';
@@ -6,7 +6,7 @@ import { getSpecializations, refreshCache } from './specializations';
 import { APIGatewayEvent } from 'aws-lambda';
 import { Authorizer } from '../util/middleware/authorizer';
 
-const db = getDatabase();
+const db = getDatabaseParser();
 export const handler = new LambdaBuilder(updateSpecializationRequest)
     .use(new InputValidator())
     .use(new Authorizer())

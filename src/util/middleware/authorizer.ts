@@ -5,7 +5,6 @@ import { GoogleAuthUser } from '../authorization';
 import { IHandlerEvent, IMiddleware } from './types';
 
 export class Authorizer implements IMiddleware<IHandlerEvent, object> {
-
     public handler = async (event: APIGatewayProxyEvent) => {
         const auth = event.headers.Authorization;
         if (auth === undefined) {

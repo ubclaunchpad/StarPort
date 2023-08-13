@@ -1,11 +1,11 @@
-import { getDatabase } from '../util/db';
+import { getDatabaseParser } from '../util/db';
 import { LambdaBuilder } from '../util/middleware/middleware';
 import { SuccessResponse } from '../util/middleware/response';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { faculties, refreshCache } from './faculties';
-import {ConnectionHandler} from "../util/middleware/connectionHandler";
+import { ConnectionHandler } from '../util/middleware/connectionHandler';
 
-const db = getDatabase();
+const db = getDatabaseParser();
 export const handler = new LambdaBuilder(getFacultyRequest)
     .use(new InputValidator())
     .useAfter(new ConnectionHandler(db))
