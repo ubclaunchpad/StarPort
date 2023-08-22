@@ -42,6 +42,7 @@ export class UserStack extends LPStack {
         const facultiesLambdaDir = `${baseLambdaDir}/faculties`;
         const standingsLambdaDir = `${baseLambdaDir}/standings`;
         const specializationsLambdaDir = `${baseLambdaDir}/specializations`;
+        const slackLambdaDir = `${baseLambdaDir}/slack`;
 
         const apiResources: IApiResources = {
             subresources: {
@@ -139,8 +140,6 @@ export class UserStack extends LPStack {
                             id: 'createRole',
                             path: `${rolesLambdaDir}/createRole`,
                         },
-
-
                     },
                     subresources: {
                         "{id}": {
@@ -198,6 +197,14 @@ export class UserStack extends LPStack {
                         },
                     },
                 },
+                slack: {
+                    endpoints: {
+                        POST: {
+                            id: 'updateRoleForMember',
+                            path: `${slackLambdaDir}/addMemberRole`,
+                        },
+                    }
+                }
             },
         };
 
