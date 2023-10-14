@@ -8,6 +8,7 @@
     "scripts": {
         "clean": "rm -rf dist",
         "build": " esbuild ./src/**/*.ts --entry-names=[dir]/[name]/index --bundle   --platform=node --target=node16.14 --outdir=./dist/ ",
+        "build-win": " powershell -ExecutionPolicy Bypass -File win-build.ps1 ",
         "watch": "tsc -w",
         "cdk:synth": "cdk synth",
         "lint": "eslint .",
