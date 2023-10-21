@@ -1,0 +1,67 @@
+#!/bin/bash
+stack_name=$1
+port=$2
+docker_opt=$3
+
+# Allow for the script to be run from anywhere
+cd "$(dirname "$0")"
+
+# set working directory to root
+cd ..
+
+# Allow flags to be passed to the script
+while getopts ":e:" opt; do
+  case $opt in
+    e) env="$OPTARG"
+    ;;
+    \?) echo "Invalid option -$OPTARG" >&2
+    ;;
+  esac
+done
+
+echo "Starting local development environment..."
+# compile TS to JS with hot reload
+esbuild ./src/**/*.ts \
+  --entry-names=[dir]/[name]/index \
+  --bundle \
+  --platform=node \
+  --target=node16.14 \
+  --outdir=./dist/ \
+  --watch=forever &
+
+# CDK
+cdk synth --no-staging --quiet
+
+# Default values
+template="users-stack.template"
+port="8000"
+lazy="LAZY"
+
+# Check if the MSYSTEM environment variable contains "MINGW" (indicative of Windows Git Bash)
+if [[ "$(echo "$MSYSTEM" | awk '{print tolower($0)}')" == mingw* ]]; then
+    command="sam.cmd local start-api -t ./cdk.out/$template.json --port $port --warm-containers $lazy --skip-pull-image"
+else
+    command="sam local start-api -t ./cdk.out/$template.json --port $port --warm-containers $lazy --skip-pull-image"
+fi
+
+# Check if positional arguments ($1, $2, $3) are provided and update parameters if necessary
+if [ -n "$1" ]; then
+    template="$1"
+fi
+
+if [ -n "$2" ]; then
+    port="$2"
+fi
+
+if [ -n "$3" ]; then
+    lazy="$3"
+fi
+
+# Prompt the user to confirm the parameters
+echo "Using the following parameters:"
+echo "Template: $template"
+echo "Port: $port"
+echo "Container Param: $lazy"
+
+# Execute the command
+eval $command
