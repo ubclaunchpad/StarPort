@@ -8,7 +8,7 @@
     "scripts": {
         "clean": "rm -rf dist",
         "build": " sh ./scripts/build", 
-        "TEST:API": " sh ./scripts/serve", 
+        "test:api": " sh ./scripts/serve", 
         "watch": "tsc -w",
         "cdk:synth": "cdk synth",
         "lint": "eslint .",
