@@ -28,7 +28,8 @@ esbuild ./src/**/*.ts \
   --target=node16.14 \
   --outdir=./dist/ \
   --watch=forever &
-
+  esbuild_pid=$!
+  trap "kill $esbuild_pid" SIGINT
 # CDK
 cdk synth --no-staging --quiet
 
