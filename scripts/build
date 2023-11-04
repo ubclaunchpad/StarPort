@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Allow for the script to be run from anywhere
+cd "$(dirname "$0")"
+
+# set working directory to root
+cd ..
+
+# Allow flags to be passed to the script
+while getopts ":e:" opt; do
+  case $opt in
+    e) env="$OPTARG"
+    ;;
+    \?) echo "Invalid option -$OPTARG" >&2
+    ;;
+  esac
+done
+
+# compile TS to JS with hot reload
+esbuild ./src/**/*.ts \
+  --entry-names=[dir]/[name]/index \
+  --bundle \
+  --platform=node \
+  --target=node16.14 \
+  --outdir=./dist/ 
