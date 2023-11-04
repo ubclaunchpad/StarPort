@@ -38,13 +38,6 @@ template="wiki-stack.template"
 port="8000"
 lazy="LAZY"
 
-# Check if the MSYSTEM environment variable contains "MINGW" (indicative of Windows Git Bash)
-if [[ "$(echo "$MSYSTEM" | awk '{print tolower($0)}')" == mingw* ]]; then
-    command="sam.cmd local start-api -t ./cdk.out/$template.json --port $port --warm-containers $lazy --skip-pull-image"
-else
-    command="sam local start-api -t ./cdk.out/$template.json --port $port --warm-containers $lazy --skip-pull-image"
-fi
-
 # Check if positional arguments ($1, $2, $3) are provided and update parameters if necessary
 if [ -n "$1" ]; then
     template="$1"
@@ -57,6 +50,14 @@ fi
 if [ -n "$3" ]; then
     lazy="$3"
 fi
+
+# Check if the MSYSTEM environment variable contains "MINGW" (indicative of Windows Git Bash)
+if [[ "$(echo "$MSYSTEM" | awk '{print tolower($0)}')" == mingw* ]]; then
+    command="sam.cmd local start-api -t ./cdk.out/$template.json --port $port --warm-containers $lazy --skip-pull-image"
+else
+    command="sam local start-api -t ./cdk.out/$template.json --port $port --warm-containers $lazy --skip-pull-image"
+fi
+
 
 # Prompt the user to confirm the parameters
 echo "Using the following parameters:"
