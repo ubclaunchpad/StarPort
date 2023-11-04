@@ -133,7 +133,7 @@ You can test your functions in two ways:
 
 ### Running APIs Locally
 
-Similar to locally testing your lambdas, you can also run and test your APIs locally. THis is helpful when you have a few lambdas or stepfunctions, etc integrated to your API and you want to test the whole flow.
+Similar to locally testing your lambdas, you can also run and test your APIs locally. This is helpful when you have a few lambdas or stepfunctions, etc integrated to your API and you want to test the whole flow.
 
 - To run your API locally, run `sam local start-api`
 - To run your API locally with a debugger, run `sam local start-api -d 5858`
@@ -148,6 +148,19 @@ cdk synth
 ```
 
 *and then with all your stacks you should provide the relative path to the stack's template - check package.json for examples*
+
+## Running APIs with hot reload (capable on windows machine)
+
+We have integrated build-start commands into one bash script. 
+
+- To run your API locally, run `npm run test:api [stack] [port] [docker-option]`. 
+- `[stack]` field will be the full stack name under <lib> folder
+- `[port]`  field will be the port the service will listen on
+- `[docker-option]` field will be either `EAGER` or `LAZY` 
+
+> Note: `[]` fields are optional, and if is null the script will just use default setting (stack=wiki-template.stack; port=8000; docker-option=LAZY)
+
+> Note: when trying to end the process using ctrl+c, if it stuck just kill the terminal.
 
 ## Deployment
 
