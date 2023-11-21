@@ -1,84 +1,89 @@
 import chalk from 'chalk';
 import * as path from 'path';
 import * as fs from 'fs';
-import { Client, Pool } from 'pg';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import dotenv from 'dotenv';
+import mysql, { Connection } from 'mysql2';
+console.log('Connected to PlanetScale!')
 dotenv.config();
 
 const DATABASE_META_NAME = 'meta';
+const DATABASE_NAME = 'cosmic-dev';
 const MIGRATION_PATH = './resources/database/migrations';
 
-// TODO: add shell script to run with parameter/flag to reset database
-// TODO: add shell script to replace credentials if needed
-// TODO: add better error handling
-
 const setUpDatabase = async (
-    client: Client,
+    connection: Connection,
     withReset = false
 ): Promise<void> => {
     console.log(chalk.blue('INFO: ') + 'Setting up database');
-    const databases = (await client.query(
-        `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = $1`,
-        [DATABASE_META_NAME]
-    )) as { rows: string[] };
+    const tables = await query(
+        connection,
+        `SHOW TABLES IN ?? LIKE ?`,
+        [DATABASE_NAME, 'migrations']
+    );
 
-    if (withReset || databases.rows.length === 0) {
-        await initializeDatabase(client);
+    if (withReset || tables.length === 0) {
+        await initializeDatabase(connection);
     } else {
         console.log(
             chalk.blue('INFO: ') +
-                'Database already exists. Skipping initialization'
+                'Migrations table already exists. Skipping initialization'
         );
     }
-    await runMigrations(client);
+    await runMigrations(connection, DATABASE_NAME);
 };
 
-const initializeDatabase = async (connHandler): Promise<void> => {
-    await resetDatabase(connHandler);
-    await connHandler.query(
-        `CREATE DATABASE IF NOT EXISTS ${DATABASE_META_NAME}`
+const initializeDatabase = async (connection: Connection): Promise<void> => {
+    await resetDatabase(connection);
+    await query(
+        connection,
+        `CREATE DATABASE IF NOT EXISTS ??`,
+        [DATABASE_NAME]
     );
-    await connHandler.query(`USE ${DATABASE_META_NAME}`);
-    await connHandler.query(`CREATE TABLE IF NOT EXISTS migrations (
-       id SERIAL NOT NULL,
+    await query(connection, `USE ??`, [DATABASE_NAME]);
+    await query(connection, `CREATE TABLE IF NOT EXISTS migrations (
+       id INT AUTO_INCREMENT PRIMARY KEY,
        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-       status VARCHAR(255) NOT NULL DEFAULT 'pending',
-       PRIMARY KEY (id)
+       status VARCHAR(255) NOT NULL DEFAULT 'pending'
      )`);
 };
 
-const resetDatabase = async (connHandler): Promise<void> => {
-    const result = (await connHandler.query(
-        `SELECT datname FROM pg_database WHERE datname NOT IN ('postgres', 'system', 'migrations', 'admin')`
-    )) as { rows: { datname: string }[] };
+const resetDatabase = async (connection: Connection): Promise<void> => {
+    const result = await query(
+        connection,
+        `SHOW DATABASES WHERE \`Database\` NOT IN ('mysql', 'information_schema', 'performance_schema', 'sys')`
+    );
 
-    const databases = result.rows || [];
-
-    for (const database of databases) {
-        console.log(
-            chalk.bold(
-                'Dropping database ' + chalk.bold.underline(database.datname)
-            )
-        );
-        await connHandler.query(`DROP DATABASE ${database.datname}`);
+    for (const database of result) {
+        if (database.Database === DATABASE_NAME) {
+            console.log(
+                chalk.bold(
+                    'Emptying database ' + chalk.bold.underline(database.Database)
+                )
+            );
+            const tables = await query(connection, `SHOW TABLES IN ??`, [database.Database]);
+            console.log(tables);
+            for (const table of tables) {
+                const tableName = Object.values(table)[0];
+                await query(connection, `DROP TABLE ??`, [tableName]);
+            }
+        }
     }
 };
 
 async function runMigrations(
-    client,
+    connection: Connection,
     primaryDatabaseName = 'main'
 ): Promise<void> {
     let files = fs.readdirSync(MIGRATION_PATH);
 
     console.log(chalk.blue('INFO: ') + 'Running migrations');
 
-    const res = (await client.query(
-        `SELECT id, timestamp FROM ${DATABASE_META_NAME}.migrations ORDER BY id DESC LIMIT 1`
-    )) as { rows: { id: number; timestamp: string }[] };
+    const res = await query(
+        connection,
+        `SELECT id, timestamp FROM migrations ORDER BY id DESC LIMIT 1`
+    );
 
-    const lastMigration = res.rows || [];
+    const lastMigration = res || [];
 
     if (lastMigration.length > 0) {
         const lastMigrationTimestamp = lastMigration[0].timestamp;
@@ -89,42 +94,40 @@ async function runMigrations(
         });
     }
 
-    await client.query(`CREATE DATABASE IF NOT EXISTS ${primaryDatabaseName}`);
-    await client.query(`USE ${primaryDatabaseName}`);
+    // await query(connection, `CREATE DATABASE IF NOT EXISTS ??`, [
+    //     primaryDatabaseName,
+    // ]);
+    // await query(connection, `USE ??`, [primaryDatabaseName]);
 
-    const currentDB =
-        (
-            (await client.query('SELECT current_database() AS db')) as {
-                rows: { db: string }[];
-            }
-        ).rows || [];
+    const currentDB = await query(connection, 'SELECT database() AS db');
     console.log(
         chalk.blue('INFO: ') +
             'Database selected: ' +
             chalk.bold.underline(currentDB[0].db)
     );
-    await migrate(client, files);
+    await migrate(connection, files);
 }
 
-async function migrate(client, files: string[]): Promise<void> {
+async function migrate(connection: Connection, files: string[]): Promise<void> {
     for (const file of files) {
         const data = fs.readFileSync(
             path.resolve(MIGRATION_PATH, file),
             'utf8'
         );
-        await executeSqlFile(data, client, file);
+        await executeSqlFile(data, connection, file);
     }
 }
 
 async function executeSqlFile(
     sqlScripts: string,
-    client,
+    connection: Connection,
     fileName: string
 ): Promise<void> {
     const sqlStatements = sqlScripts.split(/;\s*$/m);
-    await executeStatements(sqlStatements);
-    await client.query(
-        `INSERT INTO ${DATABASE_META_NAME}.migrations (status) VALUES ('success')`
+    await executeStatements(sqlStatements, connection);
+    await query(
+        connection,
+        `INSERT INTO migrations (status) VALUES ('success')`
     );
 
     console.log(
@@ -135,59 +138,43 @@ async function executeSqlFile(
     );
 }
 
-async function executeStatements(sqlStatements: string[]): Promise<void> {
+async function executeStatements(
+    sqlStatements: string[],
+    connection: Connection
+): Promise<void> {
     console.log(chalk.blue('INFO: ') + 'Executing statements');
-    const pool = new Pool({
-        connectionString: process.env.MAIN_DATABASE_URL,
-    });
-    const client = await pool.connect();
-
-    try {
-        await client.query('BEGIN');
-        console.log(chalk.blue('INFO: ') + 'Transaction started');
-        for (const statement of sqlStatements) {
-            if (statement.trim() !== '') {
-                const removeDelimiter = statement
-                    .replace(/DELIMITER\s*\/\/\s*/g, '')
-                    .replace(/\/\/[\n\r\s]*DELIMITER/, '')
-                    .replace(/END/g, '; END');
-                await client.query(removeDelimiter);
-            }
+    for (const statement of sqlStatements) {
+        if (statement.trim() !== '') {
+            await query(connection, statement);
         }
-        await client.query('COMMIT');
-    } catch (err) {
-        await client.query('ROLLBACK');
-        console.log(chalk.bgRed('rollback transaction'));
-        throw err;
-    } finally {
-        client.release();
-        client.end();
     }
 }
 
-const run = (): void => {
-    let client;
-    try {
-        client = new Client(process.env.DATABASE_URL);
-        // inline promise wait for client to connect
-        (async () => {
-            await client.connect();
-        })();
-    } catch (error) {
-        console.log(error);
-        return;
-    }
-    setUpDatabase(client, true)
-        .then(() => {
-            console.log(chalk.bgGreen('Database setup completed'));
-        })
-        .catch((err) => {
-            console.error(chalk.bgRed(err));
-        })
-        .finally(() => {
-            console.log('Closing connection');
-            client.end();
+function query(connection: Connection, query: string, params?: any[]): Promise<any[]> {
+    return new Promise<any[] | any>((resolve, reject) => {
+        connection.query(query, params, (error, results) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(results);
+            }
         });
+    });
+}
+
+const run = (): void => {
+    const connection = mysql.createConnection(process.env.DATABASE_URL!)
+    setUpDatabase(connection, true)
+    .then(() => {
+        console.log(chalk.bgGreen('Database setup completed'));
+    })
+    .catch((err) => {
+        console.error(chalk.bgRed(err));
+    })
+    .finally(() => {
+        console.log('Closing connection');
+        connection.end();
+    });
 };
 
 run();

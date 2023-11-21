@@ -1,13 +1,13 @@
-import { Pool } from 'pg';
 import {
     Kysely,
-    PostgresDialect,
     Generated,
     Insertable,
     Selectable,
     Updateable,
 } from 'kysely';
 import { config } from 'dotenv';
+import { PlanetScaleDialect } from 'kysely-planetscale'
+import { fetch } from 'undici'
 config();
 
 export interface Database {
@@ -22,18 +22,23 @@ export interface Database {
 }
 
 export function getDatabase() {
-    const dialect = new PostgresDialect({
-        pool: new Pool({
-            connectionString: process.env.MAIN_DATABASE_URL,
-            max: 1,
-        }),
-    });
+    console.log('getDatabase');
+    console.log(process.env.DATABASE_USERNAME);
+    const db = new Kysely<Database>({
+        dialect: new PlanetScaleDialect({
+            fetch,
+          host: process.env.DATABASE_HOST,
+          username: process.env.DATABASE_USERNAME,
+          password: process.env.DATABASE_PASSWORD
+        })
+      });      
 
-    return new Kysely<Database>({ dialect });
+      return db;
+    
 }
 
 export interface DictTable<T> {
-    id: Generated<string>;
+    id: Generated<number>;
     label: T;
 }
 

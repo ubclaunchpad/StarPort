@@ -14,6 +14,7 @@ const app = new cdk.App();
 new UserStack(app, USER_STACK_INFO.NAME, {
     env: deploymentEnvironments[0],
     databaseConfig: DATABASE_CONFIG.getDBConfig(),
+    mode: process.env.ENVIRONMENT || 'dev',
 });
 
 new WikiStack(app, WIKI_STACK_INFO.NAME, {

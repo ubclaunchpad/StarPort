@@ -68,10 +68,16 @@ export class LambdaBuilder {
                     input = { ...input, ...output };
                 }
                 const res = await this.router(input);
+              
+                input = { ...input, ...{data: res.data} };
+                let finalOutput = res.data;
                 for (const middleware of this.cleanupFunctions) {
                     const output = await middleware.handler(input);
                     input = { ...input, ...output };
+                    finalOutput = output;
                 }
+                res.data = finalOutput;
+                res.body = JSON.stringify(res.data);
                 return new APIReturnResponse(res);
             } catch (error) {
                 const eventError = error as APIError;
