@@ -2,7 +2,6 @@ import { getDatabase } from '../util/db';
 import { LambdaBuilder } from '../util/middleware/middleware';
 import { SuccessResponse } from '../util/middleware/response';
 import { InputValidator } from '../util/middleware/inputValidator';
-import { getSpecializations, refreshCache } from './specializations';
 import { APIGatewayEvent } from 'aws-lambda';
 import { Authorizer } from '../util/middleware/authorizer';
 
@@ -13,12 +12,11 @@ export const handler = new LambdaBuilder(deleteSpecializationRequest)
     .build();
 
 async function deleteSpecializationRequest(event: APIGatewayEvent) {
-    const { id } = JSON.parse(event.body);
+    const { id } = event.pathParameters; 
     await deleteSpecialization(id);
-    await refreshCache(db);
-    return new SuccessResponse(await getSpecializations(db));
+    return new SuccessResponse({ message: `Faculty ${id} deleted` });
 }
 
-export const deleteSpecialization = async (id: string) => {
+export const deleteSpecialization = async (id: number) => {
     await db.deleteFrom('specialization').where('id', '=', id).execute();
 };

@@ -1,29 +1,48 @@
-import { getDatabase, NewStanding } from '../util/db';
-import { LambdaBuilder } from '../util/middleware/middleware';
+import { getDatabase } from '../util/db';
+import { LambdaBuilder, LambdaInput } from '../util/middleware/middleware';
 import { SuccessResponse } from '../util/middleware/response';
 import { InputValidator } from '../util/middleware/inputValidator';
-import { APIGatewayEvent } from 'aws-lambda';
-import { Authorizer } from '../util/middleware/authorizer';
-import { getStandings, refreshCache } from './standings';
+import { PaginationHelper, PaginationParams, ResponseMetaTagger,  } from '../util/middleware/paginationHelper';
 
+const DEFAULT_OFFSET = 0;
+const DEFAULT_LIMIT = 30;
 const db = getDatabase();
-export const handler = new LambdaBuilder(createStandingRequest)
+
+export const handler = new LambdaBuilder(getSpecializationRequest)
     .use(new InputValidator())
-    .use(new Authorizer())
+    .use(new PaginationHelper({ limit: DEFAULT_LIMIT, offset: DEFAULT_OFFSET}))
+    .useAfter(new ResponseMetaTagger())
     .build();
 
-async function createStandingRequest(event: APIGatewayEvent) {
-    const { label } = JSON.parse(event.body);
-    await createStanding({ label });
-    await refreshCache(db);
-    return new SuccessResponse(await getStandings(db));
+async function getSpecializationRequest(event: LambdaInput) {
+    if (event.pagination) {
+        const count = await countStandings();
+        event.pagination.count = count;
+    }
+
+    return new SuccessResponse(await getStandings(event.pagination as PaginationParams));
 }
 
-export const createStanding = async (newStanding: NewStanding) => {
-    const { id } = await db
-        .insertInto('standing')
-        .values(newStanding)
-        .returning('id')
-        .executeTakeFirst();
-    return id;
-};
+export async function getStandings(pagination: PaginationParams) {
+    const specializations = (await db.selectFrom('standing')
+    .limit(pagination.limit)
+    .offset(pagination.offset)
+    .selectAll().execute()) as {
+        id: number;
+        label: string;
+    }[];
+
+    return specializations;
+}
+
+async function countStandings() {
+    const ret = await db.selectFrom('standing')
+    .select(({ fn }) => [
+      fn.count<number>('id').as('count'),
+    ])
+    .executeTakeFirst();
+    if (!ret) {
+      throw new Error('Unable to count standings');
+    }
+    return Number(ret.count);
+}

@@ -1,14 +1,13 @@
-import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { config } from 'dotenv';
-import { LPStack, StackInfo } from './util/LPStack';
+import { LPStack, StackInfo, StackProps } from './util/LPStack';
 import { IDatabaseConfig } from '../config/database.config';
 import { ApiService, IApiResources } from './templates/apigateway';
 config();
 
 export const USER_STACK_INFO: StackInfo = { NAME: 'users-stack' };
-export interface UserStackProps extends cdk.StackProps {
+export interface UserStackProps extends StackProps {
     databaseConfig: IDatabaseConfig;
 }
 
@@ -20,18 +19,12 @@ export class UserStack extends LPStack {
         super(scope, id, props);
         const { databaseConfig } = props;
 
-        const dataBaseInfo = {
-            DB_HOST: databaseConfig.host,
-            DB_USERNAME: databaseConfig.user,
-            DB_PASSWORD: databaseConfig.password,
-            DB_NAME: databaseConfig.database,
-        };
-
         const lambdaConfigs = {
             runtime: lambda.Runtime.NODEJS_16_X,
             handler: 'index.handler',
             environment: {
-                ...dataBaseInfo,
+                ...databaseConfig,
+                mode: props.mode,
                 MAIN_DATABASE_URL: process.env.MAIN_DATABASE_URL || '',
             },
         };
@@ -119,15 +112,23 @@ export class UserStack extends LPStack {
                             id: 'createFaculty',
                             path: `${facultiesLambdaDir}/createFaculty`,
                         },
-                        PATCH: {
-                            id: 'updateFaculty',
-                            path: `${facultiesLambdaDir}/updateFaculty`,
-                        },
-                        DELETE: {
-                            id: 'deleteFaculty',
-                            path: `${facultiesLambdaDir}/deleteFaculty`,
-                        },
+                       
+                        
                     },
+                    subresources: {
+                        "{id}": {
+                            endpoints: {
+                                DELETE: {
+                                    id: 'deleteFaculty',
+                                    path: `${facultiesLambdaDir}/deleteFaculty`,
+                                },
+                                PATCH: {
+                                    id: 'updateFaculty',
+                                    path: `${facultiesLambdaDir}/updateFaculty`,
+                                },
+                            }
+                        }
+                    }
                 },
                 roles: {
                     endpoints: {
@@ -168,15 +169,22 @@ export class UserStack extends LPStack {
                             id: 'createSpecialization',
                             path: `${specializationsLambdaDir}/createSpecialization`,
                         },
-                        PATCH: {
-                            id: 'updateSpecialization',
-                            path: `${specializationsLambdaDir}/updateSpecialization`,
-                        },
-                        DELETE: {
-                            id: 'deleteSpecialization',
-                            path: `${specializationsLambdaDir}/deleteSpecialization`,
-                        },
+                       
                     },
+                    subresources: {
+                        "{id}": {
+                            endpoints: {
+                                DELETE: {
+                                    id: 'deleteSpecialization',
+                                    path: `${specializationsLambdaDir}/deleteSpecialization`,
+                                },
+                                PATCH: {
+                                    id: 'updateSpecialization',
+                                    path: `${specializationsLambdaDir}/updateSpecialization`,
+                                },
+                            }
+                        }
+                    }
                 },
                 standings: {
                     endpoints: {
@@ -188,15 +196,22 @@ export class UserStack extends LPStack {
                             id: 'createStanding',
                             path: `${standingsLambdaDir}/createStanding`,
                         },
-                        PATCH: {
-                            id: 'updateStanding',
-                            path: `${standingsLambdaDir}/updateStanding`,
-                        },
-                        DELETE: {
-                            id: 'deleteStanding',
-                            path: `${standingsLambdaDir}/deleteStanding`,
-                        },
+                        
                     },
+                    subresources: {
+                        "{id}": {
+                            endpoints: {
+                                DELETE: {
+                                    id: 'deleteStanding',
+                                    path: `${standingsLambdaDir}/deleteStanding`,
+                                },
+                                PATCH: {
+                                    id: 'updateStanding',
+                                    path: `${standingsLambdaDir}/updateStanding`,
+                                },
+                            }
+                        }
+                    }
                 },
             },
         };

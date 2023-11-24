@@ -1,13 +1,13 @@
-import { Pool } from 'pg';
 import {
     Kysely,
-    PostgresDialect,
     Generated,
     Insertable,
     Selectable,
     Updateable,
 } from 'kysely';
 import { config } from 'dotenv';
+import { PlanetScaleDialect } from 'kysely-planetscale'
+import { fetch } from 'undici'
 config();
 
 export interface Database {
@@ -22,18 +22,23 @@ export interface Database {
 }
 
 export function getDatabase() {
-    const dialect = new PostgresDialect({
-        pool: new Pool({
-            connectionString: process.env.MAIN_DATABASE_URL,
-            max: 1,
-        }),
-    });
+    console.log('getDatabase');
+    console.log(process.env.DATABASE_USERNAME);
+    const db = new Kysely<Database>({
+        dialect: new PlanetScaleDialect({
+            fetch,
+          host: process.env.DATABASE_HOST,
+          username: process.env.DATABASE_USERNAME,
+          password: process.env.DATABASE_PASSWORD
+        })
+      });      
 
-    return new Kysely<Database>({ dialect });
+      return db;
+    
 }
 
 export interface DictTable<T> {
-    id: Generated<string>;
+    id: Generated<number>;
     label: T;
 }
 
@@ -57,25 +62,44 @@ export type Specialization = Selectable<SpecializationTable>;
 export type NewSpecialization = Insertable<SpecializationTable>;
 export type UpdateSpecialization = Updateable<SpecializationTable>;
 
+
+
 export interface PersonTable {
     id: Generated<string>;
-    first_name: string;
-    last_name: string;
-    email: string;
     username: string;
-    pref_name: string;
-    faculty_id: string;
-    standing_id: string;
-    specialization_id: string;
+    email: string;
     created_at: string;
     updated_at: string;
     member_since: Date | null;
+}
+
+export interface ProfileTable {
+    id: string;
+    first_name: string;
+    pref_name: string;
+    last_name: string;
+}
+
+export interface BackgroundTable {
+    id: string;
     resume_link: string | null;
+    faculty_id: string;
+    standing_id: string;
+    specialization_id: string;
 }
 
 export type Person = Selectable<PersonTable>;
 export type NewPerson = Insertable<PersonTable>;
 export type UpdatePerson = Updateable<PersonTable>;
+
+export type Profile = Selectable<ProfileTable>;
+export type NewProfile = Insertable<ProfileTable>;
+export type UpdateProfile = Updateable<ProfileTable>;
+
+export type Background = Selectable<BackgroundTable>;
+export type NewBackground = Insertable<BackgroundTable>;
+export type UpdateBackground = Updateable<BackgroundTable>;
+
 
 export interface PersonRoleTable {
     user_id: string;

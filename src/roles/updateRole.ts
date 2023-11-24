@@ -5,13 +5,11 @@ import { InputValidator } from '../util/middleware/inputValidator';
 import { getRoles, refreshCache } from './roles';
 import { APIGatewayEvent } from 'aws-lambda';
 import { Authorizer } from '../util/middleware/authorizer';
-import {ConnectionHandler} from "../util/middleware/connectionHandler";
 
 const db = getDatabase();
 export const handler = new LambdaBuilder(updateRoleRequest)
     .use(new InputValidator())
     .use(new Authorizer())
-    .useAfter(new ConnectionHandler(db))
     .build();
 
 async function updateRoleRequest(event: APIGatewayEvent) {

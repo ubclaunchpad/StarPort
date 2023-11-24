@@ -5,6 +5,9 @@
     "bin": {
         "app": "bin/app.js"
     },
+    "engines": {
+        "node": ">=18.0.0"
+    },
     "scripts": {
         "clean": "rm -rf dist",
         "build": " sh ./scripts/build", 
@@ -26,15 +29,17 @@
     },
     "dependencies": {
         "@aws-sdk/client-s3": "^3.363.0",
+        "@planetscale/database": "^1.11.0",
         "aws-cdk-lib": "^2.70.0",
         "bcryptjs": "^2.4.3",
         "chalk": "^5.2.0",
         "constructs": "^10.0.0",
         "dotenv": "^16.0.3",
         "jwt-decode": "^3.1.2",
-        "kysely": "^0.26.0",
-        "node-fetch": "^3.3.1",
-        "pg": "^8.11.1"
+        "kysely": "^0.26.3",
+        "kysely-planetscale": "^1.4.0",
+        "mysql2": "^3.6.3",
+        "undici": "^5.27.2"
     },
     "devDependencies": {
         "@babel/core": "^7.22.5",
@@ -43,7 +48,7 @@
         "@types/aws-lambda": "^8.10.115",
         "@types/aws-sdk": "^2.7.0",
         "@types/jest": "^29.5.2",
-        "@types/node": "18.14.6",
+        "@types/node": "^18.14.6",
         "@typescript-eslint/eslint-plugin": "^5.59.9",
         "@typescript-eslint/parser": "^5.59.9",
         "aws-cdk": "2.70.0",

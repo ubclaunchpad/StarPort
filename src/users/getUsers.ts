@@ -4,14 +4,17 @@ import { getDatabase } from '../util/db';
 import { IPersonQuery } from '../util/types/general';
 import {LambdaBuilder, LambdaInput} from '../util/middleware/middleware';
 import { APIResponse, SuccessResponse } from '../util/middleware/response';
-import {ScopeController} from "../util/middleware/scopeHandler";
+import { PaginationHelper, ResponseMetaTagger } from '../util/middleware/paginationHelper';
 
 const db = getDatabase();
 
+const LIMIT = 50;
+const OFFSET = 0;
 export const handler = new LambdaBuilder(getRequest)
     .use(new InputValidator())
-    .use(new Authorizer())
-    .use(new ScopeController(db))
+    // .use(new Authorizer())
+    .use(new PaginationHelper({ limit: LIMIT, offset: OFFSET}))
+    .useAfter(new ResponseMetaTagger())
     .build();
 
 export async function getRequest(
@@ -19,31 +22,19 @@ export async function getRequest(
 ): Promise<APIResponse> {
     const personQuery = ((event && event.queryStringParameters) ||
         {}) as unknown as IPersonQuery;
-    return new SuccessResponse(await getAll(personQuery, event.userScopes));
+    return new SuccessResponse(await getAll(personQuery));
 }
 
-export async function getAll(personQuery: IPersonQuery, userScopes: string[]) {
-    const hasReadScope = userScopes.includes('profile:read:others')
-
+export async function getAll(personQuery: IPersonQuery) {
     const res = await db
         .selectFrom('person')
-        .innerJoin('faculty', 'person.faculty_id', 'faculty.id')
-        .innerJoin('standing', 'person.standing_id', 'standing.id')
-        .innerJoin(
-            'specialization',
-            'person.specialization_id',
-            'specialization.id'
-        )
-        .select( ['person.last_name',
+        .select( [
             'person.id',
-            'person.pref_name',
-            'person.faculty_id',
-            'person.standing_id',
-            'person.specialization_id',
-            'faculty.label as faculty_label',
-            'standing.label as standing_label',
-            'specialization.label as specialization_label'])
-        .$if(hasReadScope, (qb) => qb.select( 'person.email'))
+            'person.email',
+            'person.created_at',
+            'person.updated_at',
+            'person.member_since'
+            ])
         .limit(personQuery.limit || 10)
         .offset(personQuery.offset || 0)
         .execute();
@@ -51,21 +42,10 @@ export async function getAll(personQuery: IPersonQuery, userScopes: string[]) {
     return res.map((user) => {
         return {
             id: user.id,
-            last_name: user.last_name,
-            pref_name: user.pref_name,
-            email: user.email,
-            faculty: {
-                id: user.faculty_id,
-                label: user.faculty_label,
-            },
-            standing: {
-                id: user.standing_id,
-                label: user.standing_label,
-            },
-            specialization: {
-                id: user.specialization_id,
-                label: user.specialization_label,
-            },
+            email: user.email || '',
+            created_at: user.created_at,
+            updated_at: user.updated_at,
+            member_since: user.member_since,
         };
     });
 }

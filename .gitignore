@@ -12,3 +12,4 @@ coverage
 .vscode
 resources/archive
 .idea
+.DS_Store

@@ -13,6 +13,7 @@ export interface APIResponse extends APIGatewayProxyResult {
           }
         | undefined;
     body: string;
+    data?: object;
     isBase64Encoded?: boolean | undefined;
 }
 
@@ -24,7 +25,7 @@ export class APIReturnResponse implements Partial<APIResponse> {
     body: string;
     statusCode: number;
     constructor(returnArg: APISuccess) {
-        this.body = returnArg.body;
+        this.body = returnArg.body || JSON.stringify(returnArg.data);
         this.statusCode = returnArg.statusCode;
     }
 }
@@ -32,15 +33,16 @@ export class APIReturnResponse implements Partial<APIResponse> {
 export abstract class APISuccess implements Partial<APIResponse> {
     statusCode: number;
     body: string;
-    protected constructor(body: string) {
-        this.body = body;
+    data?: object;
+    protected constructor(data: object) {
+        this.data = data;
     }
 }
 
 export class SuccessResponse extends APISuccess {
     statusCode = 200;
     constructor(body: object) {
-        super(JSON.stringify(body));
+        super(body);
     }
 }
 

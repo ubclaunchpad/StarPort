@@ -8,6 +8,10 @@ export abstract class LPStack extends cdk.Stack {
     // abstract createResources(): void;
 }
 
+export interface StackProps extends cdk.StackProps {
+    mode: string;
+}
+
 export interface StackInfo {
     NAME: string;
 }
