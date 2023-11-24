@@ -62,25 +62,44 @@ export type Specialization = Selectable<SpecializationTable>;
 export type NewSpecialization = Insertable<SpecializationTable>;
 export type UpdateSpecialization = Updateable<SpecializationTable>;
 
+
+
 export interface PersonTable {
     id: Generated<string>;
-    first_name: string;
-    last_name: string;
-    email: string;
     username: string;
-    pref_name: string;
-    faculty_id: string;
-    standing_id: string;
-    specialization_id: string;
+    email: string;
     created_at: string;
     updated_at: string;
     member_since: Date | null;
+}
+
+export interface ProfileTable {
+    id: string;
+    first_name: string;
+    pref_name: string;
+    last_name: string;
+}
+
+export interface BackgroundTable {
+    id: string;
     resume_link: string | null;
+    faculty_id: string;
+    standing_id: string;
+    specialization_id: string;
 }
 
 export type Person = Selectable<PersonTable>;
 export type NewPerson = Insertable<PersonTable>;
 export type UpdatePerson = Updateable<PersonTable>;
+
+export type Profile = Selectable<ProfileTable>;
+export type NewProfile = Insertable<ProfileTable>;
+export type UpdateProfile = Updateable<ProfileTable>;
+
+export type Background = Selectable<BackgroundTable>;
+export type NewBackground = Insertable<BackgroundTable>;
+export type UpdateBackground = Updateable<BackgroundTable>;
+
 
 export interface PersonRoleTable {
     user_id: string;

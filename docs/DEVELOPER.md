@@ -31,38 +31,44 @@ This page is intended for developers who want to contribute to the project. This
 
 3. install AWS CDK  `npm install -g aws-cdk`. verify by running `cdk --version`
 
-4. install dependencies:
+4. install AWS SAM `npm install -g aws-sam-local`. verify by running `sam --version` if you intend to run the project locally
+
+5. install dependencies:
 
    ```bash
    cd starport
    npm install
    ```
 
-## Background
-
-The repository offers/implementes a lot of different things. Here is a briefly overview:
-
-- AWS CDK is used for cloud deployment. Everything in the project gets bundled together with CDK. So CDK is responsible for creating all our resources. APIs, Database, running our scripts and so on.
-  - we test our deployment process with Jest (A testing framework)
-- The APIs are based on a serverless model. everything in the src folder serves as the source code. With CDK and the AWS Lambda we create our APIs (if familiar with Express, it's same end-result but different implementation)
-  - we test our API source code locally by using Jest
-  - Additonally we use AWS SAM to live-test our api (lambdas + cdk integration)
-- The database is a MySQL flavour of SQL. We use Aurora Serverless to adapt to flexible traffic.
-  - We keep our database identicial throughout development by running migration scripts
-
 ## Developing
 
 To start developing after you run the setup steps you should do the following.
 
-1. since our api is connected to a database to run it fully we recommend setting up a MySQL server on your machine or if familiar with Docker, on there. After setting up your database, store your db credentials in a `env.local` file at the source directory *(during deployment we will use `.env` that has the cloud database credentials)*
+1. since our api is connected to a database to run it fully we recommend setting up a MySQL server on your machine or if familiar with Docker, on there. 
+
+We are using [PlanetScale](https://planetscale.com/) as our database provider. You can create a free account and create a database. You can then create a user and get the credentials.
+
+After setting up your database, store your db credentials in a `env.local` file at the source directory *(during deployment we will use `.env` that has the cloud database credentials)*
 
 An example of how the file will look
 
 ```txt
-DB_HOST="localhost"
-DB_USERNAME="myuser"
-DB_PASSWORD="mypassword"
-DB_NAME="mydbname"
+DATABASE_HOST=<your-db-host>
+DATABASE_USERNAME=<your-db-username>
+DATABASE_PASSWORD=<your-db-password>
+DATABASE_URL=<your-db-url>
+ENVIRONMENT=dev
+```
+
+you will also need to seyt your CDK environment variables. You can do this by creating a `cdk.context.json` file at the root of the project. An example of how the file will look
+
+add the following to the `.env` file
+
+```txt
+CDK_TEST_ACCOUNT=<test-account-id>
+CDK_TEST_REGION=<test-region>
+CDK_DEFAULT_ACCOUNT=<your-account-id>
+CDK_DEFAULT_REGION=<your-region>
 ```
 
 > Tip: lots of good resources to set up on your laptop quickly, and to verify it's connected first try connecting to it either via your terminal or with a client like `Workbench`
@@ -152,3 +158,15 @@ cdk synth
 ## Deployment
 
 Refer to the AWS deployment guide for more information. However, we only allow cloud deployment via the CI/CD pipeline. So you should not be deploying to AWS manually; in fact you should not have the AWS credentials to do so or we have set up something wrong :).
+
+## Background
+
+The repository offers/implementes a lot of different things. Here is a briefly overview:
+
+- AWS CDK is used for cloud deployment. Everything in the project gets bundled together with CDK. So CDK is responsible for creating all our resources. APIs, Database, running our scripts and so on.
+  - we test our deployment process with Jest (A testing framework)
+- The APIs are based on a serverless model. everything in the src folder serves as the source code. With CDK and the AWS Lambda we create our APIs (if familiar with Express, it's same end-result but different implementation)
+  - we test our API source code locally by using Jest
+  - Additonally we use AWS SAM to live-test our api (lambdas + cdk integration)
+- The database is a MySQL flavour of SQL. We use Aurora Serverless to adapt to flexible traffic.
+  - We keep our database identicial throughout development by running migration scripts

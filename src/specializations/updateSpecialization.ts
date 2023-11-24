@@ -2,7 +2,6 @@ import { getDatabase, UpdateSpecialization } from '../util/db';
 import { LambdaBuilder } from '../util/middleware/middleware';
 import { SuccessResponse } from '../util/middleware/response';
 import { InputValidator } from '../util/middleware/inputValidator';
-import { getSpecializations, refreshCache } from './specializations';
 import { APIGatewayEvent } from 'aws-lambda';
 import { Authorizer } from '../util/middleware/authorizer';
 
@@ -13,15 +12,13 @@ export const handler = new LambdaBuilder(updateSpecializationRequest)
     .build();
 
 async function updateSpecializationRequest(event: APIGatewayEvent) {
-    const { id, label } = JSON.parse(event.body);
+    const { label } = JSON.parse(event.body);
+    const { id } = event.pathParameters;
     await updateSpecialization({ id, label });
-    await refreshCache(db);
-    return new SuccessResponse(await getSpecializations(db));
+    return new SuccessResponse({ message: `Specialization ${label} updated` });
 }
 
-export const updateSpecialization = async (
-    updateSpecialization: UpdateSpecialization
-) => {
+export const updateSpecialization = async (updateSpecialization: UpdateSpecialization) => {
     await db
         .updateTable('specialization')
         .set(updateSpecialization)

@@ -169,15 +169,22 @@ export class UserStack extends LPStack {
                             id: 'createSpecialization',
                             path: `${specializationsLambdaDir}/createSpecialization`,
                         },
-                        PATCH: {
-                            id: 'updateSpecialization',
-                            path: `${specializationsLambdaDir}/updateSpecialization`,
-                        },
-                        DELETE: {
-                            id: 'deleteSpecialization',
-                            path: `${specializationsLambdaDir}/deleteSpecialization`,
-                        },
+                       
                     },
+                    subresources: {
+                        "{id}": {
+                            endpoints: {
+                                DELETE: {
+                                    id: 'deleteSpecialization',
+                                    path: `${specializationsLambdaDir}/deleteSpecialization`,
+                                },
+                                PATCH: {
+                                    id: 'updateSpecialization',
+                                    path: `${specializationsLambdaDir}/updateSpecialization`,
+                                },
+                            }
+                        }
+                    }
                 },
                 standings: {
                     endpoints: {
@@ -189,15 +196,22 @@ export class UserStack extends LPStack {
                             id: 'createStanding',
                             path: `${standingsLambdaDir}/createStanding`,
                         },
-                        PATCH: {
-                            id: 'updateStanding',
-                            path: `${standingsLambdaDir}/updateStanding`,
-                        },
-                        DELETE: {
-                            id: 'deleteStanding',
-                            path: `${standingsLambdaDir}/deleteStanding`,
-                        },
+                        
                     },
+                    subresources: {
+                        "{id}": {
+                            endpoints: {
+                                DELETE: {
+                                    id: 'deleteStanding',
+                                    path: `${standingsLambdaDir}/deleteStanding`,
+                                },
+                                PATCH: {
+                                    id: 'updateStanding',
+                                    path: `${standingsLambdaDir}/updateStanding`,
+                                },
+                            }
+                        }
+                    }
                 },
             },
         };

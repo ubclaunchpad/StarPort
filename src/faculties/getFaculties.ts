@@ -27,7 +27,7 @@ export async function getFaculties(pagination: PaginationParams) {
     .limit(pagination.limit)
     .offset(pagination.offset)
     .selectAll().execute()) as {
-        id: string;
+        id: number;
         label: string;
     }[];
     return faculties;

@@ -19,7 +19,8 @@ export class PaginationHelper implements IMiddleware<IHandlerEvent, object> {
     }
 
     public handler = async (event: APIGatewayProxyEvent) => {
-        const { offset, limit } = event.queryStringParameters as unknown as any;
+        const queryStringParameters = event.queryStringParameters || {};
+        const { offset, limit } =  queryStringParameters as unknown as any;
         
         const paginationParams = {
             offset: offset ? parseInt(offset) : this.deafultOffset,
