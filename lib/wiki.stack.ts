@@ -4,7 +4,7 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { config } from 'dotenv';
 import { LPStack, StackInfo } from './util/LPStack';
 import { ApiService, IApiResources } from './templates/apigateway';
-import * as s3 from 'aws-cdk-lib/aws-s3';
+// import * as s3 from 'aws-cdk-lib/aws-s3';
 import { Role, ServicePrincipal, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 config();
 
@@ -27,16 +27,18 @@ export class WikiStack extends LPStack {
         policyStatement.addResources('arn:aws:s3:::lp-doc');
         role.addToPolicy(policyStatement);
 
-        const myBucket = new s3.Bucket(this, 'MyBucket', {
-            // S3 bucket configuration
-        });
+        // const myBucket = new s3.Bucket(this, 'MyBucket', {
+        //     // S3 bucket configuration
+        // });
 
         const lambdaConfigs = {
             runtime: lambda.Runtime.NODEJS_16_X,
             handler: 'index.handler',
             environment: {
-                BUCKET_NAME: myBucket.bucketName,
-                BUCKET_ARN: myBucket.bucketArn,
+                BUCKET_NAME: process.env.BUCKET_NAME || "",
+                BUCKET_ARN: process.env.BUCKET_NAME || "",
+                IAM_ACCESS_KEY: process.env.IAM_ACCESS_KEY || "",
+                IAM_SECRET_ACCESS_KEY: process.env.IAM_SECRET_ACCESS_KEY || "",
             },
             role: role,
         };
@@ -48,6 +50,20 @@ export class WikiStack extends LPStack {
                 docs: {
                     subresources: {
                         '{area}': {
+                            endpoints: {
+                                POST: {
+                                    id: 'postarea',
+                                    path: `${baseLambdaDir}/postarea`,
+                                },
+                                DELETE: {
+                                    id: 'deletearea',
+                                    path: `${baseLambdaDir}/deletearea`,
+                                },
+                                GET: {
+                                    id: 'getarea',
+                                    path: `${baseLambdaDir}/getarea`,
+                                },
+                            },
                             subresources: {
                                 '{doc}': {
                                     endpoints: {
@@ -69,7 +85,6 @@ export class WikiStack extends LPStack {
             apiResources,
             `${WIKI_STACK_INFO.NAME}-API`,
             lambdaConfigs,
-            myBucket
         );
     }
 }

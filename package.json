@@ -7,8 +7,8 @@
     },
     "scripts": {
         "clean": "rm -rf dist",
-        "build": " sh ./scripts/build", 
-        "test:api": " sh ./scripts/serve", 
+        "build": " sh ./scripts/build",
+        "test:api": " sh ./scripts/serve",
         "watch": "tsc -w",
         "cdk:synth": "cdk synth",
         "lint": "eslint .",
@@ -20,7 +20,6 @@
         "test:src": "jest --verbose ./src",
         "start:local:api": "sam local start-api -t ./cdk.out/$npm_config_stack.template.json  --port 8000 --container-host-interface host.docker.internal",
         "invoke:lambda": "sam local invoke -t ./cdk.out/$npm_config_stack.template.json -e $npm_config_event ${npm_config_warm-containers=LAZY}",
-      
         "start:local:lambdas": "sam local start-lambda -t ./cdk.out/$npm_config_stack.template.json ${npm_config_port:3000} ${npm_config_warm-containers=LAZY}",
         "db:up": "esbuild ./resources/**/*.ts --entry-names=[dir]/[name]/index --bundle   --platform=node --target=node16.14 --outdir=./dist/migrations && node ./dist/migrations/setup/index.js"
     },
@@ -33,6 +32,7 @@
         "dotenv": "^16.0.3",
         "jwt-decode": "^3.1.2",
         "kysely": "^0.26.0",
+        "mongodb": "^6.3.0",
         "node-fetch": "^3.3.1",
         "pg": "^8.11.1"
     },

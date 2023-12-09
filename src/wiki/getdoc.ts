@@ -5,7 +5,10 @@ export const handler = async function (
     event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
     try {
-        const s3 = new S3();
+        const s3 = new S3({
+            accessKeyId: process.env.IAM_ACCESS_KEY,
+            secretAccessKey: process.env.IAM_SECRET_ACCESS_KEY
+        });
         const bucketName = process.env.BUCKET_NAME;
 
         if (event === null) {
