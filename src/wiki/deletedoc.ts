@@ -6,8 +6,8 @@ export const handler = async function (
 ): Promise<APIGatewayProxyResult> {
     try {
         const s3 = new S3({
-            accessKeyId: process.env.IAM_ACCESS_KEY,
-            secretAccessKey: process.env.IAM_SECRET_ACCESS_KEY
+            accessKeyId: process.env.ACCESS_KEY,
+            secretAccessKey: process.env.SECRET_ACCESS_KEY
         });
         const bucketName = process.env.BUCKET_NAME;
 
@@ -29,8 +29,9 @@ export const handler = async function (
         }
 
         // Retrieve the bucket and key from the event
-        const objectKey = `${area}/${doc}.md`;
-
+        const trueArea = area.split(':').join('/');
+        const objectKey = `${trueArea}/${doc}.md`;
+        
         // Delete object
         const deleteObjectParams: S3.DeleteObjectRequest = {
             Bucket: bucketName,

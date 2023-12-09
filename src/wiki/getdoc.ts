@@ -1,11 +1,14 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { S3 } from 'aws-sdk';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 export const handler = async function (
     event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
     try {
-        const s3 = new S3();
+        const s3 = new S3({
+            accessKeyId: process.env.ACCESS_KEY,
+            secretAccessKey: process.env.SECRET_ACCESS_KEY
+        });
         const bucketName = process.env.BUCKET_NAME;
 
         if (event === null) {
@@ -25,17 +28,21 @@ export const handler = async function (
             throw new Error('Request is missing params');
         }
 
+        // ADD STRING.SPLIT METHOD THAT SPLITS LIKE AREA:AREA2:AREA3 AND TURNS INTO AREA/AREA2/AREA3 yup
         // Retrieve the bucket and key from the event
-        const objectKey = `${area}/${doc}.md`;
-
+        // const objectKey = `${area}/${doc}.md`;
+        const trueArea = area.split(':').join('/');
+        const objectKey = `${trueArea}/${doc}.md`;
+        console.log('objectKey:', objectKey)
         const getObjectParams: S3.GetObjectRequest = {
             Bucket: bucketName,
             Key: objectKey,
         };
-
+        console.log('objectParams:', getObjectParams)
         const s3Object = await s3.getObject(getObjectParams).promise();
         const objectData = s3Object.Body?.toString('utf-8');
-        console.log(objectData);
+        console.log('here?', getObjectParams)
+        console.log(s3Object)
         return {
             headers: {
                 'Content-Type': 'text/html',

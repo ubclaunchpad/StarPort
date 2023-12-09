@@ -4,7 +4,7 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { config } from 'dotenv';
 import { LPStack, StackInfo } from './util/LPStack';
 import { ApiService, IApiResources } from './templates/apigateway';
-import * as s3 from 'aws-cdk-lib/aws-s3';
+// import * as s3 from 'aws-cdk-lib/aws-s3';
 import { Role, ServicePrincipal, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 config();
 
@@ -27,16 +27,18 @@ export class WikiStack extends LPStack {
         policyStatement.addResources('arn:aws:s3:::lp-doc');
         role.addToPolicy(policyStatement);
 
-        const myBucket = new s3.Bucket(this, 'MyBucket', {
-            // S3 bucket configuration
-        });
+        // const myBucket = new s3.Bucket(this, 'MyBucket', {
+        //     // S3 bucket configuration
+        // });
 
         const lambdaConfigs = {
             runtime: lambda.Runtime.NODEJS_16_X,
             handler: 'index.handler',
             environment: {
-                BUCKET_NAME: myBucket.bucketName,
-                BUCKET_ARN: myBucket.bucketArn,
+                BUCKET_NAME: process.env.BUCKET_NAME || "",
+                BUCKET_ARN: process.env.BUCKET_NAME || "",
+                ACCESS_KEY: process.env.IAM_ACCESS_KEY || "",
+                SECRET_ACCESS_KEY: process.env.IAM_SECRET_ACCESS_KEY || ""
             },
             role: role,
         };
@@ -47,13 +49,33 @@ export class WikiStack extends LPStack {
             subresources: {
                 docs: {
                     subresources: {
-                        '{area}': {
+                        'area': {
                             subresources: {
-                                '{doc}': {
-                                    endpoints: {
-                                        GET: {
-                                            id: 'getDoc',
-                                            path: `${baseLambdaDir}/getdoc`,
+                                '{area}': {
+                                    subresources: {
+                                        'doc': {
+                                            subresources: {
+                                                '{doc}': {
+                                                    subresources: {
+                                                        'delete': {
+                                                            endpoints: {
+                                                                GET: {
+                                                                    id: 'deleteDoc',
+                                                                    path: `${baseLambdaDir}/deletedoc`,
+                                                                },
+                                                            }
+                                                        },
+                                                        'get': {
+                                                            endpoints: {
+                                                                GET: {
+                                                                    id: 'getDoc',
+                                                                    path: `${baseLambdaDir}/getdoc`,
+                                                                },
+                                                            },
+                                                        }
+                                                    }
+                                                },
+                                            },
                                         },
                                     },
                                 },
@@ -61,6 +83,36 @@ export class WikiStack extends LPStack {
                         },
                     },
                 },
+                // deletedoc: {
+                //     endpoints: {
+                //         DELETE: {
+                //             id: 'deleteDoc',
+                //             path: `${baseLambdaDir}/deletedoc`,
+                //         },
+                //     },
+                //     subresources: {
+                //         'area': {
+                //             subresources: {
+                //                 '{area}': {
+                //                     subresources: {
+                //                         'doc': {
+                //                             subresources: {
+                //                                 '{doc}': {
+                //                                     endpoints: {
+                //                                         GET: {
+                //                                             id: 'getDoc',
+                //                                             path: `${baseLambdaDir}/getdoc`,
+                //                                         },
+                //                                     },
+                //                                 },
+                //                             },
+                //                         },
+                //                     },
+                //                 },
+                //             },
+                //         },
+                //     },
+                // },
             },
         };
 
@@ -69,7 +121,6 @@ export class WikiStack extends LPStack {
             apiResources,
             `${WIKI_STACK_INFO.NAME}-API`,
             lambdaConfigs,
-            myBucket
         );
     }
 }
