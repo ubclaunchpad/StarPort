@@ -6,7 +6,10 @@ export const handler = async function (
 ): Promise<APIGatewayProxyResult> {
     try {
         // Replace the connection string with your MongoDB connection string
-        const uri = 'mongodb+srv://cosmicgateway:zq3WbPdNE9qJme6r@cosmicgateway.wbqw6iz.mongodb.net/?retryWrites=true&w=majority';
+        const MONGODB_USERNAME = process.env.MONGODB_USERNAME;
+        const MONGODB_PASSWORD = process.env.MONGODB_PASSWORD;
+
+        const uri = `mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@cosmicgateway.wbqw6iz.mongodb.net/?retryWrites=true&w=majority`;
 
         // Connect to MongoDB
         const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
