@@ -19,11 +19,6 @@ INSERT INTO standing (label) VALUES
 ('Alumni'),
 ('Other');
 
-INSERT INTO role (id, label) VALUES
-(1, 'Explorer');;
-
-
-
 -- Populate degree_program table
 INSERT INTO specialization (label)
 VALUES

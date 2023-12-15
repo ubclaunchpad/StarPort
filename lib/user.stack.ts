@@ -91,15 +91,6 @@ export class UserStack extends LPStack {
                                 },
                             },
                         },
-
-                        me: {
-                            endpoints: {
-                                GET: {
-                                    id: 'getUserId',
-                                    path: `${usersLambdaDir}/getUserId`,
-                                },
-                            },
-                        },
                     },
                 },
                 faculties: {
