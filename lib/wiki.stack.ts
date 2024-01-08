@@ -56,30 +56,18 @@ export class WikiStack extends LPStack {
                                         'doc': {
                                             subresources: {
                                                 '{doc}': {
-                                                    subresources: {
-                                                        'delete': {
-                                                            endpoints: {
-                                                                GET: {
-                                                                    id: 'deleteDoc',
-                                                                    path: `${baseLambdaDir}/deletedoc`,
-                                                                },
-                                                            }
+                                                    endpoints: {
+                                                        DELETE: {
+                                                            id: 'deleteDoc',
+                                                            path: `${baseLambdaDir}/deletedoc`,
                                                         },
-                                                        'get': {
-                                                            endpoints: {
-                                                                GET: {
-                                                                    id: 'getDoc',
-                                                                    path: `${baseLambdaDir}/getdoc`,
-                                                                },
-                                                            },
+                                                        GET: {
+                                                            id: 'getDoc',
+                                                            path: `${baseLambdaDir}/getdoc`,
                                                         },
-                                                        'put': {
-                                                            endpoints: {
-                                                                GET: {
-                                                                    id: 'putDoc',
-                                                                    path: `${baseLambdaDir}/putdoc`,
-                                                                },
-                                                            }
+                                                        PUT: {
+                                                            id: 'putDoc',
+                                                            path: `${baseLambdaDir}/putdoc`,
                                                         }
                                                     }
                                                 },
@@ -91,36 +79,6 @@ export class WikiStack extends LPStack {
                         },
                     },
                 },
-                // deletedoc: {
-                //     endpoints: {
-                //         DELETE: {
-                //             id: 'deleteDoc',
-                //             path: `${baseLambdaDir}/deletedoc`,
-                //         },
-                //     },
-                //     subresources: {
-                //         'area': {
-                //             subresources: {
-                //                 '{area}': {
-                //                     subresources: {
-                //                         'doc': {
-                //                             subresources: {
-                //                                 '{doc}': {
-                //                                     endpoints: {
-                //                                         GET: {
-                //                                             id: 'getDoc',
-                //                                             path: `${baseLambdaDir}/getdoc`,
-                //                                         },
-                //                                     },
-                //                                 },
-                //                             },
-                //                         },
-                //                     },
-                //                 },
-                //             },
-                //         },
-                //     },
-                // },
             },
         };
 
