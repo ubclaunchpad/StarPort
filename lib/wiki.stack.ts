@@ -52,7 +52,7 @@ export class WikiStack extends LPStack {
                         'area': {
                             subresources: {
                                 '{area}': {
-                                    subresources: {
+                                    subresources: { 
                                         'doc': {
                                             subresources: {
                                                 '{doc}': {
@@ -72,6 +72,14 @@ export class WikiStack extends LPStack {
                                                                     path: `${baseLambdaDir}/getdoc`,
                                                                 },
                                                             },
+                                                        },
+                                                        'put': {
+                                                            endpoints: {
+                                                                GET: {
+                                                                    id: 'putDoc',
+                                                                    path: `${baseLambdaDir}/putdoc`,
+                                                                },
+                                                            }
                                                         }
                                                     }
                                                 },
