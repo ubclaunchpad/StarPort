@@ -8,12 +8,12 @@ import { PaginationHelper, ResponseMetaTagger } from '../util/middleware/paginat
 
 const db = getDatabase();
 
-const LIMIT = 50;
+const DEFAULT_LIMIT = 50;
 const OFFSET = 0;
 export const handler = new LambdaBuilder(getRequest)
     .use(new InputValidator())
-    // .use(new Authorizer())
-    .use(new PaginationHelper({ limit: LIMIT, offset: OFFSET}))
+    .use(new Authorizer())
+    .use(new PaginationHelper({ limit: DEFAULT_LIMIT, offset: OFFSET}))
     .useAfter(new ResponseMetaTagger())
     .build();
 

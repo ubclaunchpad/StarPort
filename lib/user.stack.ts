@@ -68,7 +68,6 @@ export class UserStack extends LPStack {
                             subresources: {
                                 roles: {
                                     endpoints: {
-
                                         GET: {
                                             id: 'getUserRoles',
                                             path: `${baseLambdaDir}/roles/getUserRoles`,
@@ -103,8 +102,6 @@ export class UserStack extends LPStack {
                             id: 'createFaculty',
                             path: `${facultiesLambdaDir}/createFaculty`,
                         },
-                       
-                        
                     },
                     subresources: {
                         "{id}": {
