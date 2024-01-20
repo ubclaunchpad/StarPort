@@ -15,28 +15,48 @@ export const handler = new LambdaBuilder(updateRequest)
 export async function updateRequest(
     event: APIGatewayProxyEvent
 ): Promise<APIResponse> {
+    if (!event.pathParameters) {
+        throw new Error('Event parameters is missing');
+    }
+
+    if (!event.body) {
+        throw new Error('Event body missing');
+    }
+
+    const updatePersonData = JSON.parse(event.body) as UpdatePerson;
+
     await updateUser(
         event.pathParameters.id as string,
         JSON.parse(event.body) as UpdatePerson
     );
     return new SuccessResponse({
-        message: `user with id : ${event.pathParameters.id} updated`,
+        message: `User with id : ${event.pathParameters.id} updated successfully`,
+        updateUser: updatePersonData,
     });
 }
 
 export const updateUser = async (
     userId: string,
-    UpdatePerson: UpdatePerson
+    updatePersonData: UpdatePerson
 ): Promise<void> => {
+    const existingUser = await db
+        .selectFrom('person')
+        .select('id')
+        .where('id', '=', Number(userId))
+        .executeTakeFirst();
+
+    if (!existingUser) {
+        throw new Error(`User with id ${userId} not found`);
+    }
+
     const updatedUser = {
-        ...UpdatePerson,
-        updated_at: new Date().toISOString(),
+        ...updatePersonData,
+        account_updated: new Date(),
     };
+
     await db
         .updateTable('person')
-        .set({
-            ...updatedUser,
-        })
-        .where('id', '=', userId)
+        .set(updatedUser)
+        .where('id', '=', Number(userId))
         .execute();
 };

@@ -98,6 +98,7 @@ export type NewScopeRole = Insertable<ScopeRoleTable>;
 export type UpdateScopeRole = Updateable<ScopeRole>;
 
 export interface PersonTable {
+    id: number;
     email: string;
     member_since: Date;
     account_updated: Date;
