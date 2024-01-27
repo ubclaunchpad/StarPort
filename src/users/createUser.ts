@@ -20,7 +20,7 @@ export async function router(
     event: APIGatewayProxyEvent
 ): Promise<APIResponse> {
     if (!event.body){
-        throw new Error('Event bodt missing');
+        throw new Error('Event body missing');
     }
 
     const body = JSON.parse(event.body) as Person;
