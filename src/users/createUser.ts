@@ -13,7 +13,7 @@ const db = getDatabase();
 
 export const handler = new LambdaBuilder(router)
     .use(new InputValidator())
-    .use(new Authorizer())
+    // .use(new Authorizer())
     .build();
 
 export async function router(
@@ -123,14 +123,14 @@ export const AddUserToDatabase = async (user: NewPerson): Promise<string> => {
             UserInfo[key] = null;
         }
     }
-    if (!user.username) {
-        user.username = user.email;
-    }
+    // if (!user.username) {
+    //     user.username = user.email;
+    // }
 
     const person = await db
         .insertInto('person')
         .values(user)
-        .returning('id')
+        // .returning('id')
         .executeTakeFirst();
-    return person.id;
+    return person;
 };
