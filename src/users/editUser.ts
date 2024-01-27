@@ -9,7 +9,7 @@ const db = getDatabase();
 
 export const handler = new LambdaBuilder(updateRequest)
     .use(new InputValidator())
-    .use(new Authorizer())
+    // .use(new Authorizer())
     .build();
 
 export async function updateRequest(
@@ -27,7 +27,7 @@ export async function updateRequest(
 
     await updateUser(
         event.pathParameters.id as string,
-        JSON.parse(event.body) as UpdatePerson
+        updatePersonData
     );
     return new SuccessResponse({
         message: `User with id : ${event.pathParameters.id} updated successfully`,
