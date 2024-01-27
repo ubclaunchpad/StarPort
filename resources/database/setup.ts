@@ -7,7 +7,7 @@ console.log('Connected to PlanetScale!')
 dotenv.config();
 
 const DATABASE_META_NAME = 'meta';
-const DATABASE_NAME = 'cosmic-dev';
+const DATABASE_NAME = 'cosmicgatewaywiki';
 const MIGRATION_PATH = './resources/database/migrations';
 
 const setUpDatabase = async (
@@ -163,7 +163,7 @@ function query(connection: Connection, query: string, params?: any[]): Promise<a
 }
 
 const run = (): void => {
-    const connection = mysql.createConnection(process.env.DATABASE_URL!)
+    const connection = mysql.createConnection(process.env.WIKI_DATABASE_URL!)
     setUpDatabase(connection, true)
     .then(() => {
         console.log(chalk.bgGreen('Database setup completed'));

@@ -25,7 +25,7 @@
         "invoke:lambda": "sam local invoke -t ./cdk.out/$npm_config_stack.template.json -e $npm_config_event ${npm_config_warm-containers=LAZY}",
       
         "start:local:lambdas": "sam local start-lambda -t ./cdk.out/$npm_config_stack.template.json ${npm_config_port:3000} ${npm_config_warm-containers=LAZY}",
-        "db:up": "esbuild ./resources/**/*.ts --entry-names=[dir]/[name]/index --bundle   --platform=node --target=node16.14 --outdir=./dist/migrations && node ./dist/migrations/setup/index.js"
+        "db:up": "esbuild resources/database/setup.ts --entry-names=[dir]/[name]/index --bundle   --platform=node --target=node16.14 --outdir=./dist/migrations && node ./dist/migrations/setup/index.js"
     },
     "dependencies": {
         "@aws-sdk/client-s3": "^3.363.0",
