@@ -4,9 +4,11 @@ import { LambdaBuilder } from '../util/middleware/middleware';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { Authorizer } from '../util/middleware/authorizer';
 import {
+    APIErrorResponse,
     APIResponse,
     BadRequestError,
     SuccessResponse,
+    ValidationError,
 } from '../util/middleware/response';
 
 const db = getDatabase();
@@ -20,11 +22,13 @@ export async function router(
     event: APIGatewayProxyEvent
 ): Promise<APIResponse> {
     if (!event.body){
-        throw new Error('Event body missing');
+        throw new BadRequestError('Event body missing');
     }
 
     const body = JSON.parse(event.body) as Person;
+
     const createdUserId = await CreateUser(body);
+
     return new SuccessResponse({
         message: `user with id : ${createdUserId} created`,
     });
