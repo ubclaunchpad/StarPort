@@ -19,6 +19,10 @@ export const handler = new LambdaBuilder(router)
 export async function router(
     event: APIGatewayProxyEvent
 ): Promise<APIResponse> {
+    if (!event.body){
+        throw new Error('Event bodt missing');
+    }
+
     const body = JSON.parse(event.body) as Person;
     const createdUserId = await CreateUser(body);
     return new SuccessResponse({
@@ -81,7 +85,7 @@ export const validateEmail = async (email: string): Promise<void> => {
     }
 };
 
-export const validateFacultyId = async (facultyId: string): Promise<void> => {
+export const validateFacultyId = async (facultyId: number): Promise<void> => {
     const faculty = await db
         .selectFrom('faculty')
         .select(['id'])
@@ -92,7 +96,7 @@ export const validateFacultyId = async (facultyId: string): Promise<void> => {
     }
 };
 
-export const validateStandingId = async (standingId: string): Promise<void> => {
+export const validateStandingId = async (standingId: number): Promise<void> => {
     const standing = await db
         .selectFrom('standing')
         .select(['id'])
@@ -104,7 +108,7 @@ export const validateStandingId = async (standingId: string): Promise<void> => {
 };
 
 export const validateSpecializationId = async (
-    specializationId: string
+    specializationId: number
 ): Promise<void> => {
     const specialization = await db
         .selectFrom('specialization')
@@ -123,14 +127,11 @@ export const AddUserToDatabase = async (user: NewPerson): Promise<string> => {
             UserInfo[key] = null;
         }
     }
-    // if (!user.username) {
-    //     user.username = user.email;
-    // }
 
     const person = await db
         .insertInto('person')
         .values(user)
-        // .returning('id')
+        .returning('id')
         .executeTakeFirst();
-    return person;
+    return person.id;
 };
