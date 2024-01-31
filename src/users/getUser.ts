@@ -1,7 +1,7 @@
 import { getDatabase } from '../util/db';
 import { LambdaBuilder } from '../util/middleware/middleware';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { APIResponse, SuccessResponse } from '../util/middleware/response';
+import { APIResponse, BadRequestError, SuccessResponse } from '../util/middleware/response';
 import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
 
@@ -9,13 +9,22 @@ const db = getDatabase();
 
 export const handler = new LambdaBuilder(router)
     .use(new InputValidator())
-    .use(new Authorizer())
+    // .use(new Authorizer())
     .build();
 
 export async function router(
     event: APIGatewayProxyEvent
 ): Promise<APIResponse> {
+    if (!event.pathParameters) {
+        throw new BadRequestError('Event path parameters missing');
+    }
+
     const id = event.pathParameters.id;
+
+    if (id === undefined) {
+        throw new BadRequestError('ID is undefined');
+    }
+
     return new SuccessResponse(await getUser(id));
 }
 
@@ -31,18 +40,25 @@ export async function getUser(userId: string) {
         )
         .select([
             'person.id',
-            'person.last_name',
-            'person.pref_name',
-            'person.first_name',
-            'person.created_at',
-            'person.updated_at',
-            'person.resume_link',
-            'person.member_since',
-            'person.username',
             'person.email',
+            'person.member_since',
+            'person.account_updated',
+            'person.person_role_id',
+            'person.first_name',
+            'person.pref_name',
+            'person.last_name',
+            'person.pronouns_id',
+            'person.gender_id',
+            'person.ethnicity_id',
             'person.faculty_id',
             'person.standing_id',
             'person.specialization_id',
+            'person.student_number',
+            'person.phone_number',
+            'person.linkedin_link',
+            'person.github_link',
+            'person.website_link',
+            'person.resume_link',
             'faculty.label as faculty_label',
             'standing.label as standing_label',
             'specialization.label as specialization_label',
@@ -56,15 +72,25 @@ export async function getUser(userId: string) {
 
     return {
         id: res.id,
+        email: res.email,
+        member_since: res.member_since,
+        account_updated: res.account_updated,
+        person_role_id: res.person_role_id,
         first_name: res.first_name,
         last_name: res.last_name,
         pref_name: res.pref_name,
-        email: res.email,
-        created_at: res.created_at,
-        updated_at: res.updated_at,
+        pronouns_id: res.pronouns_id,
+        gender_id: res.gender_id,
+        ethnicity_id: res.ethnicity_id,
+        faculty_id: res.faculty_id,
+        standing_id: res.standing_id,
+        specialiaztion_id: res.specialization_id,
+        student_number: res.student_number,
+        phone_number: res.phone_number,
+        linkedin_link: res.linkedin_link,
+        github_link: res.github_link,
+        website_link: res.website_link,
         resume_link: res.resume_link,
-        member_since: res.member_since,
-        username: res.username,
         faculty: {
             id: res.faculty_id,
             label: res.faculty_label,
