@@ -1,13 +1,12 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { getDatabase } from '../util/db';
+import { InputValidator } from '../util/middleware/inputValidator';
 import { LambdaBuilder } from '../util/middleware/middleware';
 import {
     APIResponse,
     BadRequestError,
     SuccessResponse,
 } from '../util/middleware/response';
-import { InputValidator } from '../util/middleware/inputValidator';
-import { Authorizer } from '../util/middleware/authorizer';
 
 const db = getDatabase();
 
@@ -23,9 +22,21 @@ export async function router(
         throw new BadRequestError('Event path parameters missing');
     }
 
-    await deleteUser(event.pathParameters.id as string);
+    const userID = event.pathParameters.id;
+
+    const existingUser = await db
+        .selectFrom('person')
+        .select('id')
+        .where('id', '=', Number(userID))
+        .executeTakeFirst();
+
+    if (!existingUser) {
+        throw new BadRequestError(`User with id ${userID} not found`);
+    }
+
+    await deleteUser(userID as string);
     return new SuccessResponse({
-        message: `user with id : ${event.pathParameters.id} deleted`,
+        message: `user with id : ${userID} deleted`,
     });
 }
 
