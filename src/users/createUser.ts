@@ -1,8 +1,7 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { getDatabase, NewPerson, Person } from '../util/db';
-import { LambdaBuilder } from '../util/middleware/middleware';
 import { InputValidator } from '../util/middleware/inputValidator';
-import { Authorizer } from '../util/middleware/authorizer';
+import { LambdaBuilder } from '../util/middleware/middleware';
 import {
     APIResponse,
     BadRequestError,
@@ -13,7 +12,6 @@ const db = getDatabase();
 
 export const handler = new LambdaBuilder(router)
     .use(new InputValidator())
-    // .use(new Authorizer())
     .build();
 
 export async function router(
