@@ -9,7 +9,7 @@ import {
 import { IMiddleware, LambdaHandler, Router, isRouter } from './types';
 
 export interface LambdaInput extends APIGatewayProxyEvent {
-    [key: string]: unknown;
+    [key: string]: any;
 }
 export class LambdaBuilder {
     private readonly entry: Router | LambdaHandler;
@@ -66,7 +66,7 @@ export class LambdaBuilder {
                     const output = await middleware.handler(input);
                     input = { ...input, ...output };
                 }
-                const res = await this.router(input);
+                const res = await this.router(input as LambdaInput);
 
                 input = { ...input, ...{ data: res.data } };
                 let finalOutput = res.data;

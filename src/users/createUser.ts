@@ -1,8 +1,7 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { getDatabase, NewPerson, Person } from '../util/db';
-import { LambdaBuilder } from '../util/middleware/middleware';
 import { InputValidator } from '../util/middleware/inputValidator';
-import { Authorizer } from '../util/middleware/authorizer';
+import { LambdaBuilder } from '../util/middleware/middleware';
 import {
     APIResponse,
     BadRequestError,
@@ -13,7 +12,7 @@ const db = getDatabase();
 
 export const handler = new LambdaBuilder(router)
     .use(new InputValidator())
-    // .use(new Authorizer())
+    // .use(new Authorizer(db))
     .build();
 
 export async function router(
@@ -34,7 +33,7 @@ export async function router(
 
 export const CreateUser = async (person: Person): Promise<string> => {
     await validateUserInformation(person);
-    return await AddUserToDatabase(person);
+    return await addUserToDatabase(person);
 };
 
 export const validateUserInformation = async (
@@ -122,7 +121,7 @@ export const validateSpecializationId = async (
     }
 };
 
-export const AddUserToDatabase = async (user: NewPerson): Promise<string> => {
+export const addUserToDatabase = async (user: NewPerson): Promise<string> => {
     const UserInfo = user;
     for (const key in UserInfo) {
         if (UserInfo[key] === undefined) {
@@ -139,14 +138,16 @@ export const AddUserToDatabase = async (user: NewPerson): Promise<string> => {
         throw new BadRequestError('Could not find created user id');
     }
 
+    addUserDefaultRole(Number(person.insertId));
+
     return person.insertId.toString();
 };
 
-export const addUserRoles = async (userId: string): Promise<void> => {
+export const addUserDefaultRole = async (userId: number): Promise<void> => {
     const roles = await db
         .selectFrom('role')
-        .select(['label'])
-        .where('label', 'like', 'user')
+        .select(['id', 'label'])
+        .where('label', 'like', 'Member')
         .execute();
 
     if (roles.length === 0) {
@@ -156,7 +157,7 @@ export const addUserRoles = async (userId: string): Promise<void> => {
     for (const role of roles) {
         await db
             .insertInto('person_role')
-            .values({ person_id: userId, role_label: role.label })
+            .values({ person_id: userId, role_id: role.id })
             .execute();
     }
-}
+};

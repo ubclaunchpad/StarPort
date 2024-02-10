@@ -22,16 +22,16 @@ export async function router(
         throw new BadRequestError('Event path parameters missing');
     }
 
-    const id = event.pathParameters.id;
-
-    if (id === undefined) {
+    if (event.pathParameters.id === undefined) {
         throw new BadRequestError('ID is undefined');
     }
 
-    return new SuccessResponse(await getUser(id, event));
+    const id = parseInt(event.pathParameters.id);
+
+    return new SuccessResponse(await getUser(id));
 }
 
-export async function getUser(userId: string, event: APIGatewayProxyEvent) {
+export async function getUser(userId: number) {
     const res = await db
         .selectFrom('person')
         .innerJoin('faculty', 'person.faculty_id', 'faculty.id')
@@ -46,7 +46,6 @@ export async function getUser(userId: string, event: APIGatewayProxyEvent) {
             'person.email',
             'person.member_since',
             'person.account_updated',
-            'person.person_role_id',
             'person.first_name',
             'person.pref_name',
             'person.last_name',
@@ -78,7 +77,6 @@ export async function getUser(userId: string, event: APIGatewayProxyEvent) {
         email: res.email,
         member_since: res.member_since,
         account_updated: res.account_updated,
-        person_role_id: res.person_role_id,
         first_name: res.first_name,
         last_name: res.last_name,
         pref_name: res.pref_name,

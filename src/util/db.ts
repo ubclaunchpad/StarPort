@@ -103,7 +103,6 @@ export interface PersonTable {
     email: string;
     member_since: Date;
     account_updated: Date;
-    person_role_id: Generated<number>;
     first_name: string;
     pref_name: string;
     last_name: string;
@@ -122,8 +121,8 @@ export interface PersonTable {
 }
 
 export interface PersonRoleTable {
-    person_id: Generated<number>;
-    role_id: Generated<number>;
+    person_id: number;
+    role_id: number;
 }
 
 export type Person = Selectable<PersonTable>;
