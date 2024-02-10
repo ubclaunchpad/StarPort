@@ -141,3 +141,22 @@ export const AddUserToDatabase = async (user: NewPerson): Promise<string> => {
 
     return person.insertId.toString();
 };
+
+export const addUserRoles = async (userId: string): Promise<void> => {
+    const roles = await db
+        .selectFrom('role')
+        .select(['label'])
+        .where('label', 'like', 'user')
+        .execute();
+
+    if (roles.length === 0) {
+        throw new BadRequestError('Role not found');
+    }
+
+    for (const role of roles) {
+        await db
+            .insertInto('person_role')
+            .values({ person_id: userId, role_label: role.label })
+            .execute();
+    }
+}

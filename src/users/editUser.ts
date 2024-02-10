@@ -1,9 +1,8 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { LambdaBuilder } from '../util/middleware/middleware';
+import { UpdatePerson, getDatabase } from '../util/db';
 import { InputValidator } from '../util/middleware/inputValidator';
-import { Authorizer } from '../util/middleware/authorizer';
+import { LambdaBuilder } from '../util/middleware/middleware';
 import { APIResponse, SuccessResponse } from '../util/middleware/response';
-import { getDatabase, UpdatePerson } from '../util/db';
 
 const db = getDatabase();
 

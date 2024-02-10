@@ -173,3 +173,9 @@ VALUES
     ('read:profile:restricted', 'Member'),
     ('update:profile:personal', 'Member'),
     ('delete:profile:personal', 'Member');
+
+INSERT INTO person_role (person_id, role_id)
+VALUES
+    ('1', '2'),
+    ('2', '3'),
+    ('3', '1');

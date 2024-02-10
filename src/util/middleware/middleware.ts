@@ -6,10 +6,10 @@ import {
     APIReturnResponse,
     UnsupportedEndpointError,
 } from './response';
-import { IMiddleware, isRouter, LambdaHandler, Router } from './types';
+import { IMiddleware, LambdaHandler, Router, isRouter } from './types';
 
 export interface LambdaInput extends APIGatewayProxyEvent {
-    [key: string]: any;
+    [key: string]: unknown;
 }
 export class LambdaBuilder {
     private readonly entry: Router | LambdaHandler;
@@ -23,25 +23,24 @@ export class LambdaBuilder {
     async router(event: LambdaInput): Promise<APIResponse> {
         if (isRouter(this.entry)) {
             const router = this.entry as Router;
-            if (router[event.httpMethod.toLowerCase()] === undefined) {
+            const method = event.httpMethod.toLowerCase();
+
+            if (router[method] === undefined) {
                 throw new UnsupportedEndpointError(
                     `Unsupported endpoint ${event.httpMethod} ${event.path}`
                 );
             }
 
-            switch (event.httpMethod) {
-                case 'GET':
-                    return await router.get(event);
-                case 'POST':
-                    return await router.post(event);
-                case 'PATCH':
-                    return await router.patch(event);
-                case 'DELETE':
-                    return await router.delete(event);
-                default:
-                    throw new UnsupportedEndpointError(
-                        `Unsupported endpoint ${event.httpMethod} ${event.path}`
-                    );
+            if (typeof router[method] !== 'function') {
+                throw new UnsupportedEndpointError(
+                    `Unsupported endpoint ${event.httpMethod} ${event.path}`
+                );
+            }
+
+            try {
+                return await router[method](event);
+            } catch (err) {
+                return new APIErrorResponse(err);
             }
         } else {
             const lambda = this.entry as LambdaHandler;
@@ -68,8 +67,8 @@ export class LambdaBuilder {
                     input = { ...input, ...output };
                 }
                 const res = await this.router(input);
-              
-                input = { ...input, ...{data: res.data} };
+
+                input = { ...input, ...{ data: res.data } };
                 let finalOutput = res.data;
                 for (const middleware of this.cleanupFunctions) {
                     const output = await middleware.handler(input);

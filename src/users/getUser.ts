@@ -1,9 +1,12 @@
-import { getDatabase } from '../util/db';
-import { LambdaBuilder } from '../util/middleware/middleware';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { APIResponse, BadRequestError, SuccessResponse } from '../util/middleware/response';
-import { Authorizer } from '../util/middleware/authorizer';
+import { getDatabase } from '../util/db';
 import { InputValidator } from '../util/middleware/inputValidator';
+import { LambdaBuilder } from '../util/middleware/middleware';
+import {
+    APIResponse,
+    BadRequestError,
+    SuccessResponse,
+} from '../util/middleware/response';
 
 const db = getDatabase();
 
@@ -25,10 +28,10 @@ export async function router(
         throw new BadRequestError('ID is undefined');
     }
 
-    return new SuccessResponse(await getUser(id));
+    return new SuccessResponse(await getUser(id, event));
 }
 
-export async function getUser(userId: string) {
+export async function getUser(userId: string, event: APIGatewayProxyEvent) {
     const res = await db
         .selectFrom('person')
         .innerJoin('faculty', 'person.faculty_id', 'faculty.id')
