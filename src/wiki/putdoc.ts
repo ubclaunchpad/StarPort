@@ -28,27 +28,32 @@ export const handler = async function (
             throw new Error('Request is missing params');
         }
 
-        // ADD STRING.SPLIT METHOD THAT SPLITS LIKE AREA:AREA2:AREA3 AND TURNS INTO AREA/AREA2/AREA3 yup
-        // Retrieve the bucket and key from the event
-        // const objectKey = `${area}/${doc}.md`;
         const trueArea = area.split(':').join('/');
         const objectKey = `${trueArea}/${doc}.md`;
-        const getObjectParams: S3.GetObjectRequest = {
+
+    // Assuming the body of the request contains the content of the file
+        const objectData = event.body || '';
+
+        // Use putObject to upload the object
+        const putObjectParams: S3.PutObjectRequest = {
             Bucket: bucketName,
             Key: objectKey,
+            Body: objectData,
+            ContentType: 'text/html', // Adjust the content type accordingly
         };
-        const s3Object = await s3.getObject(getObjectParams).promise();
-        const objectData = s3Object.Body?.toString('utf-8');
+
+        await s3.putObject(putObjectParams).promise();
 
         return {
             headers: {
-                'Content-Type': 'text/html',
+                'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*',
             },
             statusCode: 200,
             isBase64Encoded: false,
-            body: objectData as string,
+            body: JSON.stringify({ message: 'Object uploaded successfully' }),
         };
+
     } catch (error) {
         console.log(error);
         return {
@@ -56,9 +61,9 @@ export const handler = async function (
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*',
             },
-            statusCode: 306,
+            statusCode: 500,
             isBase64Encoded: false,
-            body: 'Cannot retrieve resource',
+            body: JSON.stringify({ error: 'Cannot retrieve/upload resource' }),
         };
     }
 };

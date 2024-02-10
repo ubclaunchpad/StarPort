@@ -1,5 +1,5 @@
-import { S3 } from 'aws-sdk';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { S3 } from 'aws-sdk';
 
 export const handler = async function (
     event: APIGatewayProxyEvent
@@ -28,26 +28,26 @@ export const handler = async function (
             throw new Error('Request is missing params');
         }
 
-        // ADD STRING.SPLIT METHOD THAT SPLITS LIKE AREA:AREA2:AREA3 AND TURNS INTO AREA/AREA2/AREA3 yup
         // Retrieve the bucket and key from the event
-        // const objectKey = `${area}/${doc}.md`;
         const trueArea = area.split(':').join('/');
         const objectKey = `${trueArea}/${doc}.md`;
-        const getObjectParams: S3.GetObjectRequest = {
+        
+        // Delete object
+        const deleteObjectParams: S3.DeleteObjectRequest = {
             Bucket: bucketName,
             Key: objectKey,
         };
-        const s3Object = await s3.getObject(getObjectParams).promise();
-        const objectData = s3Object.Body?.toString('utf-8');
+
+        await s3.deleteObject(deleteObjectParams).promise();
 
         return {
             headers: {
-                'Content-Type': 'text/html',
+                'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*',
             },
             statusCode: 200,
             isBase64Encoded: false,
-            body: objectData as string,
+            body: JSON.stringify({ message: 'File deleted successfully' })
         };
     } catch (error) {
         console.log(error);
@@ -56,9 +56,9 @@ export const handler = async function (
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*',
             },
-            statusCode: 306,
+            statusCode: 500,
             isBase64Encoded: false,
-            body: 'Cannot retrieve resource',
+            body: JSON.stringify({ error: 'Cannot delete resource' }),
         };
     }
 };
