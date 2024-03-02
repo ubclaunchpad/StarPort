@@ -10,7 +10,7 @@ export const ACCESS_SCOPES = {
     READ_OWN_PROFILE: 'read:profile:personal',
     READ_RESTRICTED_PROFILE_DATA: 'read:profile:restricted',
     ADMIN_WRITE: 'write:admin',
-    WRITE_PROFILE: 'write:profile',
+    WRITE_PROFILE: 'write:profile:all',
     ADMIN_UPDATE: 'update:admin',
     UPDATE_ALL_PROFILE: 'update:profile:all',
     UPDATE_OWN_PROFILE: 'update:profile:personal',
@@ -25,18 +25,15 @@ export class ScopeController implements IMiddleware<IHandlerEvent, object> {
     private connection: Kysely<Database>;
 
     public static verifyScopes(
-        scopes: AccessScope[],
+        userScopes: AccessScope[],
         requiredScopes: AccessScope[]
     ) {
-        const missingScopes = requiredScopes.filter(
-            (scope) => !scopes.includes(scope)
+        const hasRequiredScope = requiredScopes.some((scope) =>
+            userScopes.includes(scope)
         );
-        console.log(missingScopes);
 
-        if (missingScopes.length > 0) {
-            throw new UnauthorizedError(
-                `Missing scopes: ${missingScopes.join(', ')}`
-            );
+        if (!hasRequiredScope) {
+            throw new UnauthorizedError(`Missing required permission.`);
         }
     }
 
@@ -65,8 +62,8 @@ export class ScopeController implements IMiddleware<IHandlerEvent, object> {
         console.log(scopes);
 
         return {
-                userScopes: scopes.map((scope) => scope.scope_label),
-            };
+            userScopes: scopes.map((scope) => scope.scope_label),
+        };
     };
 
     constructor(connection: Kysely<Database>) {

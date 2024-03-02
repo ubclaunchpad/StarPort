@@ -1,23 +1,31 @@
-import { APIGatewayProxyEvent } from 'aws-lambda';
 import { getDatabase } from '../util/db';
+import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
-import { LambdaBuilder } from '../util/middleware/middleware';
+import { LambdaBuilder, LambdaInput } from '../util/middleware/middleware';
 import {
     APIResponse,
     BadRequestError,
     SuccessResponse,
 } from '../util/middleware/response';
+import {
+    ACCESS_SCOPES,
+    ScopeController,
+} from '../util/middleware/scopeHandler';
 
 const db = getDatabase();
 
+const validScopes = [
+    ACCESS_SCOPES.READ_ALL_PROFILE_DATA,
+    ACCESS_SCOPES.ADMIN_READ,
+];
+
 export const handler = new LambdaBuilder(router)
     .use(new InputValidator())
-    // .use(new Authorizer())
+    .use(new Authorizer(db))
+    .use(new ScopeController(db))
     .build();
 
-export async function router(
-    event: APIGatewayProxyEvent
-): Promise<APIResponse> {
+export async function router(event: LambdaInput): Promise<APIResponse> {
     if (!event.pathParameters) {
         throw new BadRequestError('Event path parameters missing');
     }
@@ -27,6 +35,15 @@ export async function router(
     }
 
     const id = parseInt(event.pathParameters.id);
+
+    const userScopes = event.userScopes;
+    if (userScopes.includes(ACCESS_SCOPES.READ_OWN_PROFILE)) {
+        if (await Authorizer.verifyCurrentUser(db, id, event.googleUser)) {
+            return new SuccessResponse(await getUser(id));
+        }
+    }
+
+    ScopeController.verifyScopes(event.userScopes, validScopes);
 
     return new SuccessResponse(await getUser(id));
 }

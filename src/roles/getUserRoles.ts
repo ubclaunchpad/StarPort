@@ -1,6 +1,7 @@
 import { APIGatewayEvent } from 'aws-lambda';
 import { Kysely } from 'kysely';
 import { Database, getDatabase } from '../util/db';
+import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { LambdaBuilder } from '../util/middleware/middleware';
 import { BadRequestError, SuccessResponse } from '../util/middleware/response';
@@ -8,7 +9,7 @@ import { BadRequestError, SuccessResponse } from '../util/middleware/response';
 const db = getDatabase();
 export const handler = new LambdaBuilder(getUserRoleRequest)
     .use(new InputValidator())
-    // .use(new Authorizer())
+    .use(new Authorizer(db))
     .build();
 
 async function getUserRoleRequest(event: APIGatewayEvent) {

@@ -1,5 +1,6 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { UpdatePerson, getDatabase } from '../util/db';
+import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { LambdaBuilder } from '../util/middleware/middleware';
 import { APIResponse, SuccessResponse } from '../util/middleware/response';
@@ -8,7 +9,7 @@ const db = getDatabase();
 
 export const handler = new LambdaBuilder(updateRequest)
     .use(new InputValidator())
-    // .use(new Authorizer())
+    .use(new Authorizer(db))
     .build();
 
 export async function updateRequest(
@@ -24,10 +25,7 @@ export async function updateRequest(
 
     const updatePersonData = JSON.parse(event.body) as UpdatePerson;
 
-    await updateUser(
-        event.pathParameters.id as string,
-        updatePersonData
-    );
+    await updateUser(event.pathParameters.id as string, updatePersonData);
     return new SuccessResponse({
         message: `User with id : ${event.pathParameters.id} updated successfully`,
         updateUser: updatePersonData,

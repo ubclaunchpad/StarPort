@@ -1,4 +1,5 @@
 import { getDatabase } from '../util/db';
+import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { LambdaBuilder, LambdaInput } from '../util/middleware/middleware';
 import {
@@ -6,6 +7,10 @@ import {
     ResponseMetaTagger,
 } from '../util/middleware/paginationHelper';
 import { APIResponse, SuccessResponse } from '../util/middleware/response';
+import {
+    ACCESS_SCOPES,
+    ScopeController,
+} from '../util/middleware/scopeHandler';
 import { IPersonQuery } from '../util/types/general';
 
 const db = getDatabase();
@@ -14,12 +19,18 @@ const DEFAULT_LIMIT = 50;
 const OFFSET = 0;
 export const handler = new LambdaBuilder(getRequest)
     .use(new InputValidator())
-    // .use(new Authorizer())
+    .use(new Authorizer(db))
+    .use(new ScopeController(db))
     .use(new PaginationHelper({ limit: DEFAULT_LIMIT, offset: OFFSET }))
     .useAfter(new ResponseMetaTagger())
     .build();
 
 export async function getRequest(event: LambdaInput): Promise<APIResponse> {
+    ScopeController.verifyScopes(event.userScopes, [
+        ACCESS_SCOPES.ADMIN_READ,
+        ACCESS_SCOPES.READ_ALL_PROFILE_DATA,
+    ]);
+
     const personQuery = ((event && event.queryStringParameters) ||
         {}) as unknown as IPersonQuery;
     return new SuccessResponse(await getAll(personQuery));
