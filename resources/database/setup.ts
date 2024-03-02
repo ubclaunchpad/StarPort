@@ -7,8 +7,8 @@ console.log('Connected to PlanetScale!')
 dotenv.config();
 
 const DATABASE_META_NAME = 'meta';
-const DATABASE_NAME = 'cosmicgatewaywiki';
-const MIGRATION_PATH = './resources/database/migrations';
+const DATABASE_NAME = 'cosmicgatewaywiki-kev';
+const MIGRATION_PATH = './resources/database/wiki_migrations/';
 
 const setUpDatabase = async (
     connection: Connection,
@@ -62,10 +62,9 @@ const resetDatabase = async (connection: Connection): Promise<void> => {
             );
             const tables = await query(connection, `SHOW TABLES IN ??`, [database.Database]);
             console.log(tables);
-            for (const table of tables) {
-                const tableName = Object.values(table)[0];
-                await query(connection, `DROP TABLE ??`, [tableName]);
-            }
+            const tableNames = tables.map(table => Object.values(table)[0]);
+            const queryStr = `DROP TABLE ${tableNames.join(', ')}`;
+            await query(connection, queryStr);
         }
     }
 };

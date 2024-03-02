@@ -38,7 +38,10 @@ export class WikiStack extends LPStack {
                 BUCKET_NAME: process.env.BUCKET_NAME || "",
                 BUCKET_ARN: process.env.BUCKET_NAME || "",
                 ACCESS_KEY: process.env.IAM_ACCESS_KEY || "",
-                SECRET_ACCESS_KEY: process.env.IAM_SECRET_ACCESS_KEY || ""
+                SECRET_ACCESS_KEY: process.env.IAM_SECRET_ACCESS_KEY || "",
+                WIKI_DATABASE_USERNAME: process.env.WIKI_DATABASE_USERNAME || "",
+                WIKI_DATABASE_PASSWORD: process.env.WIKI_DATABASE_PASSWORD || "",
+                WIKI_DATABASE_HOST: process.env.WIKI_DATABASE_HOST || "",
             },
             role: role,
         };
@@ -49,8 +52,34 @@ export class WikiStack extends LPStack {
             subresources: {
                 docs: {
                     subresources: {
-                        'area': {
+                        'areas': {
+                            endpoints: {
+                                GET: {
+                                    id: 'getAreas',
+                                    path: `${baseLambdaDir}/getAreas`,
+                                },
+                                // POST: {
+                                //     id: 'postAreas',
+                                //     path: `${baseLambdaDir}/postarea`,
+                                // },
+                            },
                             subresources: {
+                                '{id}': {
+                                    endpoints: {
+                                        GET: {
+                                            id: 'getArea',
+                                            path: `${baseLambdaDir}/getArea`,
+                                        },
+                                        // DELETE: {
+                                        //     id: 'deleteArea',
+                                        //     path: `${baseLambdaDir}/deletearea`,
+                                        // },
+                                        // PUT: {
+                                        //     id: 'putArea',
+                                        //     path: `${baseLambdaDir}/putarea`,
+                                        // },
+                                    },
+                                },
                                 '{area}': {
                                     subresources: { 
                                         'doc': {
