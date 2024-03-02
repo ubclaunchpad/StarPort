@@ -30,6 +30,7 @@ export async function router(event: LambdaInput): Promise<APIResponse> {
     }
 
     ScopeController.verifyScopes(event.userScopes, validScopes);
+
     const body = JSON.parse(event.body) as Person;
 
     const createdUserId = await CreateUser(body);

@@ -36,14 +36,14 @@ export async function router(event: LambdaInput): Promise<APIResponse> {
 
     const id = parseInt(event.pathParameters.id);
 
-    const userScopes = event.userScopes;
-    if (userScopes.includes(ACCESS_SCOPES.READ_OWN_PROFILE)) {
-        if (await Authorizer.verifyCurrentUser(db, id, event.googleUser)) {
-            return new SuccessResponse(await getUser(id));
-        }
-    }
-
-    ScopeController.verifyScopes(event.userScopes, validScopes);
+    await Authorizer.authorizeOrVerifyScopes(
+        db,
+        id,
+        event.userScopes,
+        ACCESS_SCOPES.READ_OWN_PROFILE,
+        validScopes,
+        event.googleAccount
+    );
 
     return new SuccessResponse(await getUser(id));
 }

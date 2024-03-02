@@ -7,10 +7,7 @@ import {
     BadRequestError,
     SuccessResponse,
 } from '../util/middleware/response';
-import {
-    ACCESS_SCOPES,
-    ScopeController,
-} from '../util/middleware/scopeHandler';
+import { ACCESS_SCOPES } from '../util/middleware/scopeHandler';
 
 const db = getDatabase();
 const validScopes = [
@@ -65,18 +62,12 @@ export const validateScope = (event: LambdaInput) => {
 
     const id = parseInt(event.pathParameters.id);
     const userScopes = event.userScopes;
-    authorizeOrVerifyScopes(db, id, userScopes, event.googleUser);
-};
-
-async function authorizeOrVerifyScopes(db, userId, userScopes, googleUser) {
-    const canAccessOwnProfile = userScopes.includes(
-        ACCESS_SCOPES.DELETE_OWN_PROFILE
+    Authorizer.authorizeOrVerifyScopes(
+        db,
+        id,
+        userScopes,
+        ACCESS_SCOPES.DELETE_OWN_PROFILE,
+        validScopes,
+        event.googleUser
     );
-    if (
-        canAccessOwnProfile &&
-        (await Authorizer.verifyCurrentUser(db, userId, googleUser))
-    ) {
-        return;
-    }
-    ScopeController.verifyScopes(userScopes, validScopes);
-}
+};

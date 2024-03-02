@@ -1,20 +1,27 @@
-import { APIGatewayProxyEvent } from 'aws-lambda';
 import { UpdatePerson, getDatabase } from '../util/db';
 import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
-import { LambdaBuilder } from '../util/middleware/middleware';
-import { APIResponse, SuccessResponse } from '../util/middleware/response';
+import { LambdaBuilder, LambdaInput } from '../util/middleware/middleware';
+import {
+    APIResponse,
+    BadRequestError,
+    SuccessResponse,
+} from '../util/middleware/response';
+import {
+    ACCESS_SCOPES,
+    ScopeController,
+} from '../util/middleware/scopeHandler';
 
 const db = getDatabase();
+const validScopes = [ACCESS_SCOPES.UPDATE_ALL_PROFILE];
 
 export const handler = new LambdaBuilder(updateRequest)
     .use(new InputValidator())
     .use(new Authorizer(db))
+    .use(new ScopeController(db))
     .build();
 
-export async function updateRequest(
-    event: APIGatewayProxyEvent
-): Promise<APIResponse> {
+export async function updateRequest(event: LambdaInput): Promise<APIResponse> {
     if (!event.pathParameters) {
         throw new Error('Event parameters is missing');
     }
@@ -22,6 +29,20 @@ export async function updateRequest(
     if (!event.body) {
         throw new Error('Event body missing');
     }
+    if (!event.pathParameters.id) {
+        throw new BadRequestError('ID is undefined');
+    }
+
+    const id = parseInt(event.pathParameters.id);
+    const userScopes = event.userScopes;
+    await Authorizer.authorizeOrVerifyScopes(
+        db,
+        id,
+        userScopes,
+        ACCESS_SCOPES.UPDATE_OWN_PROFILE,
+        validScopes,
+        event.googleAccount
+    );
 
     const updatePersonData = JSON.parse(event.body) as UpdatePerson;
 

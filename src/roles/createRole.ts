@@ -3,11 +3,14 @@ import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { LambdaBuilder, LambdaInput } from '../util/middleware/middleware';
 import { BadRequestError, SuccessResponse } from '../util/middleware/response';
-import { ScopeController } from '../util/middleware/scopeHandler';
+import {
+    ACCESS_SCOPES,
+    ScopeController,
+} from '../util/middleware/scopeHandler';
 import { getRoles, refreshCache } from './roles';
-import { ACCESS_SCOPES } from '../util/middleware/scopeHandler';
 
 const db = getDatabase();
+const validScopes = [ACCESS_SCOPES.ADMIN_WRITE];
 export const handler = new LambdaBuilder(createRoleRequest)
     .use(new InputValidator())
     .use(new Authorizer(db))
@@ -21,9 +24,9 @@ async function createRoleRequest(event: LambdaInput) {
     if (!event.body) {
         throw new BadRequestError('Event body missing');
     }
-    
-    ScopeController.verifyScopes(event.userScopes, [ACCESS_SCOPES.ADMIN_WRITE, ACCESS_SCOPES.WRITE_PROFILE]);
-    
+
+    ScopeController.verifyScopes(event.userScopes, validScopes);
+
     const { label } = JSON.parse(event.body);
     await createRole({ label });
     await refreshCache(db);

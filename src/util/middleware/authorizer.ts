@@ -4,6 +4,7 @@ import { Kysely } from 'kysely';
 import { GoogleAuthUser } from '../authorization';
 import { Database } from '../db';
 import { NotFoundError, UnauthorizedError } from './response';
+import { ScopeController } from './scopeHandler';
 import { IHandlerEvent, IMiddleware } from './types';
 
 export class Authorizer implements IMiddleware<IHandlerEvent, object> {
@@ -49,16 +50,38 @@ export class Authorizer implements IMiddleware<IHandlerEvent, object> {
             .select(['email'])
             .where('person.id', '=', id)
             .executeTakeFirst();
-    
+
         if (!user) {
-            throw new NotFoundError('User not found');
+            return false;
         }
+        console.log(user);
+        console.log(googleAuthUser);
         return googleAuthUser.email == user.email;
+    };
+
+    public static authorizeOrVerifyScopes = async (
+        db: Kysely<Database>,
+        userId: number,
+        userScopes: string[],
+        personalScope: string,
+        validScopes: string[],
+        googleUser: GoogleAuthUser
+    ) => {
+        const canAccessOwnProfile = userScopes.includes(personalScope);
+        const isCurrentUser = await Authorizer.verifyCurrentUser(
+            db,
+            userId,
+            googleUser
+        );
+        console.log(`currentuser: ${isCurrentUser}`);
+        if (canAccessOwnProfile && isCurrentUser) {
+            console.log('User is authorized');
+            return;
+        }
+        ScopeController.verifyScopes(userScopes, validScopes);
     };
 
     constructor(connection: Kysely<Database>) {
         this.connection = connection;
     }
 }
-
-

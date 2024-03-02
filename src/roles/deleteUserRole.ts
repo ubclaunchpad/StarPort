@@ -1,17 +1,22 @@
-import { APIGatewayEvent } from 'aws-lambda';
 import { getDatabase } from '../util/db';
 import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
-import { LambdaBuilder } from '../util/middleware/middleware';
+import { LambdaBuilder, LambdaInput } from '../util/middleware/middleware';
 import { BadRequestError, SuccessResponse } from '../util/middleware/response';
+import {
+    ACCESS_SCOPES,
+    ScopeController,
+} from '../util/middleware/scopeHandler';
 
 const db = getDatabase();
+const validScopes = [ACCESS_SCOPES.ADMIN_WRITE];
 export const handler = new LambdaBuilder(deleteUserRoleRequest)
     .use(new InputValidator())
     .use(new Authorizer(db))
+    .use(new ScopeController(db))
     .build();
 
-async function deleteUserRoleRequest(event: APIGatewayEvent) {
+async function deleteUserRoleRequest(event: LambdaInput) {
     if (!event.pathParameters) {
         throw new BadRequestError('Event pathParameters missing');
     }
@@ -20,6 +25,7 @@ async function deleteUserRoleRequest(event: APIGatewayEvent) {
     }
 
     const { id, roleId } = event.pathParameters;
+    ScopeController.verifyScopes(event.userScopes, validScopes);
     await deleteUserRole(parseInt(id), parseInt(roleId));
     return new SuccessResponse({ message: 'Role deleted successfully' });
 }

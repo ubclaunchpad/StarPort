@@ -1,10 +1,10 @@
 import { APIGatewayEvent } from 'aws-lambda';
 import { Kysely } from 'kysely';
 import { Database, getDatabase } from '../util/db';
-import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { LambdaBuilder } from '../util/middleware/middleware';
 import { BadRequestError, SuccessResponse } from '../util/middleware/response';
+import { Authorizer } from '../util/middleware/authorizer';
 
 const db = getDatabase();
 export const handler = new LambdaBuilder(getUserRoleRequest)
