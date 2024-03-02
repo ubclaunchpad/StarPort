@@ -28,6 +28,7 @@ export async function router(event: LambdaInput): Promise<APIResponse> {
 
     await deleteUser(event.pathParameters.id as string);
     await deleteUserRole(event.pathParameters.id as string);
+
     return new SuccessResponse({
         message: `user with id : ${event.pathParameters.id} deleted`,
     });
