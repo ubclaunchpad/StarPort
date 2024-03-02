@@ -52,7 +52,7 @@ export class WikiStack extends LPStack {
             subresources: {
                 docs: {
                     subresources: {
-                        'areas': {
+                        'area': {
                             endpoints: {
                                 GET: {
                                     id: 'getAreas',
@@ -104,7 +104,7 @@ export class WikiStack extends LPStack {
                                         },
                                     },
                                 },
-                            },
+                            }
                         },
                     },
                 },
