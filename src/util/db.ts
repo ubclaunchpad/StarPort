@@ -4,10 +4,13 @@ import {
     Insertable,
     Selectable,
     Updateable,
+    ColumnType,
+    JSONColumnType,
 } from 'kysely';
 import { config } from 'dotenv';
 import { PlanetScaleDialect } from 'kysely-planetscale'
 import { fetch } from 'undici'
+import { Link } from './types/general';
 config();
 
 export interface Database {
@@ -19,6 +22,8 @@ export interface Database {
     person_role: PersonRoleTable;
     scope: ScopeTable;
     scope_role: ScopeRole;
+    team: TeamTable;
+    post: PostTable;
 }
 
 export function getDatabase() {
@@ -127,3 +132,37 @@ export interface ScopeRoleTable {
 export type ScopeRole = Selectable<ScopeRoleTable>;
 export type NewScopeRole = Insertable<ScopeRoleTable>;
 export type UpdateScopeRole = Updateable<ScopeRole>;
+export interface TeamTable {
+    id: Generated<number>;
+    label: string;
+    description: string;
+    image_link: string | undefined;
+    created_at: ColumnType<Date, string | undefined, never>;
+    updated_at: ColumnType<Date, string | undefined>;
+    meta_data: JSONColumnType<{
+        links: Link[];
+    }>
+}
+
+export type Team = Selectable<TeamTable>;
+export type NewTeam = Insertable<TeamTable>;
+export type UpdateTeam = Updateable<TeamTable>;
+
+export interface PostTable {
+    id: Generated<number>;
+    title: string;
+    contents: JSONColumnType<{
+        body: string;
+    }>
+    created_at: ColumnType<Date, string | undefined, never>;
+    updated_at: ColumnType<Date, string | undefined>;
+    teamid: number;
+    userid: number;
+    status: "pinned" | "default" | "archived" | "bookmarked";
+    type : "post" | "event" | "news" | "update" | "announcement" | "discussion";
+
+}
+
+export type Post = Selectable<PostTable>;
+export type NewPost = Insertable<PostTable>;
+export type UpdatePost = Updateable<PostTable>;
