@@ -5,10 +5,18 @@ import {Kysely} from "kysely";
 import {Database} from "../db";
 
 export const ACCESS_SCOPES = {
-    PROFILE_READ_OTHERS: 'profile:read:others',
-    PROFILE_WRITE_OTHERS: 'profile:write:others',
-    ADMIN_READ: 'admin:read',
-    ADMIN_WRITE: 'admin:write',
+    ADMIN_READ: 'read:admin',
+    READ_ALL_PROFILE_DATA: 'read:profile:all',
+    READ_OWN_PROFILE: 'read:profile:personal',
+    READ_RESTRICTED_PROFILE_DATA: 'read:profile:restricted',
+    ADMIN_WRITE: 'write:admin',
+    WRITE_PROFILE: 'write:profile',
+    ADMIN_UPDATE: 'update:admin',
+    UPDATE_ALL_PROFILE: 'update:profile:all',
+    UPDATE_OWN_PROFILE: 'update:profile:personal',
+    ADMIN_DELETE: 'delete:admin',
+    DELETE_ALL_PROFILE: 'delete:profile:all',
+    DELETE_OWN_PROFILE: 'delete:profile:personal'
 }
 
 export type AccessScope = typeof ACCESS_SCOPES[keyof typeof ACCESS_SCOPES];

@@ -8,12 +8,12 @@ import { PaginationHelper, ResponseMetaTagger } from '../util/middleware/paginat
 
 const db = getDatabase();
 
-const LIMIT = 50;
+const DEFAULT_LIMIT = 50;
 const OFFSET = 0;
 export const handler = new LambdaBuilder(getRequest)
     .use(new InputValidator())
     // .use(new Authorizer())
-    .use(new PaginationHelper({ limit: LIMIT, offset: OFFSET}))
+    .use(new PaginationHelper({ limit: DEFAULT_LIMIT, offset: OFFSET}))
     .useAfter(new ResponseMetaTagger())
     .build();
 
@@ -30,9 +30,12 @@ export async function getAll(personQuery: IPersonQuery) {
         .selectFrom('person')
         .select( [
             'person.id',
+            'person.first_name',
+            'person.last_name',
+            'person.pref_name',
+            'person.person_role_id',
             'person.email',
-            'person.created_at',
-            'person.updated_at',
+            'person.account_updated',
             'person.member_since'
             ])
         .limit(personQuery.limit || 10)
@@ -42,9 +45,12 @@ export async function getAll(personQuery: IPersonQuery) {
     return res.map((user) => {
         return {
             id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            pref_name: user.pref_name,
+            person_role_id: user.person_role_id,
             email: user.email || '',
-            created_at: user.created_at,
-            updated_at: user.updated_at,
+            account_updated: user.account_updated,
             member_since: user.member_since,
         };
     });

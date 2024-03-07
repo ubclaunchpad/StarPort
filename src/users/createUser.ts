@@ -13,16 +13,22 @@ const db = getDatabase();
 
 export const handler = new LambdaBuilder(router)
     .use(new InputValidator())
-    .use(new Authorizer())
+    // .use(new Authorizer())
     .build();
 
 export async function router(
     event: APIGatewayProxyEvent
 ): Promise<APIResponse> {
+    if (!event.body) {
+        throw new BadRequestError('Event body missing');
+    }
+
     const body = JSON.parse(event.body) as Person;
+
     const createdUserId = await CreateUser(body);
+
     return new SuccessResponse({
-        message: `user with id : ${createdUserId} created`,
+        message: `user with id: ${createdUserId} created`,
     });
 }
 
@@ -81,7 +87,7 @@ export const validateEmail = async (email: string): Promise<void> => {
     }
 };
 
-export const validateFacultyId = async (facultyId: string): Promise<void> => {
+export const validateFacultyId = async (facultyId: number): Promise<void> => {
     const faculty = await db
         .selectFrom('faculty')
         .select(['id'])
@@ -92,7 +98,7 @@ export const validateFacultyId = async (facultyId: string): Promise<void> => {
     }
 };
 
-export const validateStandingId = async (standingId: string): Promise<void> => {
+export const validateStandingId = async (standingId: number): Promise<void> => {
     const standing = await db
         .selectFrom('standing')
         .select(['id'])
@@ -104,7 +110,7 @@ export const validateStandingId = async (standingId: string): Promise<void> => {
 };
 
 export const validateSpecializationId = async (
-    specializationId: string
+    specializationId: number
 ): Promise<void> => {
     const specialization = await db
         .selectFrom('specialization')
@@ -123,14 +129,15 @@ export const AddUserToDatabase = async (user: NewPerson): Promise<string> => {
             UserInfo[key] = null;
         }
     }
-    if (!user.username) {
-        user.username = user.email;
-    }
 
     const person = await db
         .insertInto('person')
         .values(user)
-        .returning('id')
         .executeTakeFirst();
-    return person.id;
+
+    if (!person.insertId) {
+        throw new BadRequestError('Could not find created user id');
+    }
+
+    return person.insertId.toString();
 };
