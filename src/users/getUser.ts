@@ -85,6 +85,14 @@ export async function getUser(userId: number) {
         .where('person.id', '=', userId)
         .executeTakeFirst();
 
+    const roles = await db
+        .selectFrom('role')
+        .innerJoin('person_role', 'role.id', 'person_role.role_id')
+        .innerJoin('person', 'person.id', 'person_role.person_id')
+        .select(['role.label'])
+        .where('person_role.person_id', '=', userId)
+        .execute();
+
     if (!res) {
         throw new Error('User not found');
     }
@@ -121,5 +129,6 @@ export async function getUser(userId: number) {
             id: res.specialization_id,
             label: res.specialization_label,
         },
+        roles: roles.map((role) => role.label),
     };
 }
