@@ -20,7 +20,7 @@ export class UserStack extends LPStack {
         const { databaseConfig } = props;
 
         const lambdaConfigs = {
-            runtime: lambda.Runtime.NODEJS_16_X,
+            runtime: lambda.Runtime.NODEJS_18_X,
             handler: 'index.handler',
             environment: {
                 ...databaseConfig,
