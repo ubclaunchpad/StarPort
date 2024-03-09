@@ -3,7 +3,6 @@ import { LambdaBuilder } from '../util/middleware/middleware';
 import { APIResponse, SuccessResponse } from '../util/middleware/response';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { APIGatewayEvent } from 'aws-lambda';
-import { S3 } from 'aws-sdk';
 
 
 const db = getDatabase();
@@ -19,12 +18,6 @@ export async function router(
 ): Promise<APIResponse> {
     const q = event.queryStringParameters;
 
-    const s3 = new S3({
-        accessKeyId: process.env.ACCESS_KEY,
-        secretAccessKey: process.env.SECRET_ACCESS_KEY
-    });
-
-    console.log(s3)
     if (q && q.teamid) {
         const team = await getPosts(Number(q.teamid));
         return new SuccessResponse(team);

@@ -6,7 +6,7 @@ import { Authorizer } from '../util/middleware/authorizer';
 const db = getDatabase();
 
 export const handler = new LambdaBuilder(router)
-    .use(new Authorizer(db, { shouldGetUser: true }))
+    .use(new Authorizer(db))
     .build();
 
 export async function router(
@@ -15,19 +15,14 @@ export async function router(
     if (!event.body) throw new Error('No body provided');
 
     const body = JSON.parse(event.body);
-    console.log(event.googleAccount.id);
-    console.log(event.googleAccount.email);
-
-    const postParams = {...body , userid: event.googleAccount.id} as unknown as NewPost;
+    const postParams = {...body , userid: event.user.id} as unknown as NewPost;
     const newPost = await createPost(postParams);
     return new SuccessResponse({
         message: `post with id : ${newPost} created`,
     });
 }
 export const createPost = async (newPost: NewPost) => {
-    console.log(newPost.contents);
     newPost.contents = JSON.stringify(newPost.contents);
-    console.log(newPost.contents);
 
     try {
         const { insertId } = await db

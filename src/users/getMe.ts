@@ -12,7 +12,7 @@ export const handler = new LambdaBuilder(router)
     .build();
 
 export async function router(event: LambdaInput): Promise<APIResponse> {
-    const email = event.googleAccount.email;
+    const email = event.user.email;
 
     return new SuccessResponse(await getUser(email));
 }

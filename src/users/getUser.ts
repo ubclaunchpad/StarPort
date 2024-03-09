@@ -42,7 +42,7 @@ export async function router(event: LambdaInput): Promise<APIResponse> {
         event.userScopes,
         ACCESS_SCOPES.READ_OWN_PROFILE,
         validScopes,
-        event.googleAccount
+        event.user
     );
 
     return new SuccessResponse(await getUser(id));

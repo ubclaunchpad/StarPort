@@ -16,9 +16,8 @@ export class Authorizer implements IMiddleware<IHandlerEvent, object> {
         if (auth === undefined) {
             throw new UnauthorizedError('Authorization header is missing');
         }
-        const googleAuth = await this.verifyUserIsLoggedIn(auth);
-
-        return { googleAccount: googleAuth };
+        const user = await this.verifyUserIsLoggedIn(auth);
+        return { user: user };
     };
 
     verifyUserIsLoggedIn = async (auth: string) => {
@@ -30,7 +29,7 @@ export class Authorizer implements IMiddleware<IHandlerEvent, object> {
 
         const user = await this.connection
             .selectFrom('person')
-            .select(['email'])
+            .select(['email', 'id'])
             .where('person.email', '=', googleAuthUser.email)
             .executeTakeFirst();
 
@@ -38,7 +37,7 @@ export class Authorizer implements IMiddleware<IHandlerEvent, object> {
             throw new NotFoundError('Authorized user not found');
         }
 
-        return googleAuthUser;
+        return user;
     };
 
     public static verifyCurrentUser = async (
@@ -55,8 +54,6 @@ export class Authorizer implements IMiddleware<IHandlerEvent, object> {
         if (!user) {
             return false;
         }
-        console.log(user);
-        console.log(googleAuthUser);
         return googleAuthUser.email == user.email;
     };
 
@@ -74,9 +71,7 @@ export class Authorizer implements IMiddleware<IHandlerEvent, object> {
             userId,
             googleUser
         );
-        console.log(`currentuser: ${isCurrentUser}`);
         if (canAccessOwnProfile && isCurrentUser) {
-            console.log('User is authorized');
             return;
         }
         ScopeController.verifyScopes(userScopes, validScopes);
