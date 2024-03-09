@@ -47,21 +47,31 @@ export async function getAll(personQuery: IPersonQuery) {
             'person.pref_name',
             'person.email',
             'person.account_updated',
-            'person.member_since',
         ])
         .limit(personQuery.limit || 10)
         .offset(personQuery.offset || 0)
         .execute();
 
-    return res.map((user) => {
-        return {
-            id: user.id,
-            first_name: user.first_name,
-            last_name: user.last_name,
-            pref_name: user.pref_name,
-            email: user.email || '',
-            account_updated: user.account_updated,
-            member_since: user.member_since,
-        };
-    });
+    const usersWithRoles = await Promise.all(
+        res.map(async (user) => {
+            const roles = await db
+                .selectFrom('role')
+                .innerJoin('person_role', 'role.id', 'person_role.role_id')
+                .innerJoin('person', 'person.id', 'person_role.person_id')
+                .select(['role.label'])
+                .where('person_role.person_id', '=', user.id)
+                .execute();
+
+            return {
+                id: user.id,
+                first_name: user.first_name,
+                last_name: user.last_name,
+                pref_name: user.pref_name,
+                email: user.email || '',
+                account_updated: user.account_updated,
+                roles: roles.map((role) => role.label),
+            };
+        })
+    );
+    return usersWithRoles;
 }
