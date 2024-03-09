@@ -6,7 +6,7 @@ import mysql, { Connection } from 'mysql2';
 console.log('Connected to PlanetScale!')
 dotenv.config();
 
-const DATABASE_NAME = 'cosmic-dev';
+const DATABASE_NAME = 'userbase';
 const MIGRATION_PATH = './resources/database/migrations';
 
 const setUpDatabase = async (
