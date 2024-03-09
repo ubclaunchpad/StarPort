@@ -1,5 +1,4 @@
 import { getDatabase, NewPerson, Person } from '../util/db';
-import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { LambdaBuilder, LambdaInput } from '../util/middleware/middleware';
 import {
@@ -7,29 +6,17 @@ import {
     BadRequestError,
     SuccessResponse,
 } from '../util/middleware/response';
-import {
-    ACCESS_SCOPES,
-    ScopeController,
-} from '../util/middleware/scopeHandler';
 
 const db = getDatabase();
-const validScopes = [ACCESS_SCOPES.ADMIN_WRITE, ACCESS_SCOPES.WRITE_PROFILE];
 
 export const handler = new LambdaBuilder(router)
     .use(new InputValidator())
-    .use(new Authorizer(db))
-    .use(new ScopeController(db))
     .build();
 
 export async function router(event: LambdaInput): Promise<APIResponse> {
     if (!event.body) {
         throw new BadRequestError('Event body missing');
     }
-    if (!event.userScopes) {
-        throw new BadRequestError('Event userScopes missing');
-    }
-
-    ScopeController.verifyScopes(event.userScopes, validScopes);
 
     const body = JSON.parse(event.body) as Person;
 
@@ -151,7 +138,6 @@ export const addUserToDatabase = async (user: NewPerson): Promise<string> => {
 
     return person.insertId.toString();
 };
-
 
 export const addUserDefaultRole = async (userId: number): Promise<void> => {
     const roles = await db
