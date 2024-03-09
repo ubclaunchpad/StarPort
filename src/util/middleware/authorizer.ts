@@ -7,6 +7,7 @@ import { NotFoundError, UnauthorizedError } from './response';
 import { ScopeController } from './scopeHandler';
 import { IHandlerEvent, IMiddleware } from './types';
 
+
 export class Authorizer implements IMiddleware<IHandlerEvent, object> {
     private connection: Kysely<Database>;
 

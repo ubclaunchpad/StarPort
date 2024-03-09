@@ -21,5 +21,7 @@ esbuild ./src/**/*.ts \
   --entry-names=[dir]/[name]/index \
   --bundle \
   --platform=node \
-  --target=node16.14 \
-  --outdir=./dist/ 
+  --target=node18 \
+  --outdir=./dist/ \
+  --sourcemap=inline \
+
