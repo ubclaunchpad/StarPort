@@ -7,17 +7,10 @@ import {
     ResponseMetaTagger,
 } from '../util/middleware/paginationHelper';
 import { APIResponse, SuccessResponse } from '../util/middleware/response';
-import {
-    ACCESS_SCOPES,
-    ScopeController,
-} from '../util/middleware/scopeHandler';
+import { ScopeController } from '../util/middleware/scopeHandler';
 import { IPersonQuery } from '../util/types/general';
 
 const db = getDatabase();
-const validScopes = [
-    ACCESS_SCOPES.ADMIN_READ,
-    ACCESS_SCOPES.READ_ALL_PROFILE_DATA,
-];
 
 const DEFAULT_LIMIT = 50;
 const OFFSET = 0;
@@ -30,8 +23,6 @@ export const handler = new LambdaBuilder(getRequest)
     .build();
 
 export async function getRequest(event: LambdaInput): Promise<APIResponse> {
-    ScopeController.verifyScopes(event.userScopes, validScopes);
-
     const personQuery = ((event && event.queryStringParameters) ||
         {}) as unknown as IPersonQuery;
     return new SuccessResponse(await getAll(personQuery));
