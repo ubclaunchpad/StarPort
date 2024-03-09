@@ -34,6 +34,12 @@ CREATE TABLE IF NOT EXISTS specialization (
     label VARCHAR(100) UNIQUE NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS person_role (
+    person_id INT,
+    role_id INT,
+    PRIMARY KEY (person_id, role_id)
+);
+
 -- Create the role table
 CREATE TABLE IF NOT EXISTS role (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -59,7 +65,6 @@ CREATE TABLE IF NOT EXISTS person (
     email VARCHAR(255),
     member_since TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     account_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    person_role_id INT,
     first_name VARCHAR(255) NOT NULL,
     pref_name VARCHAR(255),
     last_name VARCHAR(255) NOT NULL,
@@ -75,7 +80,6 @@ CREATE TABLE IF NOT EXISTS person (
     github_link VARCHAR(255),
     website_link VARCHAR(255),
     resume_link VARCHAR(255),
-    KEY person_role_id_idx (person_role_id),
     KEY pronouns_id_idx (pronouns_id),
     KEY gender_id_idx (gender_id),
     KEY ethicity_id_idx (ethnicity_id),

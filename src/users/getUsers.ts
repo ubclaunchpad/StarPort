@@ -1,25 +1,37 @@
+import { getDatabase } from '../util/db';
 import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
-import { getDatabase } from '../util/db';
-import { IPersonQuery } from '../util/types/general';
-import {LambdaBuilder, LambdaInput} from '../util/middleware/middleware';
+import { LambdaBuilder, LambdaInput } from '../util/middleware/middleware';
+import {
+    PaginationHelper,
+    ResponseMetaTagger,
+} from '../util/middleware/paginationHelper';
 import { APIResponse, SuccessResponse } from '../util/middleware/response';
-import { PaginationHelper, ResponseMetaTagger } from '../util/middleware/paginationHelper';
+import {
+    ACCESS_SCOPES,
+    ScopeController,
+} from '../util/middleware/scopeHandler';
+import { IPersonQuery } from '../util/types/general';
 
 const db = getDatabase();
+const validScopes = [
+    ACCESS_SCOPES.ADMIN_READ,
+    ACCESS_SCOPES.READ_ALL_PROFILE_DATA,
+];
 
 const DEFAULT_LIMIT = 50;
 const OFFSET = 0;
 export const handler = new LambdaBuilder(getRequest)
     .use(new InputValidator())
-    // .use(new Authorizer())
-    .use(new PaginationHelper({ limit: DEFAULT_LIMIT, offset: OFFSET}))
+    .use(new Authorizer(db))
+    .use(new ScopeController(db))
+    .use(new PaginationHelper({ limit: DEFAULT_LIMIT, offset: OFFSET }))
     .useAfter(new ResponseMetaTagger())
     .build();
 
-export async function getRequest(
-    event: LambdaInput
-): Promise<APIResponse> {
+export async function getRequest(event: LambdaInput): Promise<APIResponse> {
+    ScopeController.verifyScopes(event.userScopes, validScopes);
+
     const personQuery = ((event && event.queryStringParameters) ||
         {}) as unknown as IPersonQuery;
     return new SuccessResponse(await getAll(personQuery));
@@ -28,16 +40,15 @@ export async function getRequest(
 export async function getAll(personQuery: IPersonQuery) {
     const res = await db
         .selectFrom('person')
-        .select( [
+        .select([
             'person.id',
             'person.first_name',
             'person.last_name',
             'person.pref_name',
-            'person.person_role_id',
             'person.email',
             'person.account_updated',
-            'person.member_since'
-            ])
+            'person.member_since',
+        ])
         .limit(personQuery.limit || 10)
         .offset(personQuery.offset || 0)
         .execute();
@@ -48,7 +59,6 @@ export async function getAll(personQuery: IPersonQuery) {
             first_name: user.first_name,
             last_name: user.last_name,
             pref_name: user.pref_name,
-            person_role_id: user.person_role_id,
             email: user.email || '',
             account_updated: user.account_updated,
             member_since: user.member_since,

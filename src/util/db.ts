@@ -15,6 +15,7 @@ export interface Database {
     faculty: FacultyTable;
     gender: GenderTable;
     person: PersonTable;
+    person_role: PersonRoleTable;
     pronouns: PronounsTable;
     role: RoleTable;
     scope: ScopeTable;
@@ -102,7 +103,6 @@ export interface PersonTable {
     email: string;
     member_since: Date;
     account_updated: Date;
-    person_role_id: Generated<number>;
     first_name: string;
     pref_name: string;
     last_name: string;
@@ -118,6 +118,11 @@ export interface PersonTable {
     github_link: string; 
     website_link: string; 
     resume_link: string; 
+}
+
+export interface PersonRoleTable {
+    person_id: number;
+    role_id: number;
 }
 
 export type Person = Selectable<PersonTable>;
