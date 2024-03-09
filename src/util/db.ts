@@ -27,6 +27,7 @@ export interface Database {
     team: TeamTable;
     team_term: TeamTermTable;
     post: PostTable;
+    team_member: team_member;
 }
 
 export function getDatabase() {
@@ -103,6 +104,7 @@ export type UpdateScopeRole = Updateable<ScopeRole>;
 export interface TeamTable {
     id: Generated<number>;
     label: string;
+    type: "group" | "project" | "other";
     description: string;
     image_link: string | undefined;
     created_at: ColumnType<Date, string | undefined, never>;
@@ -176,3 +178,14 @@ export interface PersonRoleTable {
 export type Person = Selectable<PersonTable>;
 export type NewPerson = Insertable<PersonTable>;
 export type UpdatePerson = Updateable<PersonTable>;
+
+
+export interface team_member {
+    temaid: number;
+    userid: number;
+    team_role: "tech lead", "designer", "developer", "design lead", "other";
+}
+
+export type TeamMember = Selectable<team_member>;
+export type NewTeamMember = Insertable<team_member>;
+export type UpdateTeamMember = Updateable<team_member>;

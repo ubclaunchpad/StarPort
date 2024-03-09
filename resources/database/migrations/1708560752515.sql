@@ -5,7 +5,8 @@
 CREATE TABLE IF NOT EXISTS team (
 id INT AUTO_INCREMENT PRIMARY KEY,
 label VARCHAR(100) UNIQUE NOT NULL,
-description VARCHAR(255),
+type ENUM('group', 'team', 'other') DEFAULT 'team',
+description TEXT,
 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 image_link VARCHAR(255),
@@ -26,8 +27,18 @@ teamid INT NOT NULL,
 userid INT NOT NULL,
 title VARCHAR(255) NOT NULL,
 status ENUM('pinned', 'bookmarked', 'archived', 'default') DEFAULT 'default',
-type ENUM('post', 'event', 'news', 'update','discussion', 'announcement') DEFAULT 'announcement',
+type ENUM( 'event', 'news', 'update','discussion', 'announcement') DEFAULT 'update',
 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 contents JSON
 );
+
+CREATE TABLE IF NOT EXISTS team_member (
+    teamid INT NOT NULL,
+    userid INT NOT NULL,
+    team_role ENUM('tech lead', 'developer', 'designer', 'design lead', 'other') DEFAULT 'other',
+    member_since DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (teamid, userid)
+);
+
+
