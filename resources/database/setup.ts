@@ -6,8 +6,7 @@ import mysql, { Connection } from 'mysql2';
 console.log('Connected to PlanetScale!')
 dotenv.config();
 
-const DATABASE_META_NAME = 'meta';
-const DATABASE_NAME = 'cosmic-dev';
+const DATABASE_NAME = 'userbase';
 const MIGRATION_PATH = './resources/database/migrations';
 
 const setUpDatabase = async (
@@ -29,7 +28,7 @@ const setUpDatabase = async (
                 'Migrations table already exists. Skipping initialization'
         );
     }
-    await runMigrations(connection, DATABASE_NAME);
+    await runMigrations(connection);
 };
 
 const initializeDatabase = async (connection: Connection): Promise<void> => {
@@ -72,7 +71,6 @@ const resetDatabase = async (connection: Connection): Promise<void> => {
 
 async function runMigrations(
     connection: Connection,
-    primaryDatabaseName = 'main'
 ): Promise<void> {
     let files = fs.readdirSync(MIGRATION_PATH);
 
@@ -93,11 +91,6 @@ async function runMigrations(
             return fileTimestamp > lastMigrationTimestamp;
         });
     }
-
-    // await query(connection, `CREATE DATABASE IF NOT EXISTS ??`, [
-    //     primaryDatabaseName,
-    // ]);
-    // await query(connection, `USE ??`, [primaryDatabaseName]);
 
     const currentDB = await query(connection, 'SELECT database() AS db');
     console.log(

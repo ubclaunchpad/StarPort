@@ -1,23 +1,40 @@
 import { getDatabase } from '../util/db';
-import { LambdaBuilder } from '../util/middleware/middleware';
-import { BadRequestError, SuccessResponse } from '../util/middleware/response';
-import { InputValidator } from '../util/middleware/inputValidator';
-import { APIGatewayEvent } from 'aws-lambda';
 import { Authorizer } from '../util/middleware/authorizer';
+import { InputValidator } from '../util/middleware/inputValidator';
+import { LambdaBuilder, LambdaInput } from '../util/middleware/middleware';
+import { BadRequestError, SuccessResponse } from '../util/middleware/response';
+import {
+    ACCESS_SCOPES,
+    ScopeController,
+} from '../util/middleware/scopeHandler';
 
 const db = getDatabase();
+
+// Only valid for user with Admin role
+const validScopes = [ACCESS_SCOPES.ADMIN_WRITE];
+
 export const handler = new LambdaBuilder(addUserRoleRequest)
     .use(new InputValidator())
-    .use(new Authorizer())
+    .use(new Authorizer(db))
+    .use(new ScopeController(db))
     .build();
 
-async function addUserRoleRequest(event: APIGatewayEvent) {
+async function addUserRoleRequest(event: LambdaInput) {
+    if (!event.pathParameters) {
+        throw new BadRequestError('Event path parameters missing');
+    }
+    if (!event.pathParameters.id || !event.pathParameters.roleId) {
+        throw new BadRequestError('User id or role id missing');
+    }
     const { id, roleId } = event.pathParameters;
-    await addRole(id, roleId);
+
+    ScopeController.verifyScopes(event.userScopes, validScopes);
+
+    await addRole(parseInt(id), parseInt(roleId));
     return new SuccessResponse({ message: 'Role added successfully' });
 }
 
-export const addRole = async (userId: string, roleId: string) => {
+export const addRole = async (userId: number, roleId: number) => {
     const verifyRole = await db
         .selectFrom('role')
         .select('id')
@@ -30,6 +47,6 @@ export const addRole = async (userId: string, roleId: string) => {
 
     await db
         .insertInto('person_role')
-        .values({ user_id: userId, role_id: roleId })
+        .values({ person_id: userId, role_id: roleId })
         .execute();
 };

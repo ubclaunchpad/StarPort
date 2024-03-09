@@ -34,7 +34,7 @@ esbuild ./src/**/*.ts \
 cdk synth --no-staging --quiet
 
 # Default values
-template="wiki-stack.template"
+template="users-stack.template"
 port="8000"
 lazy="LAZY"
 
