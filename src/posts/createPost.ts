@@ -1,24 +1,24 @@
 import { getDatabase, NewPost } from '../util/db';
-import { LambdaBuilder } from '../util/middleware/middleware';
+import { LambdaBuilder, LambdaInput } from '../util/middleware/middleware';
 import { APIResponse, SuccessResponse } from '../util/middleware/response';
-import { InputValidator } from '../util/middleware/inputValidator';
-import { APIGatewayProxyEvent } from 'aws-lambda';
 import { Authorizer } from '../util/middleware/authorizer';
 
 const db = getDatabase();
 
 export const handler = new LambdaBuilder(router)
-    .use(new InputValidator())
-    .use(new Authorizer({shouldGetUser: true, db: db}))
+    .use(new Authorizer(db, { shouldGetUser: true }))
     .build();
 
 export async function router(
-    event: APIGatewayProxyEvent
+    event: LambdaInput
 ): Promise<APIResponse> {
     if (!event.body) throw new Error('No body provided');
 
     const body = JSON.parse(event.body);
-    const postParams = {body , userid: body.user.id} as unknown as NewPost;
+    console.log(event.googleAccount.id);
+    console.log(event.googleAccount.email);
+
+    const postParams = {...body , userid: event.googleAccount.id} as unknown as NewPost;
     const newPost = await createPost(postParams);
     return new SuccessResponse({
         message: `post with id : ${newPost} created`,

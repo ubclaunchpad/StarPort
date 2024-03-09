@@ -37,7 +37,7 @@ export class TeamStack extends cdk.Stack {
 
         const apiResources: IApiResources = {
             subresources: {
-                announcements: {
+                posts: {
                     endpoints: {
                         GET: {
                             id: 'getPosts',

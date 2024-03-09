@@ -12,6 +12,13 @@ image_link VARCHAR(255),
 meta_data JSON
 );
 
+CREATE TABLE IF NOT EXISTS team_term (
+    term_year INT NOT NULL,
+    teamid INT NOT NULL,
+    PRIMARY KEY (term_year, teamid) 
+);
+
+
 -- Create post table
 CREATE TABLE IF NOT EXISTS post (
 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -19,10 +26,8 @@ teamid INT NOT NULL,
 userid INT NOT NULL,
 title VARCHAR(255) NOT NULL,
 status ENUM('pinned', 'bookmarked', 'archived', 'default') DEFAULT 'default',
-type ENUM('post', 'event', 'news', 'update','discussion', 'anouncement') DEFAULT 'announcement',
+type ENUM('post', 'event', 'news', 'update','discussion', 'announcement') DEFAULT 'announcement',
 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-contents JSON,
-FOREIGN KEY (`teamid`) REFERENCES `team` (`id`)
-FOREIGN KEY (`userid`) REFERENCES `person` (`id`)
+contents JSON
 );

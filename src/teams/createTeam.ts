@@ -3,7 +3,6 @@ import { LambdaBuilder } from '../util/middleware/middleware';
 import { APIResponse, SuccessResponse } from '../util/middleware/response';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { Authorizer } from '../util/middleware/authorizer';
 
 const db = getDatabase();
 
@@ -17,20 +16,27 @@ export async function router(
 ): Promise<APIResponse> {
     if (!event.body) throw new Error('No body provided');
 
-    const body = JSON.parse(event.body) as NewTeam;
+    const body = JSON.parse(event.body) as NewTeam & { term_year: number}
     const newTeamId = await createTeam(body);
     return new SuccessResponse({
         message: `team with id : ${newTeamId} created`,
     });
 }
-export const createTeam = async (newTeam: NewTeam) => {
-    const param = newTeam;
-    param.meta_data = JSON.stringify(newTeam.meta_data);
-    console.log(param.meta_data);
-    console.log(param);
+export const createTeam = async (newTeam: NewTeam & { term_year: number}) => {
+    const { term_year, ...team } = newTeam;
+    team.meta_data = JSON.stringify(team.meta_data);
+    
     const { insertId } = await db
         .insertInto('team')
-        .values(param)
+        .values(team)
         .executeTakeFirst();
+
+    if (!insertId) throw new Error('Failed to create team');
+
+    await db
+        .insertInto('team_term')
+        .values({ teamid: Number(insertId), term_year })
+        .executeTakeFirst();
+    
     return insertId;
 };

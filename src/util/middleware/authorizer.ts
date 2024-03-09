@@ -21,9 +21,8 @@ export class Authorizer implements IMiddleware<IHandlerEvent, object> {
         }
         const googleAuth = await this.verifyUserIsLoggedIn(auth);
 
-        if (this.params.shouldGetUser) {
-            return this.getUser(googleAuth, this.connection);
-        }
+        console.log(googleAuth);
+        console.log("gwe");
 
         return { googleAccount: googleAuth};
     };
@@ -35,27 +34,17 @@ export class Authorizer implements IMiddleware<IHandlerEvent, object> {
             throw new NotFoundError('User not found');
         }
 
-        const user = await this.connection.selectFrom('person').where('email','=', googleAuthUser.email).executeTakeFirst();
+        console.log(googleAuthUser.email);
+        const user = await this.connection.selectFrom('person').where('email','=', googleAuthUser.email).selectAll().executeTakeFirst();
 
+        console.log("user");
         if (!user) {
             throw new NotFoundError('User not found');
         }
 
-        return googleAuthUser;
+        return user;
     };
 
-    getUser = async (googleAuth: GoogleAuthUser, db: Kysely<Database>) => {
-        const user = await db
-            .selectFrom('person')
-            .where('email', '=', googleAuth.email)
-            .selectAll()
-            .executeTakeFirst();
-
-        if (!user) {
-            throw new NotFoundError('User not found');
-        }
-        return { user, googleAccount: googleAuth };
-    };
 
     constructor(connection: Kysely<Database>, params = { shouldGetUser: false}) {
         this.params = params;

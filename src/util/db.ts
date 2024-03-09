@@ -9,7 +9,6 @@ import {
 } from 'kysely';
 import { config } from 'dotenv';
 import { PlanetScaleDialect } from 'kysely-planetscale'
-import { fetch } from 'undici'
 import { Link } from './types/general';
 config();
 
@@ -25,15 +24,14 @@ export interface Database {
     specialization: SpecializationTable;
     standing: StandingTable;
     team: TeamTable;
+    team_term: TeamTermTable;
     post: PostTable;
 }
 
 export function getDatabase() {
-    console.log('getDatabase');
     console.log(process.env.DATABASE_USERNAME);
     const db = new Kysely<Database>({
         dialect: new PlanetScaleDialect({
-            fetch,
           host: process.env.DATABASE_HOST,
           username: process.env.DATABASE_USERNAME,
           password: process.env.DATABASE_PASSWORD
@@ -116,6 +114,16 @@ export interface TeamTable {
 export type Team = Selectable<TeamTable>;
 export type NewTeam = Insertable<TeamTable>;
 export type UpdateTeam = Updateable<TeamTable>;
+
+export interface TeamTermTable {
+    teamid: number;
+    term_year: number;
+}
+
+export type TeamTerm = Selectable<TeamTermTable>;
+export type NewTeamTerm = Insertable<TeamTermTable>;
+export type UpdateTeamTerm = Updateable<TeamTermTable>;
+
 
 export interface PostTable {
     id: Generated<number>;

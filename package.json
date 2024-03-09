@@ -21,7 +21,7 @@
         "test": "jest",
         "test:watch": "jest --watch",
         "test:src": "jest --verbose ./src",
-        "start:local:api": "sam local start-api -t ./cdk.out/$npm_config_stack.template.json  --port 8000 --container-host-interface host.docker.internal",
+        "start:local:api": "sam local start-api -t ./cdk.out/team-stack.template.json  --port 3003 ",
         "invoke:lambda": "sam local invoke -t ./cdk.out/$npm_config_stack.template.json -e $npm_config_event ${npm_config_warm-containers=LAZY}",
       
         "start:local:lambdas": "sam local start-lambda -t ./cdk.out/$npm_config_stack.template.json ${npm_config_port:3000} ${npm_config_warm-containers=LAZY}",
