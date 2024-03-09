@@ -9,6 +9,8 @@ import {
 } from '../util/middleware/scopeHandler';
 
 const db = getDatabase();
+
+// Only valid for user with Admin role
 const validScopes = [ACCESS_SCOPES.ADMIN_WRITE];
 export const handler = new LambdaBuilder(deleteUserRoleRequest)
     .use(new InputValidator())

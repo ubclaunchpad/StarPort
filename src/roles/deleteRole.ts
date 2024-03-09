@@ -10,6 +10,8 @@ import {
 import { getRoles, refreshCache } from './roles';
 
 const db = getDatabase();
+
+// Only valid for Admin role
 const validScopes = [ACCESS_SCOPES.ADMIN_WRITE];
 export const handler = new LambdaBuilder(deleteRoleRequest)
     .use(new InputValidator())

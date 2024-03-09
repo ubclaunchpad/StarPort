@@ -152,6 +152,7 @@ export const addUserToDatabase = async (user: NewPerson): Promise<string> => {
     return person.insertId.toString();
 };
 
+
 export const addUserDefaultRole = async (userId: number): Promise<void> => {
     const roles = await db
         .selectFrom('role')
