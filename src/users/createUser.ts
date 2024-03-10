@@ -76,7 +76,6 @@ export const validateEmail = async (email: string): Promise<void> => {
         .where('email', '=', email)
         .executeTakeFirst();
 
-    console.log(person);
     if (person) {
         throw new BadRequestError('email already exists');
     }

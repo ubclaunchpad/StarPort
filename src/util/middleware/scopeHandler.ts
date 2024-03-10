@@ -39,8 +39,8 @@ export class ScopeController implements IMiddleware<IHandlerEvent, object> {
 
     public handler = async (event: APIGatewayProxyEvent) => {
         const userEmail = (
-            event as unknown as { googleAccount: { email: string } }
-        ).googleAccount.email;
+            event as unknown as { user: { email: string } }
+        ).user.email;
         const user = await this.connection
             .selectFrom('person')
             .select(['email'])
@@ -58,8 +58,6 @@ export class ScopeController implements IMiddleware<IHandlerEvent, object> {
             .select('scope_role.scope_label')
             .where('person.email', '=', userEmail)
             .execute();
-
-        console.log(scopes);
 
         return {
             userScopes: scopes.map((scope) => scope.scope_label),

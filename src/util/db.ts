@@ -31,7 +31,6 @@ export interface Database {
 }
 
 export function getDatabase() {
-    console.log(process.env.DATABASE_USERNAME);
     const db = new Kysely<Database>({
         dialect: new PlanetScaleDialect({
           host: process.env.DATABASE_HOST,

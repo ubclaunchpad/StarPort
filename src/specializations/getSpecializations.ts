@@ -15,13 +15,10 @@ export const handler = new LambdaBuilder(getSpecializationRequest)
     .build();
 
 async function getSpecializationRequest(event: LambdaInput) {
-    console.log("ll")
     if (event.pagination) {
         const count = await countSpecializations();
         event.pagination.count = count;
     }
-    console.log('event.pagination', event.pagination);
-    console.log('event.pagination.count', event.pagination.count);
 
     return new SuccessResponse(await getSpecializations(event.pagination as PaginationParams));
 }
