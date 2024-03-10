@@ -2,7 +2,7 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import { Construct, IDependable } from 'constructs';
 import { Role } from 'aws-cdk-lib/aws-iam';
-import {Duration} from "aws-cdk-lib";
+import { Duration } from 'aws-cdk-lib';
 
 export type Method = 'GET' | 'POST' | 'PUT' | 'OPTIONS' | 'PATCH' | 'DELETE';
 

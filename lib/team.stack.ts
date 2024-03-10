@@ -34,6 +34,7 @@ export class TeamStack extends cdk.Stack {
         const baseLambdaDir = 'dist/';
         const teamsLambdaDir = `${baseLambdaDir}/teams`;
         const postsLambdaDir = `${baseLambdaDir}/posts`;
+        const membersLambdaDir = `${baseLambdaDir}/teams/members`;
 
         const apiResources: IApiResources = {
             subresources: {
@@ -51,7 +52,6 @@ export class TeamStack extends cdk.Stack {
                     subresources: {
                         '{aid}': {
                             endpoints: {
-
                                 DELETE: {
                                     id: 'deletePost',
                                     path: `${postsLambdaDir}/deletePost`,
@@ -72,24 +72,52 @@ export class TeamStack extends cdk.Stack {
                         },
                     },
                     subresources: {
-                        '{id}': {
+                        '{teamid}': {
                             endpoints: {
                                 GET: {
                                     id: 'getTeam',
                                     path: `${teamsLambdaDir}/getTeam`,
                                 },
+                                DELETE: {
+                                    id: 'deleteTeam',
+                                    path: `${teamsLambdaDir}/deleteTeam`,
+                                },
                             },
+                            subresources: {
+                                members: {
+                                    endpoints: {
+                                        GET: {
+                                            id: 'getMembers',
+                                            path: `${membersLambdaDir}/getMembers`,
+                                        },
+                                    },
+                                    subresources: {
+                                        '{userid}': {
+                                            endpoints: {
+                                                DELETE: {
+                                                    id: 'removeMember',
+                                                    path: `${membersLambdaDir}/removeMember`,
+                                                },
+                                                POST: {
+                                                    id: 'addMember',
+                                                    path: `${membersLambdaDir}/addMember`,
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
                     },
                 },
             },
-        }
-    }
+        };
 
-    this.apiService = new ApiService(
-        this,
-        apiResources,
-        `${Team_STACK_INFO.NAME}-API`,
-        lambdaConfigs
-    );
+        this.apiService = new ApiService(
+            this,
+            apiResources,
+            `${Team_STACK_INFO.NAME}-API`,
+            lambdaConfigs
+        );
     }
 }

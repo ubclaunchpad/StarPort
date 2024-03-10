@@ -1,6 +1,10 @@
 import { getDatabase } from '../util/db';
 import { LambdaBuilder } from '../util/middleware/middleware';
-import { APIResponse, NotFoundError, SuccessResponse } from '../util/middleware/response';
+import {
+    APIResponse,
+    NotFoundError,
+    SuccessResponse,
+} from '../util/middleware/response';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
@@ -15,8 +19,10 @@ export async function router(
     event: APIGatewayProxyEvent
 ): Promise<APIResponse> {
     if (!event.pathParameters) throw new Error('No id provided');
-    const id = event.pathParameters.id as unknown as number;
-    const team = await getTeam(id);
+    if (!event.pathParameters.teamid) throw new Error('No teamid provided');
+
+    const teamid = event.pathParameters.teamid as unknown as number;
+    const team = await getTeam(teamid);
     if (!team) throw new NotFoundError('Team not found');
     return new SuccessResponse(team);
 }

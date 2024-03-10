@@ -12,7 +12,7 @@ export const handler = new LambdaBuilder(deleteStandingRequest)
     .build();
 
 async function deleteStandingRequest(event: APIGatewayEvent) {
-    const { id } = event.pathParameters; 
+    const { id } = event.pathParameters;
     await deleteStanding(id);
     return new SuccessResponse({ message: `Standing ${id} deleted` });
 }

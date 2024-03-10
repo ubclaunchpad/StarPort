@@ -50,13 +50,13 @@ export class UserStack extends LPStack {
                         },
                     },
                     subresources: {
-                        'me': { 
+                        me: {
                             endpoints: {
                                 GET: {
                                     id: 'getMe',
                                     path: `${usersLambdaDir}/getMe`,
                                 },
-                            }
+                            },
                         },
                         '{id}': {
                             endpoints: {
@@ -79,10 +79,10 @@ export class UserStack extends LPStack {
                                         GET: {
                                             id: 'getUserRoles',
                                             path: `${baseLambdaDir}/roles/getUserRoles`,
-                                        }
+                                        },
                                     },
                                     subresources: {
-                                        "{roleId}": {
+                                        '{roleId}': {
                                             endpoints: {
                                                 POST: {
                                                     id: 'addUserRole',
@@ -92,9 +92,9 @@ export class UserStack extends LPStack {
                                                     id: 'deleteUserRole',
                                                     path: `${baseLambdaDir}/roles/deleteUserRole`,
                                                 },
-                                            }
-                                        }
-                                    }
+                                            },
+                                        },
+                                    },
                                 },
                             },
                         },
@@ -112,7 +112,7 @@ export class UserStack extends LPStack {
                         },
                     },
                     subresources: {
-                        "{id}": {
+                        '{id}': {
                             endpoints: {
                                 DELETE: {
                                     id: 'deleteFaculty',
@@ -122,9 +122,9 @@ export class UserStack extends LPStack {
                                     id: 'updateFaculty',
                                     path: `${facultiesLambdaDir}/updateFaculty`,
                                 },
-                            }
-                        }
-                    }
+                            },
+                        },
+                    },
                 },
                 roles: {
                     endpoints: {
@@ -136,11 +136,9 @@ export class UserStack extends LPStack {
                             id: 'createRole',
                             path: `${rolesLambdaDir}/createRole`,
                         },
-
-
                     },
                     subresources: {
-                        "{id}": {
+                        '{id}': {
                             endpoints: {
                                 PATCH: {
                                     id: 'updateRole',
@@ -150,10 +148,9 @@ export class UserStack extends LPStack {
                                     id: 'deleteRole',
                                     path: `${rolesLambdaDir}/deleteRole`,
                                 },
-                            }
-
-                        }
-                    }
+                            },
+                        },
+                    },
                 },
                 specializations: {
                     endpoints: {
@@ -165,10 +162,9 @@ export class UserStack extends LPStack {
                             id: 'createSpecialization',
                             path: `${specializationsLambdaDir}/createSpecialization`,
                         },
-                       
                     },
                     subresources: {
-                        "{id}": {
+                        '{id}': {
                             endpoints: {
                                 DELETE: {
                                     id: 'deleteSpecialization',
@@ -178,9 +174,9 @@ export class UserStack extends LPStack {
                                     id: 'updateSpecialization',
                                     path: `${specializationsLambdaDir}/updateSpecialization`,
                                 },
-                            }
-                        }
-                    }
+                            },
+                        },
+                    },
                 },
                 standings: {
                     endpoints: {
@@ -192,10 +188,9 @@ export class UserStack extends LPStack {
                             id: 'createStanding',
                             path: `${standingsLambdaDir}/createStanding`,
                         },
-                        
                     },
                     subresources: {
-                        "{id}": {
+                        '{id}': {
                             endpoints: {
                                 DELETE: {
                                     id: 'deleteStanding',
@@ -205,9 +200,9 @@ export class UserStack extends LPStack {
                                     id: 'updateStanding',
                                     path: `${standingsLambdaDir}/updateStanding`,
                                 },
-                            }
-                        }
-                    }
+                            },
+                        },
+                    },
                 },
             },
         };

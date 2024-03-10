@@ -38,9 +38,8 @@ export class ScopeController implements IMiddleware<IHandlerEvent, object> {
     }
 
     public handler = async (event: APIGatewayProxyEvent) => {
-        const userEmail = (
-            event as unknown as { user: { email: string } }
-        ).user.email;
+        const userEmail = (event as unknown as { user: { email: string } }).user
+            .email;
         const user = await this.connection
             .selectFrom('person')
             .select(['email'])

@@ -16,16 +16,16 @@ export async function router(
 ): Promise<APIResponse> {
     if (!event.body) throw new Error('No body provided');
 
-    const body = JSON.parse(event.body) as NewTeam & { term_year: number}
+    const body = JSON.parse(event.body) as NewTeam & { term_year: number };
     const newTeamId = await createTeam(body);
     return new SuccessResponse({
         message: `team with id : ${newTeamId} created`,
     });
 }
-export const createTeam = async (newTeam: NewTeam & { term_year: number}) => {
+export const createTeam = async (newTeam: NewTeam & { term_year: number }) => {
     const { term_year, ...team } = newTeam;
     team.meta_data = JSON.stringify(team.meta_data);
-    
+
     const { insertId } = await db
         .insertInto('team')
         .values(team)
@@ -37,6 +37,6 @@ export const createTeam = async (newTeam: NewTeam & { term_year: number}) => {
         .insertInto('team_term')
         .values({ teamid: Number(insertId), term_year })
         .executeTakeFirst();
-    
+
     return insertId;
 };

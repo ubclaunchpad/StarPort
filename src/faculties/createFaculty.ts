@@ -14,7 +14,9 @@ export const handler = new LambdaBuilder(createFacultyRequest)
 async function createFacultyRequest(event: APIGatewayEvent) {
     const { label } = JSON.parse(event.body);
     const id = await createFaculty({ label });
-    return new SuccessResponse({ message: `Faculty ${label} created with id: ${id}` });
+    return new SuccessResponse({
+        message: `Faculty ${label} created with id: ${id}`,
+    });
 }
 
 export const createFaculty = async (newFaculty: NewFaculty) => {
