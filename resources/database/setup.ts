@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import dotenv from 'dotenv';
 import mysql, { Connection } from 'mysql2';
-console.log('Connected to PlanetScale!')
+console.log('Connected to PlanetScale!');
 dotenv.config();
 
 const DATABASE_NAME = 'cosmic-dev';
@@ -14,11 +14,10 @@ const setUpDatabase = async (
     withReset = false
 ): Promise<void> => {
     console.log(chalk.blue('INFO: ') + 'Setting up database');
-    const tables = await query(
-        connection,
-        `SHOW TABLES IN ?? LIKE ?`,
-        [DATABASE_NAME, 'migrations']
-    );
+    const tables = await query(connection, `SHOW TABLES IN ?? LIKE ?`, [
+        DATABASE_NAME,
+        'migrations',
+    ]);
 
     if (withReset || tables.length === 0) {
         await initializeDatabase(connection);
@@ -33,17 +32,18 @@ const setUpDatabase = async (
 
 const initializeDatabase = async (connection: Connection): Promise<void> => {
     await resetDatabase(connection);
+    await query(connection, `CREATE DATABASE IF NOT EXISTS ??`, [
+        DATABASE_NAME,
+    ]);
+    await query(connection, `USE ??`, [DATABASE_NAME]);
     await query(
         connection,
-        `CREATE DATABASE IF NOT EXISTS ??`,
-        [DATABASE_NAME]
-    );
-    await query(connection, `USE ??`, [DATABASE_NAME]);
-    await query(connection, `CREATE TABLE IF NOT EXISTS migrations (
+        `CREATE TABLE IF NOT EXISTS migrations (
        id INT AUTO_INCREMENT PRIMARY KEY,
        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
        status VARCHAR(255) NOT NULL DEFAULT 'pending'
-     )`);
+     )`
+    );
 };
 
 const resetDatabase = async (connection: Connection): Promise<void> => {
@@ -56,10 +56,13 @@ const resetDatabase = async (connection: Connection): Promise<void> => {
         if (database.Database === DATABASE_NAME) {
             console.log(
                 chalk.bold(
-                    'Emptying database ' + chalk.bold.underline(database.Database)
+                    'Emptying database ' +
+                        chalk.bold.underline(database.Database)
                 )
             );
-            const tables = await query(connection, `SHOW TABLES IN ??`, [database.Database]);
+            const tables = await query(connection, `SHOW TABLES IN ??`, [
+                database.Database,
+            ]);
             console.log(tables);
             for (const table of tables) {
                 const tableName = Object.values(table)[0];
@@ -69,9 +72,7 @@ const resetDatabase = async (connection: Connection): Promise<void> => {
     }
 };
 
-async function runMigrations(
-    connection: Connection,
-): Promise<void> {
+async function runMigrations(connection: Connection): Promise<void> {
     let files = fs.readdirSync(MIGRATION_PATH);
 
     console.log(chalk.blue('INFO: ') + 'Running migrations');
@@ -143,7 +144,11 @@ async function executeStatements(
     }
 }
 
-function query(connection: Connection, query: string, params?: any[]): Promise<any[]> {
+function query(
+    connection: Connection,
+    query: string,
+    params?: any[]
+): Promise<any[]> {
     return new Promise<any[] | any>((resolve, reject) => {
         connection.query(query, params, (error, results) => {
             if (error) {
@@ -156,18 +161,23 @@ function query(connection: Connection, query: string, params?: any[]): Promise<a
 }
 
 const run = (): void => {
-    const connection = mysql.createConnection(process.env.DATABASE_URL!)
+    const connectionUrl = process.env.DATABASE_URL;
+    if (!connectionUrl) {
+        console.error(chalk.bgRed('No database connection URL provided'));
+        return;
+    }
+    const connection = mysql.createConnection(connectionUrl);
     setUpDatabase(connection, true)
-    .then(() => {
-        console.log(chalk.bgGreen('Database setup completed'));
-    })
-    .catch((err) => {
-        console.error(chalk.bgRed(err));
-    })
-    .finally(() => {
-        console.log('Closing connection');
-        connection.end();
-    });
+        .then(() => {
+            console.log(chalk.bgGreen('Database setup completed'));
+        })
+        .catch((err) => {
+            console.error(chalk.bgRed(err));
+        })
+        .finally(() => {
+            console.log('Closing connection');
+            connection.end();
+        });
 };
 
 run();

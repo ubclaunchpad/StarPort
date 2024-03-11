@@ -10,10 +10,7 @@ export const handler = new LambdaBuilder(router)
     .use(new InputValidator())
     .build();
 
-export async function router(
-    event: APIGatewayEvent
-
-): Promise<APIResponse> {
+export async function router(event: APIGatewayEvent): Promise<APIResponse> {
     const q = event.pathParameters;
     if (q && q.aid) {
         const post = await deletePost(Number(q.aid));
@@ -23,9 +20,6 @@ export async function router(
     }
 }
 export const deletePost = async (id: number) => {
-    const post = await db
-        .deleteFrom('post')
-        .where('id', '=', id)
-        .execute();
+    const post = await db.deleteFrom('post').where('id', '=', id).execute();
     return post;
 };

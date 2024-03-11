@@ -12,7 +12,7 @@ export const handler = new LambdaBuilder(deleteSpecializationRequest)
     .build();
 
 async function deleteSpecializationRequest(event: APIGatewayEvent) {
-    const { id } = event.pathParameters; 
+    const { id } = event.pathParameters;
     await deleteSpecialization(id);
     return new SuccessResponse({ message: `Faculty ${id} deleted` });
 }

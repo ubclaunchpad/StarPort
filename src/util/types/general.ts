@@ -7,8 +7,6 @@ export interface IPagination {
 
 export type IPersonQuery = Partial<Person> & IPagination;
 
-
-
 export type Link = {
     label: string;
     href: string;

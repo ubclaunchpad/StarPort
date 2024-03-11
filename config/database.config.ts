@@ -8,7 +8,8 @@ export interface IDatabaseConfig {
 }
 
 export class DATABASE_CONFIG {
-    public static readonly DB_HOST: string | undefined = process.env.DATABASE_HOST;
+    public static readonly DB_HOST: string | undefined =
+        process.env.DATABASE_HOST;
     public static readonly DB_USERNAME: string | undefined =
         process.env.DATABASE_USERNAME;
     public static readonly DB_PASSWORD: string | undefined =
@@ -18,7 +19,7 @@ export class DATABASE_CONFIG {
         if (
             !DATABASE_CONFIG.DB_HOST ||
             !DATABASE_CONFIG.DB_USERNAME ||
-            !DATABASE_CONFIG.DB_PASSWORD 
+            !DATABASE_CONFIG.DB_PASSWORD
         ) {
             throw new Error('Database configuration not found');
         }
