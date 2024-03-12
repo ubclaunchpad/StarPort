@@ -92,13 +92,23 @@ export class WikiStack extends LPStack {
                                                         },
                                                         GET: {
                                                             id: 'getDoc',
-                                                            path: `${baseLambdaDir}/getdoc`,
+                                                            path: `${baseLambdaDir}/getContent`,
                                                         },
                                                         PUT: {
                                                             id: 'putDoc',
                                                             path: `${baseLambdaDir}/putdoc`,
                                                         }
-                                                    }
+                                                    },
+                                                    // subresources: {
+                                                    //     'content': {
+                                                    //         endpoints: {
+                                                    //             GET: {
+                                                    //                 id: 'getContent',
+                                                    //                 path: `${baseLambdaDir}/getContent`,
+                                                    //             },
+                                                    //         },
+                                                    //     },
+                                                    // },
                                                 },
                                             },
                                         },

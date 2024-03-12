@@ -7,7 +7,7 @@ import {
 } from 'kysely';
 import { config } from 'dotenv';
 import { PlanetScaleDialect } from 'kysely-planetscale';
-import { fetch } from 'undici';
+// import { fetch as myfetch } from 'undici';
 config();
 
 export interface WikiDatabase {
@@ -18,17 +18,22 @@ export interface WikiDatabase {
 }
 
 export function getWikiDatabase() {
-    console.log('getWikiDatabase');
-
+    try {
     const db = new Kysely<WikiDatabase>({
         dialect: new PlanetScaleDialect({
-            fetch,
+            fetch: fetch.prototype,
             host: process.env.WIKI_DATABASE_HOST,
             username: process.env.WIKI_DATABASE_USERNAME,
             password: process.env.WIKI_DATABASE_PASSWORD,
         }),
     });
+    // console.log('db:', db);
+    console.log('got db');
     return db;
+} catch (e) {
+    console.log(e);
+    throw e;
+}
     
 }
 

@@ -3,8 +3,9 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 import { APIResponse, SuccessResponse } from '../util/middleware/response';
 import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
-import { getWikiDatabase } from '../util/wikidb';
 
+
+import { getWikiDatabase } from '../util/wikidb';
 const db = getWikiDatabase();
 
 export const handler = new LambdaBuilder(router)
@@ -23,9 +24,7 @@ export async function router(
         throw new Error('Request is missing params');
     }
 
-    console.log('event:', event)
     const areaId = event.pathParameters.id;
-    console.log('areaId:', areaId);
     return new SuccessResponse(await getArea(areaId as unknown as number));
 }
 
