@@ -2,7 +2,7 @@ name: PR
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "userbase" ]
 
 jobs:
   deploy-lamda:

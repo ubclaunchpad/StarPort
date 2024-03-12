@@ -1,9 +1,9 @@
-import { Construct } from 'constructs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
+import { Construct } from 'constructs';
 import { config } from 'dotenv';
-import { LPStack, StackInfo, StackProps } from './util/LPStack';
 import { IDatabaseConfig } from '../config/database.config';
 import { ApiService, IApiResources } from './templates/apigateway';
+import { LPStack, StackInfo, StackProps } from './util/LPStack';
 config();
 
 export const USER_STACK_INFO: StackInfo = { NAME: 'users-stack' };
@@ -20,7 +20,7 @@ export class UserStack extends LPStack {
         const { databaseConfig } = props;
 
         const lambdaConfigs = {
-            runtime: lambda.Runtime.NODEJS_16_X,
+            runtime: lambda.Runtime.NODEJS_18_X,
             handler: 'index.handler',
             environment: {
                 ...databaseConfig,
@@ -50,6 +50,14 @@ export class UserStack extends LPStack {
                         },
                     },
                     subresources: {
+                        me: {
+                            endpoints: {
+                                GET: {
+                                    id: 'getMe',
+                                    path: `${usersLambdaDir}/getMe`,
+                                },
+                            },
+                        },
                         '{id}': {
                             endpoints: {
                                 GET: {
@@ -68,14 +76,13 @@ export class UserStack extends LPStack {
                             subresources: {
                                 roles: {
                                     endpoints: {
-
                                         GET: {
                                             id: 'getUserRoles',
                                             path: `${baseLambdaDir}/roles/getUserRoles`,
-                                        }
+                                        },
                                     },
                                     subresources: {
-                                        "{roleId}": {
+                                        '{roleId}': {
                                             endpoints: {
                                                 POST: {
                                                     id: 'addUserRole',
@@ -85,18 +92,9 @@ export class UserStack extends LPStack {
                                                     id: 'deleteUserRole',
                                                     path: `${baseLambdaDir}/roles/deleteUserRole`,
                                                 },
-                                            }
-                                        }
-                                    }
-                                },
-                            },
-                        },
-
-                        me: {
-                            endpoints: {
-                                GET: {
-                                    id: 'getUserId',
-                                    path: `${usersLambdaDir}/getUserId`,
+                                            },
+                                        },
+                                    },
                                 },
                             },
                         },
@@ -112,11 +110,9 @@ export class UserStack extends LPStack {
                             id: 'createFaculty',
                             path: `${facultiesLambdaDir}/createFaculty`,
                         },
-                       
-                        
                     },
                     subresources: {
-                        "{id}": {
+                        '{id}': {
                             endpoints: {
                                 DELETE: {
                                     id: 'deleteFaculty',
@@ -126,9 +122,9 @@ export class UserStack extends LPStack {
                                     id: 'updateFaculty',
                                     path: `${facultiesLambdaDir}/updateFaculty`,
                                 },
-                            }
-                        }
-                    }
+                            },
+                        },
+                    },
                 },
                 roles: {
                     endpoints: {
@@ -140,11 +136,9 @@ export class UserStack extends LPStack {
                             id: 'createRole',
                             path: `${rolesLambdaDir}/createRole`,
                         },
-
-
                     },
                     subresources: {
-                        "{id}": {
+                        '{id}': {
                             endpoints: {
                                 PATCH: {
                                     id: 'updateRole',
@@ -154,10 +148,9 @@ export class UserStack extends LPStack {
                                     id: 'deleteRole',
                                     path: `${rolesLambdaDir}/deleteRole`,
                                 },
-                            }
-
-                        }
-                    }
+                            },
+                        },
+                    },
                 },
                 specializations: {
                     endpoints: {
@@ -169,10 +162,9 @@ export class UserStack extends LPStack {
                             id: 'createSpecialization',
                             path: `${specializationsLambdaDir}/createSpecialization`,
                         },
-                       
                     },
                     subresources: {
-                        "{id}": {
+                        '{id}': {
                             endpoints: {
                                 DELETE: {
                                     id: 'deleteSpecialization',
@@ -182,9 +174,9 @@ export class UserStack extends LPStack {
                                     id: 'updateSpecialization',
                                     path: `${specializationsLambdaDir}/updateSpecialization`,
                                 },
-                            }
-                        }
-                    }
+                            },
+                        },
+                    },
                 },
                 standings: {
                     endpoints: {
@@ -196,10 +188,9 @@ export class UserStack extends LPStack {
                             id: 'createStanding',
                             path: `${standingsLambdaDir}/createStanding`,
                         },
-                        
                     },
                     subresources: {
-                        "{id}": {
+                        '{id}': {
                             endpoints: {
                                 DELETE: {
                                     id: 'deleteStanding',
@@ -209,9 +200,9 @@ export class UserStack extends LPStack {
                                     id: 'updateStanding',
                                     path: `${standingsLambdaDir}/updateStanding`,
                                 },
-                            }
-                        }
-                    }
+                            },
+                        },
+                    },
                 },
             },
         };

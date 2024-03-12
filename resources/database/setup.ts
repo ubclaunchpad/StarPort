@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import dotenv from 'dotenv';
 import mysql, { Connection } from 'mysql2';
-console.log('Connected to PlanetScale!')
+console.log('Connected to PlanetScale!');
 dotenv.config();
 
 const DATABASE_META_NAME = 'meta';
@@ -15,11 +15,10 @@ const setUpDatabase = async (
     withReset = false
 ): Promise<void> => {
     console.log(chalk.blue('INFO: ') + 'Setting up database');
-    const tables = await query(
-        connection,
-        `SHOW TABLES IN ?? LIKE ?`,
-        [DATABASE_NAME, 'migrations']
-    );
+    const tables = await query(connection, `SHOW TABLES IN ?? LIKE ?`, [
+        DATABASE_NAME,
+        'migrations',
+    ]);
 
     if (withReset || tables.length === 0) {
         await initializeDatabase(connection);
@@ -29,22 +28,23 @@ const setUpDatabase = async (
                 'Migrations table already exists. Skipping initialization'
         );
     }
-    await runMigrations(connection, DATABASE_NAME);
+    await runMigrations(connection);
 };
 
 const initializeDatabase = async (connection: Connection): Promise<void> => {
     await resetDatabase(connection);
+    await query(connection, `CREATE DATABASE IF NOT EXISTS ??`, [
+        DATABASE_NAME,
+    ]);
+    await query(connection, `USE ??`, [DATABASE_NAME]);
     await query(
         connection,
-        `CREATE DATABASE IF NOT EXISTS ??`,
-        [DATABASE_NAME]
-    );
-    await query(connection, `USE ??`, [DATABASE_NAME]);
-    await query(connection, `CREATE TABLE IF NOT EXISTS migrations (
+        `CREATE TABLE IF NOT EXISTS migrations (
        id INT AUTO_INCREMENT PRIMARY KEY,
        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
        status VARCHAR(255) NOT NULL DEFAULT 'pending'
-     )`);
+     )`
+    );
 };
 
 const resetDatabase = async (connection: Connection): Promise<void> => {
@@ -57,10 +57,13 @@ const resetDatabase = async (connection: Connection): Promise<void> => {
         if (database.Database === DATABASE_NAME) {
             console.log(
                 chalk.bold(
-                    'Emptying database ' + chalk.bold.underline(database.Database)
+                    'Emptying database ' +
+                        chalk.bold.underline(database.Database)
                 )
             );
-            const tables = await query(connection, `SHOW TABLES IN ??`, [database.Database]);
+            const tables = await query(connection, `SHOW TABLES IN ??`, [
+                database.Database,
+            ]);
             console.log(tables);
             const tableNames = tables.map(table => Object.values(table)[0]);
             const queryStr = `DROP TABLE ${tableNames.join(', ')}`;
@@ -69,10 +72,7 @@ const resetDatabase = async (connection: Connection): Promise<void> => {
     }
 };
 
-async function runMigrations(
-    connection: Connection,
-    primaryDatabaseName = 'main'
-): Promise<void> {
+async function runMigrations(connection: Connection): Promise<void> {
     let files = fs.readdirSync(MIGRATION_PATH);
 
     console.log(chalk.blue('INFO: ') + 'Running migrations');
@@ -92,11 +92,6 @@ async function runMigrations(
             return fileTimestamp > lastMigrationTimestamp;
         });
     }
-
-    // await query(connection, `CREATE DATABASE IF NOT EXISTS ??`, [
-    //     primaryDatabaseName,
-    // ]);
-    // await query(connection, `USE ??`, [primaryDatabaseName]);
 
     const currentDB = await query(connection, 'SELECT database() AS db');
     console.log(
@@ -149,7 +144,11 @@ async function executeStatements(
     }
 }
 
-function query(connection: Connection, query: string, params?: any[]): Promise<any[]> {
+function query(
+    connection: Connection,
+    query: string,
+    params?: any[]
+): Promise<any[]> {
     return new Promise<any[] | any>((resolve, reject) => {
         connection.query(query, params, (error, results) => {
             if (error) {
@@ -164,16 +163,16 @@ function query(connection: Connection, query: string, params?: any[]): Promise<a
 const run = (): void => {
     const connection = mysql.createConnection(process.env.WIKI_DATABASE_URL!)
     setUpDatabase(connection, true)
-    .then(() => {
-        console.log(chalk.bgGreen('Database setup completed'));
-    })
-    .catch((err) => {
-        console.error(chalk.bgRed(err));
-    })
-    .finally(() => {
-        console.log('Closing connection');
-        connection.end();
-    });
+        .then(() => {
+            console.log(chalk.bgGreen('Database setup completed'));
+        })
+        .catch((err) => {
+            console.error(chalk.bgRed(err));
+        })
+        .finally(() => {
+            console.log('Closing connection');
+            connection.end();
+        });
 };
 
 run();

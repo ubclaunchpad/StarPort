@@ -6,6 +6,7 @@ import { DATABASE_CONFIG } from '../config/database.config';
 import { deploymentEnvironments } from '../config/deployment.config';
 import { config } from 'dotenv';
 import { WIKI_STACK_INFO, WikiStack } from '../lib/wiki.stack';
+import { TeamStack, Team_STACK_INFO } from '../lib/team.stack';
 
 config();
 
@@ -19,4 +20,9 @@ new UserStack(app, USER_STACK_INFO.NAME, {
 
 new WikiStack(app, WIKI_STACK_INFO.NAME, {
     env: deploymentEnvironments[0],
+});
+
+new TeamStack(app, Team_STACK_INFO.NAME, {
+    env: deploymentEnvironments[0],
+    databaseConfig: DATABASE_CONFIG.getDBConfig(),
 });

@@ -18,7 +18,9 @@ async function updateSpecializationRequest(event: APIGatewayEvent) {
     return new SuccessResponse({ message: `Specialization ${label} updated` });
 }
 
-export const updateSpecialization = async (updateSpecialization: UpdateSpecialization) => {
+export const updateSpecialization = async (
+    updateSpecialization: UpdateSpecialization
+) => {
     await db
         .updateTable('specialization')
         .set(updateSpecialization)

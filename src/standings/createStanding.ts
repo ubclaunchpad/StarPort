@@ -2,7 +2,11 @@ import { getDatabase } from '../util/db';
 import { LambdaBuilder, LambdaInput } from '../util/middleware/middleware';
 import { SuccessResponse } from '../util/middleware/response';
 import { InputValidator } from '../util/middleware/inputValidator';
-import { PaginationHelper, PaginationParams, ResponseMetaTagger,  } from '../util/middleware/paginationHelper';
+import {
+    PaginationHelper,
+    PaginationParams,
+    ResponseMetaTagger,
+} from '../util/middleware/paginationHelper';
 
 const DEFAULT_OFFSET = 0;
 const DEFAULT_LIMIT = 30;
@@ -10,7 +14,7 @@ const db = getDatabase();
 
 export const handler = new LambdaBuilder(getSpecializationRequest)
     .use(new InputValidator())
-    .use(new PaginationHelper({ limit: DEFAULT_LIMIT, offset: DEFAULT_OFFSET}))
+    .use(new PaginationHelper({ limit: DEFAULT_LIMIT, offset: DEFAULT_OFFSET }))
     .useAfter(new ResponseMetaTagger())
     .build();
 
@@ -20,14 +24,18 @@ async function getSpecializationRequest(event: LambdaInput) {
         event.pagination.count = count;
     }
 
-    return new SuccessResponse(await getStandings(event.pagination as PaginationParams));
+    return new SuccessResponse(
+        await getStandings(event.pagination as PaginationParams)
+    );
 }
 
 export async function getStandings(pagination: PaginationParams) {
-    const specializations = (await db.selectFrom('standing')
-    .limit(pagination.limit)
-    .offset(pagination.offset)
-    .selectAll().execute()) as {
+    const specializations = (await db
+        .selectFrom('standing')
+        .limit(pagination.limit)
+        .offset(pagination.offset)
+        .selectAll()
+        .execute()) as {
         id: number;
         label: string;
     }[];
@@ -36,13 +44,12 @@ export async function getStandings(pagination: PaginationParams) {
 }
 
 async function countStandings() {
-    const ret = await db.selectFrom('standing')
-    .select(({ fn }) => [
-      fn.count<number>('id').as('count'),
-    ])
-    .executeTakeFirst();
+    const ret = await db
+        .selectFrom('standing')
+        .select(({ fn }) => [fn.count<number>('id').as('count')])
+        .executeTakeFirst();
     if (!ret) {
-      throw new Error('Unable to count standings');
+        throw new Error('Unable to count standings');
     }
     return Number(ret.count);
 }

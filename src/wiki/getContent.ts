@@ -77,7 +77,7 @@ export async function getContentTrue(
             accessKeyId: process.env.ACCESS_KEY,
             secretAccessKey: process.env.SECRET_ACCESS_KEY
         });
-
+    
         const bucketName = process.env.BUCKET_NAME;
 
         console.log('bucketName:', bucketName)

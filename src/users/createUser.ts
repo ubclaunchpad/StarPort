@@ -1,8 +1,6 @@
-import { APIGatewayProxyEvent } from 'aws-lambda';
 import { getDatabase, NewPerson, Person } from '../util/db';
-import { LambdaBuilder } from '../util/middleware/middleware';
 import { InputValidator } from '../util/middleware/inputValidator';
-import { Authorizer } from '../util/middleware/authorizer';
+import { LambdaBuilder, LambdaInput } from '../util/middleware/middleware';
 import {
     APIResponse,
     BadRequestError,
@@ -13,22 +11,25 @@ const db = getDatabase();
 
 export const handler = new LambdaBuilder(router)
     .use(new InputValidator())
-    .use(new Authorizer())
     .build();
 
-export async function router(
-    event: APIGatewayProxyEvent
-): Promise<APIResponse> {
+export async function router(event: LambdaInput): Promise<APIResponse> {
+    if (!event.body) {
+        throw new BadRequestError('Event body missing');
+    }
+
     const body = JSON.parse(event.body) as Person;
+
     const createdUserId = await CreateUser(body);
+
     return new SuccessResponse({
-        message: `user with id : ${createdUserId} created`,
+        message: `user with id: ${createdUserId} created`,
     });
 }
 
 export const CreateUser = async (person: Person): Promise<string> => {
     await validateUserInformation(person);
-    return await AddUserToDatabase(person);
+    return await addUserToDatabase(person);
 };
 
 export const validateUserInformation = async (
@@ -75,13 +76,12 @@ export const validateEmail = async (email: string): Promise<void> => {
         .where('email', '=', email)
         .executeTakeFirst();
 
-    console.log(person);
     if (person) {
         throw new BadRequestError('email already exists');
     }
 };
 
-export const validateFacultyId = async (facultyId: string): Promise<void> => {
+export const validateFacultyId = async (facultyId: number): Promise<void> => {
     const faculty = await db
         .selectFrom('faculty')
         .select(['id'])
@@ -92,7 +92,7 @@ export const validateFacultyId = async (facultyId: string): Promise<void> => {
     }
 };
 
-export const validateStandingId = async (standingId: string): Promise<void> => {
+export const validateStandingId = async (standingId: number): Promise<void> => {
     const standing = await db
         .selectFrom('standing')
         .select(['id'])
@@ -104,7 +104,7 @@ export const validateStandingId = async (standingId: string): Promise<void> => {
 };
 
 export const validateSpecializationId = async (
-    specializationId: string
+    specializationId: number
 ): Promise<void> => {
     const specialization = await db
         .selectFrom('specialization')
@@ -116,21 +116,43 @@ export const validateSpecializationId = async (
     }
 };
 
-export const AddUserToDatabase = async (user: NewPerson): Promise<string> => {
+export const addUserToDatabase = async (user: NewPerson): Promise<string> => {
     const UserInfo = user;
     for (const key in UserInfo) {
         if (UserInfo[key] === undefined) {
             UserInfo[key] = null;
         }
     }
-    if (!user.username) {
-        user.username = user.email;
-    }
 
     const person = await db
         .insertInto('person')
         .values(user)
-        .returning('id')
         .executeTakeFirst();
-    return person.id;
+
+    if (!person.insertId) {
+        throw new BadRequestError('Could not find created user id');
+    }
+
+    addUserDefaultRole(Number(person.insertId));
+
+    return person.insertId.toString();
+};
+
+export const addUserDefaultRole = async (userId: number): Promise<void> => {
+    const roles = await db
+        .selectFrom('role')
+        .select(['id', 'label'])
+        .where('label', 'like', 'Member')
+        .execute();
+
+    if (roles.length === 0) {
+        throw new BadRequestError('Role not found');
+    }
+
+    for (const role of roles) {
+        await db
+            .insertInto('person_role')
+            .values({ person_id: userId, role_id: role.id })
+            .execute();
+    }
 };

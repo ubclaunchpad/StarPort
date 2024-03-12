@@ -14,10 +14,14 @@ export const handler = new LambdaBuilder(createSpecializationRequest)
 async function createSpecializationRequest(event: APIGatewayEvent) {
     const { label } = JSON.parse(event.body);
     const id = await createSpecialization({ label });
-    return new SuccessResponse({ message: `Specialization ${label} created with id: ${id}` });
+    return new SuccessResponse({
+        message: `Specialization ${label} created with id: ${id}`,
+    });
 }
 
-export const createSpecialization = async (newSpecialization: NewSpecialization) => {
+export const createSpecialization = async (
+    newSpecialization: NewSpecialization
+) => {
     const { insertId } = await db
         .insertInto('specialization')
         .values(newSpecialization)
