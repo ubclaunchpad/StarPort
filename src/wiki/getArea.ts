@@ -32,16 +32,14 @@ export async function getArea(areaId: number) {
     const res = await db
         .selectFrom('Area')
         .select([
-            'areaID',
+            'id',
             'name',
             'description',
-            'accessLevel',
             'numberOfDocs',
             'lastUpdatedDate',
-            'hierarchyLevel',
             'parentAreaID',
         ])
-        .where('areaID', '=', areaId)
+        .where('id', '=', areaId)
         .executeTakeFirst();
 
     if (!res) {
@@ -49,13 +47,11 @@ export async function getArea(areaId: number) {
     }
 
     return {
-        areaID: res.areaID,
+        areaID: res.id,
         name: res.name,
         description: res.description,
-        accessLevel: res.accessLevel,
         numberOfDocs: res.numberOfDocs,
         lastUpdatedDate: res.lastUpdatedDate,
-        hierarchyLevel: res.hierarchyLevel,
         parentAreaID: res.parentAreaID,
     };
 }

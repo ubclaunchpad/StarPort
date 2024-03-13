@@ -58,10 +58,10 @@ export class WikiStack extends LPStack {
                                     id: 'getAreas',
                                     path: `${baseLambdaDir}/getAreas`,
                                 },
-                                // POST: {
-                                //     id: 'postAreas',
-                                //     path: `${baseLambdaDir}/postarea`,
-                                // },
+                                POST: {
+                                    id: 'createArea',
+                                    path: `${baseLambdaDir}/createArea`,
+                                },
                             },
                             subresources: {
                                 '{id}': {
@@ -70,14 +70,14 @@ export class WikiStack extends LPStack {
                                             id: 'getArea',
                                             path: `${baseLambdaDir}/getArea`,
                                         },
-                                        // DELETE: {
-                                        //     id: 'deleteArea',
-                                        //     path: `${baseLambdaDir}/deletearea`,
-                                        // },
-                                        // PUT: {
-                                        //     id: 'putArea',
-                                        //     path: `${baseLambdaDir}/putarea`,
-                                        // },
+                                        DELETE: {
+                                            id: 'deleteArea',
+                                            path: `${baseLambdaDir}/deleteArea`,
+                                        },
+                                        PATCH: {
+                                            id: 'updateArea',
+                                            path: `${baseLambdaDir}/updateArea`,
+                                        },
                                     },
                                 },
                                 '{area}': {
@@ -92,7 +92,7 @@ export class WikiStack extends LPStack {
                                                         },
                                                         GET: {
                                                             id: 'getDoc',
-                                                            path: `${baseLambdaDir}/getContent`,
+                                                            path: `${baseLambdaDir}/getdoc`,
                                                         },
                                                         PUT: {
                                                             id: 'putDoc',

@@ -28,7 +28,7 @@ export async function router(
 
     const areaRes = await db
         .selectFrom('Area')
-        .select(['areaID'])
+        .select(['id'])
         .where('name', '=', areaName)
         .executeTakeFirst();
 
@@ -36,7 +36,7 @@ export async function router(
         throw new Error('Area not found');
     }
 
-    const areaID = areaRes.areaID;
+    const areaID = areaRes.id;
 
     // then check if a document with the specified title and areaID exists
     const docRes = await db
@@ -45,7 +45,7 @@ export async function router(
             'docLink',
         ])
         .where('name', '=', docName)
-        .where('areaID', '=', areaID)
+        .where('id', '=', areaID)
         .executeTakeFirst();
 
     if (!docRes) {

@@ -40,13 +40,12 @@ export interface DictTable<T> {
 
 
 export type AreaTable = {
-    areaID: number;
+    id: Generated<number>;
     name: string;
     description: string;
     accessLevel: number;
     numberOfDocs: number;
     lastUpdatedDate: Generated<Date>;
-    hierarchyLevel: number;
     parentAreaID: number;
 };
 
@@ -55,7 +54,7 @@ export type NewArea = Insertable<AreaTable>;
 export type UpdateArea = Updateable<AreaTable>;
 
 export type DocumentsTable = {
-    docID: Generated<number>;
+    id: Generated<number>;
     name: string;
     areaID: number;
     title: string;

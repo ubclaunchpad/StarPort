@@ -35,26 +35,22 @@ export async function getAll(areaQuery: IAreaQuery) {
     const res = await db
         .selectFrom('Area')
         .select( [
-            'Area.areaID',
+            'Area.id',
             'Area.name',
-            'Area.accessLevel',
             'Area.numberOfDocs',
             'Area.lastUpdatedDate',
-            'Area.hierarchyLevel',
             'Area.parentAreaID',
-            ])
+        ])
         // .limit(areaQuery.limit || 10)
         // .offset(areaQuery.offset || 0)
         .execute();
 
     return res.map((Area) => {
         return {
-            id: Area.areaID,
+            id: Area.id,
             name: Area.name,
-            accesslevel: Area.accessLevel,
             numberOfDocs: Area.numberOfDocs,
             lastUpdatedDate: Area.lastUpdatedDate,
-            hierarchyLevel: Area.hierarchyLevel,
             parentAreaID: Area.parentAreaID,
         };
     });
