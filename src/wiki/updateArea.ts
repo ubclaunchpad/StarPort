@@ -3,9 +3,9 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 import { APIResponse, SuccessResponse, APIErrorResponse } from '../util/middleware/response';
 import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
-import { getWikiDatabase } from '../util/wikidb';
+import { getDatabase } from '../util/db';
 
-const db = getWikiDatabase();
+const db = getDatabase();
 
 export const handler = new LambdaBuilder(updateAreaRequest)
     .use(new InputValidator())

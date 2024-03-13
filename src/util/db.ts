@@ -28,14 +28,18 @@ export interface Database {
     team_term: TeamTermTable;
     post: PostTable;
     team_member: team_member;
+    Area: AreaTable;
+    Documents: DocumentsTable;
+    Tags: TagsTable;
+    DocumentTags: DocumentTagsTable;
 }
 
 export function getDatabase() {
     const db = new Kysely<Database>({
         dialect: new PlanetScaleDialect({
-            host: process.env.DATABASE_HOST,
-            username: process.env.DATABASE_USERNAME,
-            password: process.env.DATABASE_PASSWORD,
+            host: process.env.WIKI_DATABASE_HOST,
+            username: process.env.WIKI_DATABASE_USERNAME,
+            password: process.env.WIKI_DATABASE_PASSWORD,
         }),
     });
 
@@ -188,3 +192,47 @@ export interface team_member {
 export type TeamMember = Selectable<team_member>;
 export type NewTeamMember = Insertable<team_member>;
 export type UpdateTeamMember = Updateable<team_member>;
+
+export type AreaTable = {
+    id: Generated<number>;
+    name: string;
+    description: string;
+    accessLevel: number;
+    numberOfDocs: number;
+    lastUpdatedDate: Generated<Date>;
+    parentAreaID: number;
+};
+
+export type Area = Selectable<AreaTable>;
+export type NewArea = Insertable<AreaTable>;
+export type UpdateArea = Updateable<AreaTable>;
+
+export type DocumentsTable = {
+    id: Generated<number>;
+    name: string;
+    areaID: number;
+    title: string;
+    docLink: string;
+    lastEditedUser: string;
+    creationDate: Date;
+    lastUpdatedDate: Generated<Date>;
+};
+
+export type Documents = Selectable<DocumentsTable>;
+export type NewDocuments = Insertable<DocumentsTable>;
+export type UpdateDocuments = Updateable<DocumentsTable>;
+
+export type TagsTable = DictTable<string>;
+export type Tags = Selectable<TagsTable>;
+export type NewTags = Insertable<TagsTable>;
+export type UpdateTags = Updateable<TagsTable>;
+
+export type DocumentTagsTable = {
+    docID: number;
+    tagID: number;
+};
+
+export type DocumentTags = Selectable<DocumentTagsTable>;
+export type NewDocumentTags = Insertable<DocumentTagsTable>;
+export type UpdateDocumentTags = Updateable<DocumentTagsTable>;
+

@@ -2,10 +2,10 @@ import { LambdaBuilder } from '../util/middleware/middleware';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { APIResponse, SuccessResponse } from '../util/middleware/response';
 // import { InputValidator } from '../util/middleware/inputValidator';
-import { getWikiDatabase } from '../util/wikidb';
 import { S3 } from 'aws-sdk';
+import { getDatabase } from '../util/db';
 
-const db = getWikiDatabase();
+const db = getDatabase();
 
 export const handler = new LambdaBuilder(router)
     // .use(new InputValidator())

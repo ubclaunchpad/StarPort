@@ -5,8 +5,8 @@ import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
 
 
-import { getWikiDatabase } from '../util/wikidb';
-const db = getWikiDatabase();
+import { getDatabase } from '../util/db';
+const db = getDatabase();
 
 export const handler = new LambdaBuilder(router)
     .use(new InputValidator())

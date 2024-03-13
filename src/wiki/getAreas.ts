@@ -1,11 +1,11 @@
 import { InputValidator } from '../util/middleware/inputValidator';
-import { getWikiDatabase } from '../util/wikidb';
+import { getDatabase } from '../util/db';
 import { IAreaQuery } from '../util/types/general';
 import {LambdaBuilder, LambdaInput} from '../util/middleware/middleware';
 import { APIResponse, SuccessResponse, APIErrorResponse } from '../util/middleware/response';
 import { PaginationHelper, ResponseMetaTagger } from '../util/middleware/paginationHelper';
 
-const db = getWikiDatabase();
+const db = getDatabase();
 
 const LIMIT = 50;
 const OFFSET = 0;

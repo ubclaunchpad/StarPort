@@ -1,11 +1,11 @@
-import { getWikiDatabase } from '../util/wikidb';
+import { getDatabase } from '../util/db';
 import { LambdaBuilder } from '../util/middleware/middleware';
 import { SuccessResponse, APIErrorResponse } from '../util/middleware/response';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { APIGatewayEvent } from 'aws-lambda';
 import { Authorizer } from '../util/middleware/authorizer';
 
-const db = getWikiDatabase();
+const db = getDatabase();
 
 export const handler = new LambdaBuilder(deleteArea)
     .use(new InputValidator())
