@@ -7,7 +7,7 @@ export const handler = async function (
     try {
         const s3 = new S3({
             accessKeyId: process.env.ACCESS_KEY,
-            secretAccessKey: process.env.SECRET_ACCESS_KEY
+            secretAccessKey: process.env.SECRET_ACCESS_KEY,
         });
         const bucketName = process.env.BUCKET_NAME;
 
@@ -31,7 +31,7 @@ export const handler = async function (
         // Retrieve the bucket and key from the event
         const trueArea = area.split(':').join('/');
         const objectKey = `${trueArea}/${doc}.md`;
-        
+
         // Delete object
         const deleteObjectParams: S3.DeleteObjectRequest = {
             Bucket: bucketName,
@@ -47,7 +47,7 @@ export const handler = async function (
             },
             statusCode: 200,
             isBase64Encoded: false,
-            body: JSON.stringify({ message: 'File deleted successfully' })
+            body: JSON.stringify({ message: 'File deleted successfully' }),
         };
     } catch (error) {
         console.log(error);

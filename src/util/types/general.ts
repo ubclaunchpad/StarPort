@@ -1,6 +1,4 @@
-import { Person } from '../db';
-import { Area } from '../wikidb';
-
+import { Person, Area } from '../db';
 
 export interface IPagination {
     limit: number;
@@ -9,7 +7,6 @@ export interface IPagination {
 
 export type IPersonQuery = Partial<Person> & IPagination;
 export type IAreaQuery = Partial<Area> & IPagination;
-
 
 export type Link = {
     label: string;

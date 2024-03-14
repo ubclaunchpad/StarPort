@@ -7,8 +7,8 @@ console.log('Connected to PlanetScale!');
 dotenv.config();
 
 const DATABASE_META_NAME = 'meta';
-const DATABASE_NAME = 'cosmicgatewaywiki-kev';
-const MIGRATION_PATH = './resources/database/wiki_migrations/';
+const DATABASE_NAME = 'cosmic-dev';
+const MIGRATION_PATH = './resources/database/migrations';
 
 const setUpDatabase = async (
     connection: Connection,
@@ -65,7 +65,7 @@ const resetDatabase = async (connection: Connection): Promise<void> => {
                 database.Database,
             ]);
             console.log(tables);
-            const tableNames = tables.map(table => Object.values(table)[0]);
+            const tableNames = tables.map((table) => Object.values(table)[0]);
             const queryStr = `DROP TABLE ${tableNames.join(', ')}`;
             await query(connection, queryStr);
         }
@@ -161,7 +161,12 @@ function query(
 }
 
 const run = (): void => {
-    const connection = mysql.createConnection(process.env.WIKI_DATABASE_URL!)
+    const connectionUrl = process.env.DATABASE_URL;
+    if (!connectionUrl) {
+        console.error(chalk.bgRed('No database connection URL provided'));
+        return;
+    }
+    const connection = mysql.createConnection(connectionUrl);
     setUpDatabase(connection, true)
         .then(() => {
             console.log(chalk.bgGreen('Database setup completed'));

@@ -19,7 +19,11 @@ export async function router(
         throw new Error('Event not found');
     }
 
-    if (event.pathParameters === null || !event.pathParameters.doc || !event.pathParameters.area) {
+    if (
+        event.pathParameters === null ||
+        !event.pathParameters.doc ||
+        !event.pathParameters.area
+    ) {
         throw new Error('Request is missing parameters');
     }
 
@@ -41,9 +45,7 @@ export async function router(
     // then check if a document with the specified title and areaID exists
     const docRes = await db
         .selectFrom('Documents')
-        .select([
-            'docLink',
-        ])
+        .select(['docLink'])
         .where('name', '=', docName)
         .where('id', '=', areaID)
         .executeTakeFirst();
@@ -51,7 +53,7 @@ export async function router(
     if (!docRes) {
         throw new Error('Document not found');
     }
-    
+
     // Access query parameters
 
     const contentQueryParam = event.queryStringParameters?.content;
@@ -60,27 +62,30 @@ export async function router(
 
     if (contentQueryParam === 'true') {
         // Execute logic based on the 'content' query parameter
-        return new SuccessResponse(await getContentTrue(docName, areaName, docRes.docLink));
+        return new SuccessResponse(
+            await getContentTrue(docName, areaName, docRes.docLink)
+        );
     } else {
-        return new SuccessResponse(await getContentFalse(docName, areaName, docRes.docLink));
+        return new SuccessResponse(
+            await getContentFalse(docName, areaName, docRes.docLink)
+        );
     }
 }
 
-
 export async function getContentTrue(
-    docName: string, 
-    areaName: string, 
+    docName: string,
+    areaName: string,
     docLink: string
 ): Promise<any> {
     try {
         const s3 = new S3({
             accessKeyId: process.env.ACCESS_KEY,
-            secretAccessKey: process.env.SECRET_ACCESS_KEY
+            secretAccessKey: process.env.SECRET_ACCESS_KEY,
         });
-    
+
         const bucketName = process.env.BUCKET_NAME;
 
-        console.log('bucketName:', bucketName)
+        console.log('bucketName:', bucketName);
         if (!bucketName) {
             throw new Error('Bucket not connected');
         }
@@ -100,9 +105,8 @@ export async function getContentTrue(
         console.log('objectData:', objectData);
 
         return {
-                body: "Object uploaded successfully",
-        }
-         
+            body: 'Object uploaded successfully',
+        };
     } catch (error) {
         console.log(error);
         return {
@@ -111,12 +115,13 @@ export async function getContentTrue(
     }
 }
 
-
-export async function getContentFalse(docName: string, areaName: string, docLink: string) {
+export async function getContentFalse(
+    docName: string,
+    areaName: string,
+    docLink: string
+) {
     return {
         docLink: docLink,
-        param: "false"
-    }
+        param: 'false',
+    };
 }
-
-

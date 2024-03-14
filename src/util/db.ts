@@ -37,9 +37,9 @@ export interface Database {
 export function getDatabase() {
     const db = new Kysely<Database>({
         dialect: new PlanetScaleDialect({
-            host: process.env.WIKI_DATABASE_HOST,
-            username: process.env.WIKI_DATABASE_USERNAME,
-            password: process.env.WIKI_DATABASE_PASSWORD,
+            host: process.env.DATABASE_HOST,
+            username: process.env.DATABASE_HOST,
+            password: process.env.DATABASE_HOST,
         }),
     });
 
@@ -235,4 +235,3 @@ export type DocumentTagsTable = {
 export type DocumentTags = Selectable<DocumentTagsTable>;
 export type NewDocumentTags = Insertable<DocumentTagsTable>;
 export type UpdateDocumentTags = Updateable<DocumentTagsTable>;
-

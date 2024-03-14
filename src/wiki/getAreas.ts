@@ -1,9 +1,16 @@
 import { InputValidator } from '../util/middleware/inputValidator';
 import { getDatabase } from '../util/db';
 import { IAreaQuery } from '../util/types/general';
-import {LambdaBuilder, LambdaInput} from '../util/middleware/middleware';
-import { APIResponse, SuccessResponse, APIErrorResponse } from '../util/middleware/response';
-import { PaginationHelper, ResponseMetaTagger } from '../util/middleware/paginationHelper';
+import { LambdaBuilder, LambdaInput } from '../util/middleware/middleware';
+import {
+    APIResponse,
+    SuccessResponse,
+    APIErrorResponse,
+} from '../util/middleware/response';
+import {
+    PaginationHelper,
+    ResponseMetaTagger,
+} from '../util/middleware/paginationHelper';
 
 const db = getDatabase();
 
@@ -12,13 +19,11 @@ const OFFSET = 0;
 export const handler = new LambdaBuilder(getRequest)
     .use(new InputValidator())
     // .use(new Authorizer())
-    .use(new PaginationHelper({ limit: LIMIT, offset: OFFSET}))
+    .use(new PaginationHelper({ limit: LIMIT, offset: OFFSET }))
     .useAfter(new ResponseMetaTagger())
     .build();
 
-export async function getRequest(
-    event: LambdaInput
-): Promise<APIResponse> {
+export async function getRequest(event: LambdaInput): Promise<APIResponse> {
     try {
         const areaQuery = ((event && event.queryStringParameters) ||
             {}) as unknown as IAreaQuery;
@@ -28,13 +33,13 @@ export async function getRequest(
         return new APIErrorResponse(error);
     }
 }
-    
+
 export async function getAll(areaQuery: IAreaQuery) {
-    console.log('areaQuery:', areaQuery)
+    console.log('areaQuery:', areaQuery);
     console.log('db:', await db);
     const res = await db
         .selectFrom('Area')
-        .select( [
+        .select([
             'Area.id',
             'Area.name',
             'Area.numberOfDocs',

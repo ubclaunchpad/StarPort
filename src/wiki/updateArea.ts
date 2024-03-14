@@ -1,6 +1,10 @@
 import { LambdaBuilder } from '../util/middleware/middleware';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { APIResponse, SuccessResponse, APIErrorResponse } from '../util/middleware/response';
+import {
+    APIResponse,
+    SuccessResponse,
+    APIErrorResponse,
+} from '../util/middleware/response';
 import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { getDatabase } from '../util/db';
@@ -9,13 +13,17 @@ const db = getDatabase();
 
 export const handler = new LambdaBuilder(updateAreaRequest)
     .use(new InputValidator())
-    // .use(new Authorizer()) 
+    // .use(new Authorizer())
     .build();
 
 export async function updateAreaRequest(
     event: APIGatewayProxyEvent
 ): Promise<APIResponse> {
-    if (event === null || event.pathParameters === null || event.body === null) {
+    if (
+        event === null ||
+        event.pathParameters === null ||
+        event.body === null
+    ) {
         throw new Error('Invalid request');
     }
 

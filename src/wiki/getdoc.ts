@@ -19,7 +19,11 @@ export async function router(
         throw new Error('Event not found');
     }
 
-    if (event.pathParameters === null || !event.pathParameters.doc || !event.pathParameters.area) {
+    if (
+        event.pathParameters === null ||
+        !event.pathParameters.doc ||
+        !event.pathParameters.area
+    ) {
         throw new Error('Request is missing parameters');
     }
 

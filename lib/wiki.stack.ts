@@ -35,13 +35,15 @@ export class WikiStack extends LPStack {
             runtime: lambda.Runtime.NODEJS_18_X,
             handler: 'index.handler',
             environment: {
-                BUCKET_NAME: process.env.BUCKET_NAME || "",
-                BUCKET_ARN: process.env.BUCKET_NAME || "",
-                ACCESS_KEY: process.env.IAM_ACCESS_KEY || "",
-                SECRET_ACCESS_KEY: process.env.IAM_SECRET_ACCESS_KEY || "",
-                WIKI_DATABASE_USERNAME: process.env.WIKI_DATABASE_USERNAME || "",
-                WIKI_DATABASE_PASSWORD: process.env.WIKI_DATABASE_PASSWORD || "",
-                WIKI_DATABASE_HOST: process.env.WIKI_DATABASE_HOST || "",
+                BUCKET_NAME: process.env.BUCKET_NAME || '',
+                BUCKET_ARN: process.env.BUCKET_NAME || '',
+                ACCESS_KEY: process.env.IAM_ACCESS_KEY || '',
+                SECRET_ACCESS_KEY: process.env.IAM_SECRET_ACCESS_KEY || '',
+                WIKI_DATABASE_USERNAME:
+                    process.env.WIKI_DATABASE_USERNAME || '',
+                WIKI_DATABASE_PASSWORD:
+                    process.env.WIKI_DATABASE_PASSWORD || '',
+                WIKI_DATABASE_HOST: process.env.WIKI_DATABASE_HOST || '',
             },
             role: role,
         };
@@ -52,7 +54,7 @@ export class WikiStack extends LPStack {
             subresources: {
                 docs: {
                     subresources: {
-                        'area': {
+                        area: {
                             endpoints: {
                                 GET: {
                                     id: 'getAreas',
@@ -81,8 +83,8 @@ export class WikiStack extends LPStack {
                                     },
                                 },
                                 '{area}': {
-                                    subresources: { 
-                                        'doc': {
+                                    subresources: {
+                                        doc: {
                                             subresources: {
                                                 '{doc}': {
                                                     endpoints: {
@@ -97,7 +99,7 @@ export class WikiStack extends LPStack {
                                                         PUT: {
                                                             id: 'putDoc',
                                                             path: `${baseLambdaDir}/putdoc`,
-                                                        }
+                                                        },
                                                     },
                                                     // subresources: {
                                                     //     'content': {
@@ -114,7 +116,7 @@ export class WikiStack extends LPStack {
                                         },
                                     },
                                 },
-                            }
+                            },
                         },
                     },
                 },
@@ -125,7 +127,7 @@ export class WikiStack extends LPStack {
             this,
             apiResources,
             `${WIKI_STACK_INFO.NAME}-API`,
-            lambdaConfigs,
+            lambdaConfigs
         );
     }
 }

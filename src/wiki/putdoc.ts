@@ -7,7 +7,7 @@ export const handler = async function (
     try {
         const s3 = new S3({
             accessKeyId: process.env.ACCESS_KEY,
-            secretAccessKey: process.env.SECRET_ACCESS_KEY
+            secretAccessKey: process.env.SECRET_ACCESS_KEY,
         });
         const bucketName = process.env.BUCKET_NAME;
 
@@ -31,7 +31,7 @@ export const handler = async function (
         const trueArea = area.split(':').join('/');
         const objectKey = `${trueArea}/${doc}.md`;
 
-    // Assuming the body of the request contains the content of the file
+        // Assuming the body of the request contains the content of the file
         const objectData = event.body || '';
 
         // Use putObject to upload the object
@@ -53,7 +53,6 @@ export const handler = async function (
             isBase64Encoded: false,
             body: JSON.stringify({ message: 'Object uploaded successfully' }),
         };
-
     } catch (error) {
         console.log(error);
         return {

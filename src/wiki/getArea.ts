@@ -4,7 +4,6 @@ import { APIResponse, SuccessResponse } from '../util/middleware/response';
 import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
 
-
 import { getDatabase } from '../util/db';
 const db = getDatabase();
 
