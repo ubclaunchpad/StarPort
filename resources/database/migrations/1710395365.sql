@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS Documents (
     docLink VARCHAR(255),
     lastEditedUser VARCHAR(255),
     creationDate DATE,
-    lastUpdatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (areaID) REFERENCES Area(id)
+    lastUpdatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    -- FOREIGN KEY (areaID) REFERENCES Area(id)
 );
 
 -- Create Tags table
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS Tags (
 CREATE TABLE IF NOT EXISTS DocumentTags (
     docID INT,
     tagID INT,
-    PRIMARY KEY (docID, tagID),
-    FOREIGN KEY (docID) REFERENCES Documents(id),
-    FOREIGN KEY (tagID) REFERENCES Tags(id)
+    PRIMARY KEY (docID, tagID)
+    -- FOREIGN KEY (docID) REFERENCES Documents(id),
+    -- FOREIGN KEY (tagID) REFERENCES Tags(id)
 );

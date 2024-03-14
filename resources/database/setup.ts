@@ -3,7 +3,6 @@ import * as path from 'path';
 import * as fs from 'fs';
 import dotenv from 'dotenv';
 import mysql, { Connection } from 'mysql2';
-console.log('Connected to PlanetScale!');
 dotenv.config();
 
 const DATABASE_META_NAME = 'meta';
@@ -64,7 +63,7 @@ const resetDatabase = async (connection: Connection): Promise<void> => {
             const tables = await query(connection, `SHOW TABLES IN ??`, [
                 database.Database,
             ]);
-            console.log(tables);
+
             const tableNames = tables.map((table) => Object.values(table)[0]);
             const queryStr = `DROP TABLE ${tableNames.join(', ')}`;
             await query(connection, queryStr);
@@ -85,13 +84,32 @@ async function runMigrations(connection: Connection): Promise<void> {
     const lastMigration = res || [];
 
     if (lastMigration.length > 0) {
-        const lastMigrationTimestamp = lastMigration[0].timestamp;
+        const lastMigrationTimestamp = Math.floor(
+            lastMigration[0].timestamp.getTime() / 1000
+        );
+        console.log(
+            chalk.blue('INFO: ') +
+                'Last migration timestamp: ' +
+                chalk.bold.underline(lastMigrationTimestamp)
+        );
+
         files = files.filter((file) => {
             const fileParts = file.split('.');
             const fileTimestamp = fileParts[0];
-            return fileTimestamp > lastMigrationTimestamp;
+            return Number(fileTimestamp) > lastMigrationTimestamp;
         });
     }
+
+    if (files.length === 0) {
+        console.log(chalk.blue('INFO: ') + 'No new migrations to run');
+        return;
+    }
+
+    console.log(
+        chalk.blue('INFO: ') +
+            'Number of migrations to run: ' +
+            chalk.bold.underline(files.length)
+    );
 
     const currentDB = await query(connection, 'SELECT database() AS db');
     console.log(
@@ -100,6 +118,16 @@ async function runMigrations(connection: Connection): Promise<void> {
             chalk.bold.underline(currentDB[0].db)
     );
     await migrate(connection, files);
+    console.log(chalk.greenBright('SUCCESS: ') + 'Migrations complete');
+    await query(
+        connection,
+        `INSERT INTO migrations (status) VALUES ('success')`
+    );
+
+    console.log(
+        chalk.greenBright('SUCCESS: ') +
+            'Migrations table updated with new migrations'
+    );
 }
 
 async function migrate(connection: Connection, files: string[]): Promise<void> {
@@ -167,7 +195,7 @@ const run = (): void => {
         return;
     }
     const connection = mysql.createConnection(connectionUrl);
-    setUpDatabase(connection, true)
+    setUpDatabase(connection, false)
         .then(() => {
             console.log(chalk.bgGreen('Database setup completed'));
         })
