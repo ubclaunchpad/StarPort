@@ -27,7 +27,7 @@ export async function updateAreaRequest(
         throw new Error('Invalid request');
     }
 
-    const areaId = event.pathParameters;
+    const areaId = event.pathParameters.areaid;
     const updatedData = JSON.parse(event.body);
 
     try {

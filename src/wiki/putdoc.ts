@@ -23,13 +23,13 @@ export const handler = async function (
             throw new Error('Request is missing params');
         }
 
-        const { area, doc } = event.pathParameters;
-        if (!area || !doc) {
+        const { areaid, docid } = event.pathParameters;
+        if (!areaid || !docid) {
             throw new Error('Request is missing params');
         }
 
-        const trueArea = area.split(':').join('/');
-        const objectKey = `${trueArea}/${doc}.md`;
+        const trueArea = areaid.split(':').join('/');
+        const objectKey = `${trueArea}/${docid}.md`;
 
         // Assuming the body of the request contains the content of the file
         const objectData = event.body || '';

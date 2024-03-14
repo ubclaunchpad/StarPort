@@ -21,14 +21,14 @@ export async function router(
 
     if (
         event.pathParameters === null ||
-        !event.pathParameters.doc ||
-        !event.pathParameters.area
+        !event.pathParameters.docid ||
+        !event.pathParameters.areaid
     ) {
         throw new Error('Request is missing parameters');
     }
 
-    const docName = event.pathParameters.doc;
-    const areaName = event.pathParameters.area;
+    const docName = event.pathParameters.docid;
+    const areaName = event.pathParameters.areaid;
 
     return new SuccessResponse(await getDoc(docName, areaName));
 }

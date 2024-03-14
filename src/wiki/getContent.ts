@@ -21,14 +21,14 @@ export async function router(
 
     if (
         event.pathParameters === null ||
-        !event.pathParameters.doc ||
-        !event.pathParameters.area
+        !event.pathParameters.docid ||
+        !event.pathParameters.areaid
     ) {
         throw new Error('Request is missing parameters');
     }
 
-    const docName = event.pathParameters.doc;
-    const areaName = event.pathParameters.area;
+    const docName = event.pathParameters.docid;
+    const areaName = event.pathParameters.areaid;
 
     const areaRes = await db
         .selectFrom('Area')
@@ -58,7 +58,7 @@ export async function router(
 
     const contentQueryParam = event.queryStringParameters?.content;
 
-    console.log('contentQueryParam:', contentQueryParam);
+    // console.log('contentQueryParam:', contentQueryParam);
 
     if (contentQueryParam === 'true') {
         // Execute logic based on the 'content' query parameter

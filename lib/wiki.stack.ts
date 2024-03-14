@@ -39,11 +39,9 @@ export class WikiStack extends LPStack {
                 BUCKET_ARN: process.env.BUCKET_NAME || '',
                 ACCESS_KEY: process.env.IAM_ACCESS_KEY || '',
                 SECRET_ACCESS_KEY: process.env.IAM_SECRET_ACCESS_KEY || '',
-                WIKI_DATABASE_USERNAME:
-                    process.env.WIKI_DATABASE_USERNAME || '',
-                WIKI_DATABASE_PASSWORD:
-                    process.env.WIKI_DATABASE_PASSWORD || '',
-                WIKI_DATABASE_HOST: process.env.WIKI_DATABASE_HOST || '',
+                DATABASE_USERNAME: process.env.DATABASE_USERNAME || '',
+                DATABASE_PASSWORD: process.env.DATABASE_PASSWORD || '',
+                DATABASE_HOST: process.env.DATABASE_HOST || '',
             },
             role: role,
         };
@@ -66,7 +64,7 @@ export class WikiStack extends LPStack {
                                 },
                             },
                             subresources: {
-                                '{id}': {
+                                '{areaid}': {
                                     endpoints: {
                                         GET: {
                                             id: 'getArea',
@@ -81,12 +79,10 @@ export class WikiStack extends LPStack {
                                             path: `${baseLambdaDir}/updateArea`,
                                         },
                                     },
-                                },
-                                '{area}': {
                                     subresources: {
                                         doc: {
                                             subresources: {
-                                                '{doc}': {
+                                                '{docid}': {
                                                     endpoints: {
                                                         DELETE: {
                                                             id: 'deleteDoc',

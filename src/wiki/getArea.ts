@@ -23,7 +23,7 @@ export async function router(
         throw new Error('Request is missing params');
     }
 
-    const areaId = event.pathParameters.id;
+    const areaId = event.pathParameters.areaId;
     return new SuccessResponse(await getArea(areaId as unknown as number));
 }
 
