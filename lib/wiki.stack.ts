@@ -8,7 +8,7 @@ import { ApiService, IApiResources } from './templates/apigateway';
 import { Role, ServicePrincipal, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 config();
 
-export const WIKI_STACK_INFO: StackInfo = { NAME: 'wiki-stack' };
+export const WIKI_STACK_INFO: StackInfo = { NAME: 'hub-wiki-stack' };
 
 export class WikiStack extends LPStack {
     public STACK_INFO: StackInfo = WIKI_STACK_INFO;
@@ -50,65 +50,61 @@ export class WikiStack extends LPStack {
 
         const apiResources: IApiResources = {
             subresources: {
-                docs: {
+                areas: {
+                    endpoints: {
+                        GET: {
+                            id: 'getAreas',
+                            path: `${baseLambdaDir}/getAreas`,
+                        },
+                        POST: {
+                            id: 'createArea',
+                            path: `${baseLambdaDir}/createArea`,
+                        },
+                    },
                     subresources: {
-                        area: {
+                        '{areaid}': {
                             endpoints: {
                                 GET: {
-                                    id: 'getAreas',
-                                    path: `${baseLambdaDir}/getAreas`,
+                                    id: 'getArea',
+                                    path: `${baseLambdaDir}/getArea`,
                                 },
-                                POST: {
-                                    id: 'createArea',
-                                    path: `${baseLambdaDir}/createArea`,
+                                DELETE: {
+                                    id: 'deleteArea',
+                                    path: `${baseLambdaDir}/deleteArea`,
+                                },
+                                PATCH: {
+                                    id: 'updateArea',
+                                    path: `${baseLambdaDir}/updateArea`,
                                 },
                             },
                             subresources: {
-                                '{areaid}': {
-                                    endpoints: {
-                                        GET: {
-                                            id: 'getArea',
-                                            path: `${baseLambdaDir}/getArea`,
-                                        },
-                                        DELETE: {
-                                            id: 'deleteArea',
-                                            path: `${baseLambdaDir}/deleteArea`,
-                                        },
-                                        PATCH: {
-                                            id: 'updateArea',
-                                            path: `${baseLambdaDir}/updateArea`,
-                                        },
-                                    },
+                                doc: {
                                     subresources: {
-                                        doc: {
-                                            subresources: {
-                                                '{docid}': {
-                                                    endpoints: {
-                                                        DELETE: {
-                                                            id: 'deleteDoc',
-                                                            path: `${baseLambdaDir}/deletedoc`,
-                                                        },
-                                                        GET: {
-                                                            id: 'getDoc',
-                                                            path: `${baseLambdaDir}/getdoc`,
-                                                        },
-                                                        PUT: {
-                                                            id: 'putDoc',
-                                                            path: `${baseLambdaDir}/putdoc`,
-                                                        },
-                                                    },
-                                                    // subresources: {
-                                                    //     'content': {
-                                                    //         endpoints: {
-                                                    //             GET: {
-                                                    //                 id: 'getContent',
-                                                    //                 path: `${baseLambdaDir}/getContent`,
-                                                    //             },
-                                                    //         },
-                                                    //     },
-                                                    // },
+                                        '{docid}': {
+                                            endpoints: {
+                                                DELETE: {
+                                                    id: 'deleteDoc',
+                                                    path: `${baseLambdaDir}/deletedoc`,
+                                                },
+                                                GET: {
+                                                    id: 'getDoc',
+                                                    path: `${baseLambdaDir}/getdoc`,
+                                                },
+                                                PUT: {
+                                                    id: 'putDoc',
+                                                    path: `${baseLambdaDir}/putdoc`,
                                                 },
                                             },
+                                            // subresources: {
+                                            //     'content': {
+                                            //         endpoints: {
+                                            //             GET: {
+                                            //                 id: 'getContent',
+                                            //                 path: `${baseLambdaDir}/getContent`,
+                                            //             },
+                                            //         },
+                                            //     },
+                                            // },
                                         },
                                     },
                                 },
