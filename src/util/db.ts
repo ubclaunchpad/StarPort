@@ -13,12 +13,12 @@ import { Link } from './types/general';
 config();
 
 export interface Database {
-    ethnicity: EthnicityTable;
+    ethnicity: ResourceTable;
     faculty: ResourceTable;
-    gender: GenderTable;
+    gender: ResourceTable;
     person: PersonTable;
     person_role: PersonRoleTable;
-    pronouns: PronounsTable;
+    pronouns: ResourceTable;
     role: RoleTable;
     scope: ScopeTable;
     scope_role: ScopeRole;
@@ -51,36 +51,6 @@ export type ResourceTable = DictTable<string>;
 export type Resource = Selectable<ResourceTable>;
 export type NewResource = Insertable<ResourceTable>;
 export type UpdateResource = Updateable<ResourceTable>;
-
-export type EthnicityTable = DictTable<string>;
-export type Ethnicity = Selectable<EthnicityTable>;
-export type NewEthnicity = Insertable<EthnicityTable>;
-export type UpdateEthnicity = Updateable<EthnicityTable>;
-
-export type FacultyTable = DictTable<string>;
-export type Faculty = Selectable<FacultyTable>;
-export type NewFaculty = Insertable<FacultyTable>;
-export type UpdateFaculty = Updateable<FacultyTable>;
-
-export type GenderTable = DictTable<string>;
-export type Gender = Selectable<GenderTable>;
-export type NewGender = Insertable<GenderTable>;
-export type UpdateGender = Updateable<GenderTable>;
-
-export type PronounsTable = DictTable<string>;
-export type Pronouns = Selectable<PronounsTable>;
-export type NewPronouns = Insertable<PronounsTable>;
-export type UpdatePronouns = Updateable<PronounsTable>;
-
-export type StandingTable = DictTable<string>;
-export type Standing = Selectable<StandingTable>;
-export type NewStanding = Insertable<StandingTable>;
-export type UpdateStanding = Updateable<StandingTable>;
-
-export type SpecializationTable = DictTable<string>;
-export type Specialization = Selectable<SpecializationTable>;
-export type NewSpecialization = Insertable<SpecializationTable>;
-export type UpdateSpecialization = Updateable<SpecializationTable>;
 
 export type RoleTable = DictTable<string>;
 export type Role = Selectable<RoleTable>;
