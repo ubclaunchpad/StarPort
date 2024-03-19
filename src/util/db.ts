@@ -14,7 +14,7 @@ config();
 
 export interface Database {
     ethnicity: EthnicityTable;
-    faculty: FacultyTable;
+    faculty: ResourceTable;
     gender: GenderTable;
     person: PersonTable;
     person_role: PersonRoleTable;
@@ -22,8 +22,8 @@ export interface Database {
     role: RoleTable;
     scope: ScopeTable;
     scope_role: ScopeRole;
-    specialization: SpecializationTable;
-    standing: StandingTable;
+    specialization: ResourceTable;
+    standing: ResourceTable;
     team: TeamTable;
     team_term: TeamTermTable;
     post: PostTable;
@@ -46,6 +46,11 @@ export interface DictTable<T> {
     id: Generated<number>;
     label: T;
 }
+
+export type ResourceTable = DictTable<string>;
+export type Resource = Selectable<ResourceTable>;
+export type NewResource = Insertable<ResourceTable>;
+export type UpdateResource = Updateable<ResourceTable>;
 
 export type EthnicityTable = DictTable<string>;
 export type Ethnicity = Selectable<EthnicityTable>;
