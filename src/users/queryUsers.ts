@@ -24,8 +24,14 @@ export async function getUserRequest(event: LambdaInput): Promise<APIResponse> {
         event.pagination.count = count;
     }
 
-    const personQuery = ((event && event.pagination) ||
-        {}) as unknown as IPersonQuery;        
+    //uses request body event.body from POST request instead of url query parameters
+    const personQuery = ((event && event.pagination) || 
+        {}) as unknown as IPersonQuery;
+        
+    if (event.body){
+        const requestBody = JSON.parse(event.body)
+        personQuery.filter = requestBody.filter
+    }
 
     if (event.queryStringParameters && event.queryStringParameters.search) {
         personQuery.search = event.queryStringParameters.search;
@@ -59,12 +65,10 @@ export async function getAll(personQuery: IPersonQuery) {
         //WIP use full name or more values to search (it works rn with just first name tho!)
     }
 
-    //TODO:
-    // look into POST instead of GET for filter, can pass through a json with different filters ex
-    // make it a new endpoint
-    // - look into querying by label vs id. but id is fine
-    // Make more generalized code below for filters
+    // POST instead of GET for filter, can pass through a json with different filters ex
+    // on a seperate endpoint
 
+    // Generalized code below for building filter queries
     const buildFilterExpression = (eb: any, dbKey: string, value: any, match: string) => {
         if (match === 'exact') {
           return eb(dbKey, '=', value);
@@ -81,7 +85,6 @@ export async function getAll(personQuery: IPersonQuery) {
             filterkey: "person_role_id",
             dbkey: "person_role_id",
             buildExpression: (eb: any, value: any, match: string) => buildFilterExpression(eb, "person_role_id", value, match)
-
         },
         {
             filterkey: "first_name",
@@ -90,9 +93,11 @@ export async function getAll(personQuery: IPersonQuery) {
         }
         // Add more filters as needed following the same pattern
     ];
-    
+
     // Apply filters
     const applyFilters = (eb: any, personQuery: IPersonQuery) => {
+        console.log(personQuery)
+        console.log(personQuery.filter)
         if (personQuery.filter) {
             personQuery.filter.forEach((orFilter: ORFilterQuery) => {
                 const orExpressions: any[] = [];
@@ -102,7 +107,6 @@ export async function getAll(personQuery: IPersonQuery) {
                         orExpressions.push(filter.buildExpression?.(eb, filterItem.value, filterItem.match));
                     }
                 });
-                // eb.or(orExpressions);
                 query = query.where((eb) => eb.or(orExpressions))
             });
         }
@@ -110,12 +114,6 @@ export async function getAll(personQuery: IPersonQuery) {
 
     const eb = expressionBuilder<Database, 'person'>()
     applyFilters(eb, personQuery);
-
-
-    // Apply filtering by role
-
-    // Update to add more filters as needed
-    // Status and Project Team currently don't exist in the database for Person, but can be added
 
     const res = await query.execute();
 
