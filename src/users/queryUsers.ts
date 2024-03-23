@@ -1,11 +1,11 @@
 import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
-import { PersonTable, getDatabase } from '../util/db';
-import { IPersonQuery } from '../util/types/general';
+import { Database, PersonTable, getDatabase } from '../util/db';
+import { IPersonQuery, ORFilterQuery } from '../util/types/general';
 import {LambdaBuilder, LambdaInput} from '../util/middleware/middleware';
 import { APIResponse, SuccessResponse } from '../util/middleware/response';
 import { PaginationHelper, ResponseMetaTagger } from '../util/middleware/paginationHelper';
-
+import { expressionBuilder } from 'kysely';
 
 const DEFAULT_LIMIT = 50;
 const DEFAULT_OFFSET = 0;
@@ -57,10 +57,65 @@ export async function getAll(personQuery: IPersonQuery) {
     if (personQuery.search) {
         query = query.where(`person.first_name`, 'like', `%${personQuery.search.toLowerCase()}%`);
         //WIP use full name or more values to search (it works rn with just first name tho!)
-        
     }
 
-    // (For filtering functionality use the queryUsers POST endpoint)
+    //TODO:
+    // look into POST instead of GET for filter, can pass through a json with different filters ex
+    // make it a new endpoint
+    // - look into querying by label vs id. but id is fine
+    // Make more generalized code below for filters
+
+    const buildFilterExpression = (eb: any, dbKey: string, value: any, match: string) => {
+        if (match === 'exact') {
+          return eb(dbKey, '=', value);
+        } else if (match === 'partial') {
+          return eb(dbKey, 'like', `%${value}%`);
+        } else { // default to exact match
+          return eb(dbKey, '=', value);
+        }
+      };
+
+    // Define filters based on the query structure
+    const filters = [
+        {
+            filterkey: "person_role_id",
+            dbkey: "person_role_id",
+            buildExpression: (eb: any, value: any, match: string) => buildFilterExpression(eb, "person_role_id", value, match)
+
+        },
+        {
+            filterkey: "first_name",
+            dbkey: "first_name",
+            buildExpression: (eb: any, value: any, match: string) => buildFilterExpression(eb, "first_name", value, match)
+        }
+        // Add more filters as needed following the same pattern
+    ];
+    
+    // Apply filters
+    const applyFilters = (eb: any, personQuery: IPersonQuery) => {
+        if (personQuery.filter) {
+            personQuery.filter.forEach((orFilter: ORFilterQuery) => {
+                const orExpressions: any[] = [];
+                orFilter.forEach((filterItem) => {
+                    const filter = filters.find(f => f.filterkey === filterItem.key);
+                    if (filter) {
+                        orExpressions.push(filter.buildExpression?.(eb, filterItem.value, filterItem.match));
+                    }
+                });
+                // eb.or(orExpressions);
+                query = query.where((eb) => eb.or(orExpressions))
+            });
+        }
+    };
+
+    const eb = expressionBuilder<Database, 'person'>()
+    applyFilters(eb, personQuery);
+
+
+    // Apply filtering by role
+
+    // Update to add more filters as needed
+    // Status and Project Team currently don't exist in the database for Person, but can be added
 
     const res = await query.execute();
 

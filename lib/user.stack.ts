@@ -50,6 +50,14 @@ export class UserStack extends LPStack {
                         },
                     },
                     subresources: {
+                        query: {
+                            endpoints: {
+                                POST: {
+                                    id: 'queryUsers',
+                                    path: `${usersLambdaDir}/queryUsers`,
+                                },
+                            },
+                        }, 
                         '{id}': {
                             endpoints: {
                                 GET: {
