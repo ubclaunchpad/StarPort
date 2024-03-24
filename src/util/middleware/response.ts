@@ -21,6 +21,8 @@ export class APIReturnResponse implements Partial<APIResponse> {
     headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true,
+        'Cache-Control': 'max-age=60, private, must-revalidate',
+        'Content-Type': 'application/json',
     };
     body: string;
     statusCode: number;

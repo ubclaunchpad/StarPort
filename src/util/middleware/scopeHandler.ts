@@ -50,12 +50,9 @@ export class ScopeController implements IMiddleware<IHandlerEvent, object> {
         }
 
         const scopes = await this.connection
-            .selectFrom('scope_role')
-            .innerJoin('role', 'role.label', 'scope_role.role_label')
-            .innerJoin('person_role', 'person_role.role_id', 'role.id')
-            .innerJoin('person', 'person.id', 'person_role.person_id')
-            .select('scope_role.scope_label')
-            .where('person.email', '=', userEmail)
+            .selectFrom('user_scopes_view')
+            .select('scope_label')
+            .where('email', '=', userEmail)
             .execute();
 
         return {
