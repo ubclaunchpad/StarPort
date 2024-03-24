@@ -1,34 +1,54 @@
 import { getDatabase } from '../util/db';
-import { LambdaBuilder } from '../util/middleware/middleware';
-import { APIGatewayProxyEvent } from 'aws-lambda';
-import { APIResponse, BadRequestError, SuccessResponse } from '../util/middleware/response';
 import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
+import { LambdaBuilder, LambdaInput } from '../util/middleware/middleware';
+import {
+    APIResponse,
+    BadRequestError,
+    SuccessResponse,
+} from '../util/middleware/response';
+import {
+    ACCESS_SCOPES,
+    ScopeController,
+} from '../util/middleware/scopeHandler';
 
 const db = getDatabase();
 
+const validScopes = [
+    ACCESS_SCOPES.READ_ALL_PROFILE_DATA,
+    ACCESS_SCOPES.ADMIN_READ,
+];
+
 export const handler = new LambdaBuilder(router)
     .use(new InputValidator())
-    // .use(new Authorizer())
+    .use(new Authorizer(db))
+    .use(new ScopeController(db))
     .build();
 
-export async function router(
-    event: APIGatewayProxyEvent
-): Promise<APIResponse> {
+export async function router(event: LambdaInput): Promise<APIResponse> {
     if (!event.pathParameters) {
         throw new BadRequestError('Event path parameters missing');
     }
 
-    const id = event.pathParameters.id;
-
-    if (id === undefined) {
+    if (event.pathParameters.id === undefined) {
         throw new BadRequestError('ID is undefined');
     }
+
+    const id = parseInt(event.pathParameters.id);
+
+    await Authorizer.authorizeOrVerifyScopes(
+        db,
+        id,
+        event.userScopes,
+        ACCESS_SCOPES.READ_OWN_PROFILE,
+        validScopes,
+        event.googleAccount
+    );
 
     return new SuccessResponse(await getUser(id));
 }
 
-export async function getUser(userId: string) {
+export async function getUser(userId: number) {
     const res = await db
         .selectFrom('person')
         .innerJoin('faculty', 'person.faculty_id', 'faculty.id')
@@ -43,7 +63,6 @@ export async function getUser(userId: string) {
             'person.email',
             'person.member_since',
             'person.account_updated',
-            'person.person_role_id',
             'person.first_name',
             'person.pref_name',
             'person.last_name',
@@ -75,7 +94,6 @@ export async function getUser(userId: string) {
         email: res.email,
         member_since: res.member_since,
         account_updated: res.account_updated,
-        person_role_id: res.person_role_id,
         first_name: res.first_name,
         last_name: res.last_name,
         pref_name: res.pref_name,

@@ -1,11 +1,24 @@
+import { getDatabase } from '../util/db';
 import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { PersonTable, getDatabase } from '../util/db';
 import { IPersonQuery } from '../util/types/general';
-import {LambdaBuilder, LambdaInput} from '../util/middleware/middleware';
+import { LambdaBuilder, LambdaInput } from '../util/middleware/middleware';
+import {
+    PaginationHelper,
+    ResponseMetaTagger,
+} from '../util/middleware/paginationHelper';
 import { APIResponse, SuccessResponse } from '../util/middleware/response';
-import { PaginationHelper, ResponseMetaTagger } from '../util/middleware/paginationHelper';
+import {
+    ACCESS_SCOPES,
+    ScopeController,
+} from '../util/middleware/scopeHandler';
 
+const db = getDatabase();
+const validScopes = [
+    ACCESS_SCOPES.ADMIN_READ,
+    ACCESS_SCOPES.READ_ALL_PROFILE_DATA,
+];
 
 const DEFAULT_LIMIT = 50;
 const DEFAULT_OFFSET = 0;
@@ -13,12 +26,16 @@ const db = getDatabase();
 
 export const handler = new LambdaBuilder(getUserRequest)
     .use(new InputValidator())
-    // .use(new Authorizer())
+    .use(new Authorizer(db))
+    .use(new ScopeController(db))
     .use(new PaginationHelper({ limit: DEFAULT_LIMIT, offset: DEFAULT_OFFSET}))
     .useAfter(new ResponseMetaTagger())
     .build();
 
 export async function getUserRequest(event: LambdaInput): Promise<APIResponse> {
+    ScopeController.verifyScopes(event.userScopes, validScopes);
+
+  
     if (event.pagination) {
         const count = await countUsers();
         event.pagination.count = count;
@@ -70,7 +87,6 @@ export async function getAll(personQuery: IPersonQuery) {
             first_name: user.first_name,
             last_name: user.last_name,
             pref_name: user.pref_name,
-            person_role_id: user.person_role_id,
             email: user.email || '',
             account_updated: user.account_updated,
             member_since: user.member_since,

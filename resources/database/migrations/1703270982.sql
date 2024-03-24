@@ -150,7 +150,7 @@ VALUES
     ('read:profile:restricted', 'Read certain data of profiles'),
     ('read:profile:personal', 'Read all data to your own profile'),
     ('write:admin', 'Admin full write access'),
-    ('write:profile', 'Write all data of profiles'),
+    ('write:profile:all', 'Write all data of profiles'),
     ('update:admin', 'Admin full update access'),
     ('update:profile:all', 'Update all data of profiles'),
     ('update:profile:personal', 'Update all data to your own profile'),
