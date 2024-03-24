@@ -30,13 +30,20 @@ export default {
     coverageDirectory: 'coverage',
 
     // An array of regexp pattern strings used to skip coverage collection
-    coveragePathIgnorePatterns: ['/node_modules/', 'src/util/'],
+    coveragePathIgnorePatterns: [
+      "/node_modules/",
+      "src/util/",
+    ],
 
     // Indicates which provider should be used to instrument code for coverage
     // coverageProvider: "babel",
 
     // A list of reporter names that Jest uses when writing coverage reports
-    coverageReporters: ['json', 'text', 'text-summary'],
+    coverageReporters: [
+      "json",
+      "text",
+      "text-summary",
+    ],
 
     // An object that configures minimum threshold enforcement for coverage results
     // coverageThreshold: undefined,

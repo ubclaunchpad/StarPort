@@ -1,9 +1,5 @@
 import { Kysely, SelectQueryBuilder } from 'kysely';
-import {
-    Database,
-    Resource as ResourceTable,
-    getDatabase,
-} from '../../../util/db';
+import { Database, Resource as ResourceTable, getDatabase } from '../../../util/db';
 import { getResources } from '../../getResources';
 import { resourceSchema, Resource } from '../../mapper';
 
@@ -33,13 +29,10 @@ describe('Get resources Unit Tests', () => {
     };
 
     for (const [resourceName, resourceType] of Object.entries(resources)) {
+
         describe(`get ${resourceName}`, () => {
             let mockDb: Kysely<Database>;
-            let mockQueryCreator: SelectQueryBuilder<
-                Database,
-                any,
-                ResourceTable
-            >;
+            let mockQueryCreator: SelectQueryBuilder<Database, any, ResourceTable>;
 
             beforeEach(() => {
                 jest.clearAllMocks();
@@ -49,11 +42,7 @@ describe('Get resources Unit Tests', () => {
                     limit: jest.fn().mockReturnThis(),
                     offset: jest.fn().mockReturnThis(),
                     execute: jest.fn().mockResolvedValue([]),
-                } as unknown as SelectQueryBuilder<
-                    Database,
-                    any,
-                    ResourceTable
-                >;
+                } as unknown as SelectQueryBuilder<Database, any, ResourceTable>;
                 mockDb = {
                     selectFrom: jest.fn().mockReturnValue(mockQueryCreator),
                 } as unknown as Kysely<Database>;
