@@ -21,7 +21,6 @@ const validScopes = [
 
 const DEFAULT_LIMIT = 50;
 const DEFAULT_OFFSET = 0;
-const db = getDatabase();
 
 export const handler = new LambdaBuilder(getUserRequest)
     .use(new InputValidator())
