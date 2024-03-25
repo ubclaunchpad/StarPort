@@ -38,9 +38,8 @@ export class ScopeController implements IMiddleware<IHandlerEvent, object> {
     }
 
     public handler = async (event: APIGatewayProxyEvent) => {
-        const userEmail = (
-            event as unknown as { googleAccount: { email: string } }
-        ).googleAccount.email;
+        const userEmail = (event as unknown as { user: { email: string } }).user
+            .email;
         const user = await this.connection
             .selectFrom('person')
             .select(['email'])
@@ -51,15 +50,10 @@ export class ScopeController implements IMiddleware<IHandlerEvent, object> {
         }
 
         const scopes = await this.connection
-            .selectFrom('scope_role')
-            .innerJoin('role', 'role.label', 'scope_role.role_label')
-            .innerJoin('person_role', 'person_role.role_id', 'role.id')
-            .innerJoin('person', 'person.id', 'person_role.person_id')
-            .select('scope_role.scope_label')
-            .where('person.email', '=', userEmail)
+            .selectFrom('user_scopes_view')
+            .select('scope_label')
+            .where('email', '=', userEmail)
             .execute();
-
-        console.log(scopes);
 
         return {
             userScopes: scopes.map((scope) => scope.scope_label),

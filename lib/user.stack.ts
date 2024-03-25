@@ -1,9 +1,9 @@
-import { Construct } from 'constructs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
+import { Construct } from 'constructs';
 import { config } from 'dotenv';
-import { LPStack, StackInfo, StackProps } from './util/LPStack';
 import { IDatabaseConfig } from '../config/database.config';
 import { ApiService, IApiResources } from './templates/apigateway';
+import { LPStack, StackInfo, StackProps } from './util/LPStack';
 config();
 
 export const USER_STACK_INFO: StackInfo = { NAME: 'users-stack' };
@@ -20,7 +20,7 @@ export class UserStack extends LPStack {
         const { databaseConfig } = props;
 
         const lambdaConfigs = {
-            runtime: lambda.Runtime.NODEJS_16_X,
+            runtime: lambda.Runtime.NODEJS_18_X,
             handler: 'index.handler',
             environment: {
                 ...databaseConfig,
@@ -32,9 +32,7 @@ export class UserStack extends LPStack {
         const baseLambdaDir = 'dist/';
         const usersLambdaDir = `${baseLambdaDir}/users`;
         const rolesLambdaDir = `${baseLambdaDir}/roles`;
-        const facultiesLambdaDir = `${baseLambdaDir}/faculties`;
-        const standingsLambdaDir = `${baseLambdaDir}/standings`;
-        const specializationsLambdaDir = `${baseLambdaDir}/specializations`;
+        const resourcesLambdaDir = `${baseLambdaDir}/resources`;
 
         const apiResources: IApiResources = {
             subresources: {
@@ -58,6 +56,14 @@ export class UserStack extends LPStack {
                                 },
                             },
                         }, 
+                        me: {
+                            endpoints: {
+                                GET: {
+                                    id: 'getMe',
+                                    path: `${usersLambdaDir}/getMe`,
+                                },
+                            },
+                        },
                         '{id}': {
                             endpoints: {
                                 GET: {
@@ -79,10 +85,10 @@ export class UserStack extends LPStack {
                                         GET: {
                                             id: 'getUserRoles',
                                             path: `${baseLambdaDir}/roles/getUserRoles`,
-                                        }
+                                        },
                                     },
                                     subresources: {
-                                        "{roleId}": {
+                                        '{roleId}': {
                                             endpoints: {
                                                 POST: {
                                                     id: 'addUserRole',
@@ -92,39 +98,49 @@ export class UserStack extends LPStack {
                                                     id: 'deleteUserRole',
                                                     path: `${baseLambdaDir}/roles/deleteUserRole`,
                                                 },
-                                            }
-                                        }
-                                    }
+                                            },
+                                        },
+                                    },
                                 },
                             },
                         },
                     },
                 },
-                faculties: {
+                resources: {
                     endpoints: {
                         GET: {
-                            id: 'getFaculties',
-                            path: `${facultiesLambdaDir}/getFaculties`,
-                        },
-                        POST: {
-                            id: 'createFaculty',
-                            path: `${facultiesLambdaDir}/createFaculty`,
+                            id: 'resourcesList',
+                            path: `${resourcesLambdaDir}/resourcesList`,
                         },
                     },
                     subresources: {
-                        "{id}": {
+                        '{rname}': {
                             endpoints: {
-                                DELETE: {
-                                    id: 'deleteFaculty',
-                                    path: `${facultiesLambdaDir}/deleteFaculty`,
+                                GET: {
+                                    id: 'getResources',
+                                    path: `${resourcesLambdaDir}/getResources`,
                                 },
-                                PATCH: {
-                                    id: 'updateFaculty',
-                                    path: `${facultiesLambdaDir}/updateFaculty`,
+                                POST: {
+                                    id: 'createResource',
+                                    path: `${resourcesLambdaDir}/createResource`,
                                 },
-                            }
-                        }
-                    }
+                            },
+                            subresources: {
+                                '{id}': {
+                                    endpoints: {
+                                        DELETE: {
+                                            id: 'deleteResource',
+                                            path: `${resourcesLambdaDir}/deleteResource`,
+                                        },
+                                        PATCH: {
+                                            id: 'updateResource',
+                                            path: `${resourcesLambdaDir}/updateResource`,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
                 },
                 roles: {
                     endpoints: {
@@ -136,11 +152,9 @@ export class UserStack extends LPStack {
                             id: 'createRole',
                             path: `${rolesLambdaDir}/createRole`,
                         },
-
-
                     },
                     subresources: {
-                        "{id}": {
+                        '{id}': {
                             endpoints: {
                                 PATCH: {
                                     id: 'updateRole',
@@ -150,64 +164,9 @@ export class UserStack extends LPStack {
                                     id: 'deleteRole',
                                     path: `${rolesLambdaDir}/deleteRole`,
                                 },
-                            }
-
-                        }
-                    }
-                },
-                specializations: {
-                    endpoints: {
-                        GET: {
-                            id: 'getSpecializations',
-                            path: `${specializationsLambdaDir}/getSpecializations`,
+                            },
                         },
-                        POST: {
-                            id: 'createSpecialization',
-                            path: `${specializationsLambdaDir}/createSpecialization`,
-                        },
-                       
                     },
-                    subresources: {
-                        "{id}": {
-                            endpoints: {
-                                DELETE: {
-                                    id: 'deleteSpecialization',
-                                    path: `${specializationsLambdaDir}/deleteSpecialization`,
-                                },
-                                PATCH: {
-                                    id: 'updateSpecialization',
-                                    path: `${specializationsLambdaDir}/updateSpecialization`,
-                                },
-                            }
-                        }
-                    }
-                },
-                standings: {
-                    endpoints: {
-                        GET: {
-                            id: 'getStandings',
-                            path: `${standingsLambdaDir}/getStandings`,
-                        },
-                        POST: {
-                            id: 'createStanding',
-                            path: `${standingsLambdaDir}/createStanding`,
-                        },
-                        
-                    },
-                    subresources: {
-                        "{id}": {
-                            endpoints: {
-                                DELETE: {
-                                    id: 'deleteStanding',
-                                    path: `${standingsLambdaDir}/deleteStanding`,
-                                },
-                                PATCH: {
-                                    id: 'updateStanding',
-                                    path: `${standingsLambdaDir}/updateStanding`,
-                                },
-                            }
-                        }
-                    }
                 },
             },
         };

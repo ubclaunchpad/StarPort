@@ -1,5 +1,4 @@
 import { getDatabase, NewPerson, Person } from '../util/db';
-import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { LambdaBuilder, LambdaInput } from '../util/middleware/middleware';
 import {
@@ -17,19 +16,12 @@ const validScopes = [ACCESS_SCOPES.ADMIN_WRITE, ACCESS_SCOPES.WRITE_PROFILE];
 
 export const handler = new LambdaBuilder(router)
     .use(new InputValidator())
-    .use(new Authorizer(db))
-    .use(new ScopeController(db))
     .build();
 
 export async function router(event: LambdaInput): Promise<APIResponse> {
     if (!event.body) {
         throw new BadRequestError('Event body missing');
     }
-    if (!event.userScopes) {
-        throw new BadRequestError('Event userScopes missing');
-    }
-
-    ScopeController.verifyScopes(event.userScopes, validScopes);
 
     const body = JSON.parse(event.body) as Person;
 
@@ -89,7 +81,6 @@ export const validateEmail = async (email: string): Promise<void> => {
         .where('email', '=', email)
         .executeTakeFirst();
 
-    console.log(person);
     if (person) {
         throw new BadRequestError('email already exists');
     }
@@ -151,7 +142,6 @@ export const addUserToDatabase = async (user: NewPerson): Promise<string> => {
 
     return person.insertId.toString();
 };
-
 
 export const addUserDefaultRole = async (userId: number): Promise<void> => {
     const roles = await db

@@ -17,9 +17,11 @@ while getopts ":e:" opt; do
 done
 
 # compile TS to JS with hot reload
-esbuild ./src/**/*.ts \
+find ./src -name "*.ts" | xargs esbuild \
   --entry-names=[dir]/[name]/index \
   --bundle \
   --platform=node \
-  --target=node16.14 \
-  --outdir=./dist/ 
+  --target=node18 \
+  --outdir=./dist/ \
+  --sourcemap=inline
+

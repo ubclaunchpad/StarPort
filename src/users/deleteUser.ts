@@ -7,7 +7,10 @@ import {
     BadRequestError,
     SuccessResponse,
 } from '../util/middleware/response';
-import { ACCESS_SCOPES } from '../util/middleware/scopeHandler';
+import {
+    ACCESS_SCOPES,
+    ScopeController,
+} from '../util/middleware/scopeHandler';
 
 const db = getDatabase();
 const validScopes = [
@@ -18,6 +21,7 @@ const validScopes = [
 export const handler = new LambdaBuilder(router)
     .use(new InputValidator())
     .use(new Authorizer(db))
+    .use(new ScopeController(db))
     .build();
 
 export async function router(event: LambdaInput): Promise<APIResponse> {
@@ -26,11 +30,12 @@ export async function router(event: LambdaInput): Promise<APIResponse> {
     }
     validateScope(event);
 
-    await deleteUser(event.pathParameters.id as string);
-    await deleteUserRole(event.pathParameters.id as string);
+    const userID = event.pathParameters.id as string;
+    await deleteUser(userID);
+    await deleteUserRole(userID);
 
     return new SuccessResponse({
-        message: `user with id : ${event.pathParameters.id} deleted`,
+        message: `user with id : ${userID} deleted`,
     });
 }
 
@@ -69,6 +74,6 @@ export const validateScope = (event: LambdaInput) => {
         userScopes,
         ACCESS_SCOPES.DELETE_OWN_PROFILE,
         validScopes,
-        event.googleUser
+        event.user
     );
 };

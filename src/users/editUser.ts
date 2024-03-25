@@ -41,7 +41,7 @@ export async function updateRequest(event: LambdaInput): Promise<APIResponse> {
         userScopes,
         ACCESS_SCOPES.UPDATE_OWN_PROFILE,
         validScopes,
-        event.googleAccount
+        event.user
     );
 
     const updatePersonData = JSON.parse(event.body) as UpdatePerson;

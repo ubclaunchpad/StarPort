@@ -1,6 +1,6 @@
+import { getDatabase } from '../util/db';
 import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
-import { PersonTable, getDatabase } from '../util/db';
 import { IPersonQuery } from '../util/types/general';
 import { LambdaBuilder, LambdaInput } from '../util/middleware/middleware';
 import {

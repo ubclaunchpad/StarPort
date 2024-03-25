@@ -47,3 +47,9 @@ export interface IPersonQuery extends Partial<Person>, IPagination {
 //         ]
 //     ]
 // }
+
+export type Link = {
+    label: string;
+    href: string;
+    domain: string;
+};

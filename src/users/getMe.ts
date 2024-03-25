@@ -2,53 +2,22 @@ import { getDatabase } from '../util/db';
 import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { LambdaBuilder, LambdaInput } from '../util/middleware/middleware';
-import {
-    APIResponse,
-    BadRequestError,
-    SuccessResponse,
-} from '../util/middleware/response';
-import {
-    ACCESS_SCOPES,
-    ScopeController,
-} from '../util/middleware/scopeHandler';
+import { APIResponse, SuccessResponse } from '../util/middleware/response';
 
 const db = getDatabase();
-
-const validScopes = [
-    ACCESS_SCOPES.READ_ALL_PROFILE_DATA,
-    ACCESS_SCOPES.ADMIN_READ,
-];
 
 export const handler = new LambdaBuilder(router)
     .use(new InputValidator())
     .use(new Authorizer(db))
-    .use(new ScopeController(db))
     .build();
 
 export async function router(event: LambdaInput): Promise<APIResponse> {
-    if (!event.pathParameters) {
-        throw new BadRequestError('Event path parameters missing');
-    }
+    const email = event.user.email;
 
-    if (event.pathParameters.id === undefined) {
-        throw new BadRequestError('ID is undefined');
-    }
-
-    const id = parseInt(event.pathParameters.id);
-
-    await Authorizer.authorizeOrVerifyScopes(
-        db,
-        id,
-        event.userScopes,
-        ACCESS_SCOPES.READ_OWN_PROFILE,
-        validScopes,
-        event.user
-    );
-
-    return new SuccessResponse(await getUser(id));
+    return new SuccessResponse(await getUser(email));
 }
 
-export async function getUser(userId: number) {
+export async function getUser(email: string) {
     const res = await db
         .selectFrom('person')
         .innerJoin('faculty', 'person.faculty_id', 'faculty.id')
@@ -82,16 +51,8 @@ export async function getUser(userId: number) {
             'standing.label as standing_label',
             'specialization.label as specialization_label',
         ])
-        .where('person.id', '=', userId)
+        .where('person.email', '=', email)
         .executeTakeFirst();
-
-    const roles = await db
-        .selectFrom('role')
-        .innerJoin('person_role', 'role.id', 'person_role.role_id')
-        .innerJoin('person', 'person.id', 'person_role.person_id')
-        .select(['role.label'])
-        .where('person_role.person_id', '=', userId)
-        .execute();
 
     if (!res) {
         throw new Error('User not found');
@@ -129,6 +90,5 @@ export async function getUser(userId: number) {
             id: res.specialization_id,
             label: res.specialization_label,
         },
-        roles: roles.map((role) => role.label),
     };
 }
