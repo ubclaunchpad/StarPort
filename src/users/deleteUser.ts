@@ -7,7 +7,10 @@ import {
     BadRequestError,
     SuccessResponse,
 } from '../util/middleware/response';
-import { ACCESS_SCOPES, ScopeController } from '../util/middleware/scopeHandler';
+import {
+    ACCESS_SCOPES,
+    ScopeController,
+} from '../util/middleware/scopeHandler';
 
 const db = getDatabase();
 const validScopes = [
