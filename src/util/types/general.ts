@@ -9,7 +9,7 @@ export interface IPagination {
 export interface IFilterItem {
     key: string;
     value: string | number;
-    match: "exact" | "partial";
+    match: 'exact' | 'partial';
 }
 
 export type ORFilterQuery = IFilterItem[];

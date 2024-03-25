@@ -55,7 +55,7 @@ export class UserStack extends LPStack {
                                     path: `${usersLambdaDir}/queryUsers`,
                                 },
                             },
-                        }, 
+                        },
                         me: {
                             endpoints: {
                                 GET: {

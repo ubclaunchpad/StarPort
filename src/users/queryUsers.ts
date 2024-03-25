@@ -1,10 +1,13 @@
 import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
-import { Database, PersonTable, getDatabase } from '../util/db';
+import { Database, getDatabase } from '../util/db';
 import { IPersonQuery, ORFilterQuery } from '../util/types/general';
-import {LambdaBuilder, LambdaInput} from '../util/middleware/middleware';
+import { LambdaBuilder, LambdaInput } from '../util/middleware/middleware';
 import { APIResponse, SuccessResponse } from '../util/middleware/response';
-import { PaginationHelper, ResponseMetaTagger } from '../util/middleware/paginationHelper';
+import {
+    PaginationHelper,
+    ResponseMetaTagger,
+} from '../util/middleware/paginationHelper';
 import { expressionBuilder } from 'kysely';
 
 const DEFAULT_LIMIT = 50;
@@ -14,7 +17,7 @@ const db = getDatabase();
 export const handler = new LambdaBuilder(getUserRequest)
     .use(new InputValidator())
     // .use(new Authorizer())
-    .use(new PaginationHelper({ limit: DEFAULT_LIMIT, offset: DEFAULT_OFFSET}))
+    .use(new PaginationHelper({ limit: DEFAULT_LIMIT, offset: DEFAULT_OFFSET }))
     .useAfter(new ResponseMetaTagger())
     .build();
 
@@ -25,18 +28,18 @@ export async function getUserRequest(event: LambdaInput): Promise<APIResponse> {
     }
 
     //uses request body event.body from POST request instead of url query parameters
-    const personQuery = ((event && event.pagination) || 
+    const personQuery = ((event && event.pagination) ||
         {}) as unknown as IPersonQuery;
-        
-    if (event.body){
-        const requestBody = JSON.parse(event.body)
-        personQuery.filter = requestBody.filter
+
+    if (event.body) {
+        const requestBody = JSON.parse(event.body);
+        personQuery.filter = requestBody.filter;
     }
 
     if (event.queryStringParameters && event.queryStringParameters.search) {
         personQuery.search = event.queryStringParameters.search;
     }
-    
+
     if (event.queryStringParameters && event.queryStringParameters.filter) {
         personQuery.filter = JSON.parse(event.queryStringParameters.filter);
     }
@@ -45,23 +48,31 @@ export async function getUserRequest(event: LambdaInput): Promise<APIResponse> {
 }
 
 export async function getAll(personQuery: IPersonQuery) {
-    let query = db.selectFrom('person').select([
-        'person.id',
-        'person.first_name',
-        'person.last_name',
-        'person.pref_name',
-        'person.person_role_id',
-        'person.email',
-        'person.account_updated',
-        'person.member_since'
-    ]);
+    let query = db
+        .selectFrom('person')
+        .select([
+            'person.id',
+            'person.first_name',
+            'person.last_name',
+            'person.pref_name',
+            'person.person_role_id',
+            'person.email',
+            'person.account_updated',
+            'person.member_since',
+        ]);
 
     // Apply limit and offset
-    query = query.limit(personQuery.limit || DEFAULT_LIMIT).offset(personQuery.offset || DEFAULT_OFFSET);
+    query = query
+        .limit(personQuery.limit || DEFAULT_LIMIT)
+        .offset(personQuery.offset || DEFAULT_OFFSET);
 
     // Apply search if provided
     if (personQuery.search) {
-        query = query.where(`person.first_name`, 'like', `%${personQuery.search.toLowerCase()}%`);
+        query = query.where(
+            `person.first_name`,
+            'like',
+            `%${personQuery.search.toLowerCase()}%`
+        );
         //WIP use full name or more values to search (it works rn with just first name tho!)
     }
 
@@ -69,50 +80,66 @@ export async function getAll(personQuery: IPersonQuery) {
     // on a seperate endpoint
 
     // Generalized code below for building filter queries
-    const buildFilterExpression = (eb: any, dbKey: string, value: any, match: string) => {
+    const buildFilterExpression = (
+        eb: any,
+        dbKey: string,
+        value: any,
+        match: string
+    ) => {
         if (match === 'exact') {
-          return eb(dbKey, '=', value);
+            return eb(dbKey, '=', value);
         } else if (match === 'partial') {
-          return eb(dbKey, 'like', `%${value}%`);
-        } else { // default to exact match
-          return eb(dbKey, '=', value);
+            return eb(dbKey, 'like', `%${value}%`);
+        } else {
+            // default to exact match
+            return eb(dbKey, '=', value);
         }
-      };
+    };
 
     // Define filters based on the query structure
     const filters = [
         {
-            filterkey: "person_role_id",
-            dbkey: "person_role_id",
-            buildExpression: (eb: any, value: any, match: string) => buildFilterExpression(eb, "person_role_id", value, match)
+            filterkey: 'person_role_id',
+            dbkey: 'person_role_id',
+            buildExpression: (eb: any, value: any, match: string) =>
+                buildFilterExpression(eb, 'person_role_id', value, match),
         },
         {
-            filterkey: "first_name",
-            dbkey: "first_name",
-            buildExpression: (eb: any, value: any, match: string) => buildFilterExpression(eb, "first_name", value, match)
-        }
+            filterkey: 'first_name',
+            dbkey: 'first_name',
+            buildExpression: (eb: any, value: any, match: string) =>
+                buildFilterExpression(eb, 'first_name', value, match),
+        },
         // Add more filters as needed following the same pattern
     ];
 
     // Apply filters
     const applyFilters = (eb: any, personQuery: IPersonQuery) => {
-        console.log(personQuery)
-        console.log(personQuery.filter)
+        console.log(personQuery);
+        console.log(personQuery.filter);
         if (personQuery.filter) {
             personQuery.filter.forEach((orFilter: ORFilterQuery) => {
                 const orExpressions: any[] = [];
                 orFilter.forEach((filterItem) => {
-                    const filter = filters.find(f => f.filterkey === filterItem.key);
+                    const filter = filters.find(
+                        (f) => f.filterkey === filterItem.key
+                    );
                     if (filter) {
-                        orExpressions.push(filter.buildExpression?.(eb, filterItem.value, filterItem.match));
+                        orExpressions.push(
+                            filter.buildExpression?.(
+                                eb,
+                                filterItem.value,
+                                filterItem.match
+                            )
+                        );
                     }
                 });
-                query = query.where((eb) => eb.or(orExpressions))
+                query = query.where((eb) => eb.or(orExpressions));
             });
         }
     };
 
-    const eb = expressionBuilder<Database, 'person'>()
+    const eb = expressionBuilder<Database, 'person'>();
     applyFilters(eb, personQuery);
 
     const res = await query.execute();
@@ -132,13 +159,12 @@ export async function getAll(personQuery: IPersonQuery) {
 }
 
 async function countUsers() {
-    const ret = await db.selectFrom('person')
-    .select(({ fn }) => [
-      fn.count<number>('id').as('count'),
-    ])
-    .executeTakeFirst();
+    const ret = await db
+        .selectFrom('person')
+        .select(({ fn }) => [fn.count<number>('id').as('count')])
+        .executeTakeFirst();
     if (!ret) {
-      throw new Error('Unable to count users');
+        throw new Error('Unable to count users');
     }
     return Number(ret.count);
 }
