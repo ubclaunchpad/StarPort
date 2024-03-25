@@ -28,6 +28,7 @@ export interface Database {
     team_term: TeamTermTable;
     post: PostTable;
     team_member: team_member;
+    user_scopes_view: UserScopesViewTable;
 }
 
 export function getDatabase() {
@@ -163,3 +164,12 @@ export interface team_member {
 export type TeamMember = Selectable<team_member>;
 export type NewTeamMember = Insertable<team_member>;
 export type UpdateTeamMember = Updateable<team_member>;
+
+export interface UserScopesViewTable {
+    email: string;
+    scope_label: string;
+}
+
+export type UserScopesView = Selectable<UserScopesViewTable>;
+export type NewUserScopesView = Insertable<UserScopesViewTable>;
+export type UpdateUserScopesView = Updateable<UserScopesViewTable>;
