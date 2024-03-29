@@ -7,7 +7,7 @@ import {
     APIErrorResponse,
 } from '../../util/middleware/response';
 // import { Authorizer } from '../../util/middleware/authorizer';
-import { NewDocuments, getDatabase } from '../../util/db';
+import { getDatabase } from '../../util/db';
 
 const s3 = new S3({
     accessKeyId: process.env.ACCESS_KEY,
@@ -43,13 +43,12 @@ export async function router(
 
     const docData = JSON.parse(event.body || '');
 
-    if (!docData || !docData.title || !docData.content) {
+    if (!docData) {
         throw new Error('Request is missing body or body is invalid');
     }
 
     try {
-        await verifyDocumentCreation(areaid, docid, docData);
-        await createDocument(areaid, docid, docData);
+        await updateDocument(areaid, docid, docData);
         return new SuccessResponse({
             message: 'Document created successfully',
         });
@@ -59,12 +58,22 @@ export async function router(
     }
 }
 
-export const createDocument = async (
+export const updateDocument = async (
     areaid: string,
     docid: string,
     docData: { title: string; content: string }
 ) => {
-    const objectKey = `${areaid}/${docid}.md`;
+    const doc = await db
+        .selectFrom('document')
+        .selectAll()
+        .where('id', '=', docid as unknown as number)
+        .executeTakeFirst();
+
+    if (!doc) {
+        throw new Error('Document not found');
+    }
+
+    const objectKey = doc?.fileid;
     const putObjectParams: S3.PutObjectRequest = {
         Bucket: bucketName,
         Key: objectKey,
@@ -72,21 +81,8 @@ export const createDocument = async (
         ContentType: 'text/html', // Adjust the content type accordingly
     };
 
-    const areaIdKey = Number(areaid);
     await s3.putObject(putObjectParams).promise();
-
-    const docArgs: NewDocuments = {
-        areaid: areaIdKey,
-        title: docData.title,
-        doclink: objectKey,
-    };
-
-    const { insertId } = await db
-        .insertInto('document')
-        .values(docArgs)
-        .executeTakeFirst();
-
-    return insertId;
+    return doc.id;
 };
 
 export const verifyDocumentCreation = async (

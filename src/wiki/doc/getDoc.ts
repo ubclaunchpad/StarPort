@@ -1,9 +1,14 @@
 import { LambdaBuilder } from '../../util/middleware/middleware';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { APIResponse, SuccessResponse } from '../../util/middleware/response';
+import {
+    APIErrorResponse,
+    APIResponse,
+    SuccessResponse,
+} from '../../util/middleware/response';
 import { S3 } from 'aws-sdk';
 import { getDatabase } from '../../util/db';
 
+const bucketName = process.env.BUCKET_NAME;
 const db = getDatabase();
 
 export const handler = new LambdaBuilder(router).build();
@@ -20,7 +25,6 @@ export async function router(
     }
 
     const docid = event.pathParameters.docid;
-
     let docRes;
 
     if (event.pathParameters.areaid) {
@@ -61,7 +65,6 @@ export async function getContentTrue(fileid: string): Promise<any> {
             secretAccessKey: process.env.SECRET_ACCESS_KEY,
         });
 
-        const bucketName = process.env.BUCKET_NAME;
         if (!bucketName) {
             throw new Error('Bucket not connected');
         }
@@ -76,9 +79,6 @@ export async function getContentTrue(fileid: string): Promise<any> {
 
         return objectData;
     } catch (error) {
-        console.log(error);
-        return {
-            msg: 'Error',
-        };
+        throw new APIErrorResponse(error.message);
     }
 }
