@@ -1,4 +1,4 @@
-import { Person } from '../db';
+import { Person, Area } from '../db';
 
 export interface IPagination {
     limit: number;
@@ -6,6 +6,7 @@ export interface IPagination {
     count?: number;
 }
 
+export type IAreaQuery = Partial<Area> & IPagination;
 export interface IFilterItem {
     key: string;
     value: string | number;

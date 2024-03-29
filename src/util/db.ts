@@ -28,6 +28,8 @@ export interface Database {
     team_term: TeamTermTable;
     post: PostTable;
     team_member: team_member;
+    area: AreaTable;
+    document: DocumentTable;
     user_scopes_view: UserScopesViewTable;
 }
 
@@ -164,6 +166,31 @@ export interface team_member {
 export type TeamMember = Selectable<team_member>;
 export type NewTeamMember = Insertable<team_member>;
 export type UpdateTeamMember = Updateable<team_member>;
+
+export type AreaTable = {
+    id: Generated<number>;
+    name: string;
+    description: string;
+    parent_areaid: number;
+    updatedat: Generated<Date>;
+};
+
+export type Area = Selectable<AreaTable>;
+export type NewArea = Insertable<AreaTable>;
+export type UpdateArea = Updateable<AreaTable>;
+
+export type DocumentTable = {
+    id: Generated<number>;
+    areaid: number;
+    title: string;
+    fileid: string;
+    createdat: Generated<Date>;
+    updatedat: Generated<Date>;
+};
+
+export type Document = Selectable<DocumentTable>;
+export type NewDocument = Insertable<DocumentTable>;
+export type UpdateDocument = Updateable<DocumentTable>;
 
 export interface UserScopesViewTable {
     email: string;

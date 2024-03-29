@@ -20,6 +20,7 @@ new UserStack(app, USER_STACK_INFO.NAME, {
 
 new WikiStack(app, WIKI_STACK_INFO.NAME, {
     env: deploymentEnvironments[0],
+    databaseConfig: DATABASE_CONFIG.getDBConfig(),
 });
 
 new TeamStack(app, Team_STACK_INFO.NAME, {

@@ -4,17 +4,21 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { config } from 'dotenv';
 import { LPStack, StackInfo } from './util/LPStack';
 import { ApiService, IApiResources } from './templates/apigateway';
-import * as s3 from 'aws-cdk-lib/aws-s3';
+// import * as s3 from 'aws-cdk-lib/aws-s3';
 import { Role, ServicePrincipal, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { IDatabaseConfig } from '../config/database.config';
 config();
 
-export const WIKI_STACK_INFO: StackInfo = { NAME: 'wiki-stack' };
+export const WIKI_STACK_INFO: StackInfo = { NAME: 'hub-wiki-stack' };
 
+export interface WikiStackProps extends cdk.StackProps {
+    databaseConfig: IDatabaseConfig;
+}
 export class WikiStack extends LPStack {
     public STACK_INFO: StackInfo = WIKI_STACK_INFO;
     apiService: ApiService;
 
-    constructor(scope: Construct, id: string, props: cdk.StackProps) {
+    constructor(scope: Construct, id: string, props: WikiStackProps) {
         super(scope, id, props);
 
         const role = new Role(this, 'MyLambdaRole', {
@@ -27,33 +31,102 @@ export class WikiStack extends LPStack {
         policyStatement.addResources('arn:aws:s3:::lp-doc');
         role.addToPolicy(policyStatement);
 
-        const myBucket = new s3.Bucket(this, 'MyBucket', {
-            // S3 bucket configuration
-        });
+        // const myBucket = new s3.Bucket(this, 'MyBucket', {
+        //     // S3 bucket configuration
+        // });
 
         const lambdaConfigs = {
             runtime: lambda.Runtime.NODEJS_18_X,
             handler: 'index.handler',
+            memorySize: 2048,
             environment: {
-                BUCKET_NAME: myBucket.bucketName,
-                BUCKET_ARN: myBucket.bucketArn,
+                BUCKET_NAME: process.env.BUCKET_NAME || '',
+                BUCKET_ARN: process.env.BUCKET_NAME || '',
+                ACCESS_KEY: process.env.IAM_ACCESS_KEY || '',
+                SECRET_ACCESS_KEY: process.env.IAM_SECRET_ACCESS_KEY || '',
+                ...props.databaseConfig,
             },
             role: role,
         };
 
-        const baseLambdaDir = 'dist/wiki';
+        const areaLambdaDir = 'dist/wiki/area';
+        const docLambdaDir = 'dist/wiki/doc';
 
         const apiResources: IApiResources = {
             subresources: {
-                docs: {
+                doc: {
                     subresources: {
-                        '{area}': {
+                        '{docid}': {
+                            endpoints: {
+                                GET: {
+                                    id: 'getDoc',
+                                    path: `${docLambdaDir}/getDoc`,
+                                },
+                            },
+                        },
+                    },
+                },
+                areas: {
+                    endpoints: {
+                        GET: {
+                            id: 'getAreas',
+                            path: `${areaLambdaDir}/getAreas`,
+                        },
+                        POST: {
+                            id: 'createArea',
+                            path: `${areaLambdaDir}/createArea`,
+                        },
+                    },
+                    subresources: {
+                        '{areaid}': {
+                            endpoints: {
+                                GET: {
+                                    id: 'getArea',
+                                    path: `${areaLambdaDir}/getArea`,
+                                },
+                                DELETE: {
+                                    id: 'deleteArea',
+                                    path: `${areaLambdaDir}/deleteArea`,
+                                },
+                                PATCH: {
+                                    id: 'updateArea',
+                                    path: `${areaLambdaDir}/updateArea`,
+                                },
+                            },
                             subresources: {
-                                '{doc}': {
+                                docs: {
                                     endpoints: {
-                                        GET: {
-                                            id: 'getDoc',
-                                            path: `${baseLambdaDir}/getdoc`,
+                                        POST: {
+                                            id: 'createDoc',
+                                            path: `${docLambdaDir}/createDoc`,
+                                        },
+                                    },
+                                    subresources: {
+                                        '{docid}': {
+                                            endpoints: {
+                                                DELETE: {
+                                                    id: 'deleteDoc',
+                                                    path: `${docLambdaDir}/deleteDoc`,
+                                                },
+                                                GET: {
+                                                    id: 'getDoc',
+                                                    path: `${docLambdaDir}/getDoc`,
+                                                },
+                                                PUT: {
+                                                    id: 'putDoc',
+                                                    path: `${docLambdaDir}/putDoc`,
+                                                },
+                                            },
+                                            // subresources: {
+                                            //     'content': {
+                                            //         endpoints: {
+                                            //             GET: {
+                                            //                 id: 'getContent',
+                                            //                 path: `${baseLambdaDir}/getContent`,
+                                            //             },
+                                            //         },
+                                            //     },
+                                            // },
                                         },
                                     },
                                 },
@@ -68,8 +141,7 @@ export class WikiStack extends LPStack {
             this,
             apiResources,
             `${WIKI_STACK_INFO.NAME}-API`,
-            lambdaConfigs,
-            myBucket
+            lambdaConfigs
         );
     }
 }
