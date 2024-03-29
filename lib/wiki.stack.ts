@@ -38,6 +38,7 @@ export class WikiStack extends LPStack {
         const lambdaConfigs = {
             runtime: lambda.Runtime.NODEJS_18_X,
             handler: 'index.handler',
+            memorySize: 2048,
             environment: {
                 BUCKET_NAME: process.env.BUCKET_NAME || '',
                 BUCKET_ARN: process.env.BUCKET_NAME || '',
@@ -53,6 +54,18 @@ export class WikiStack extends LPStack {
 
         const apiResources: IApiResources = {
             subresources: {
+                doc: {
+                    subresources: {
+                        '{docid}': {
+                            endpoints: {
+                                GET: {
+                                    id: 'getDoc',
+                                    path: `${docLambdaDir}/getDoc`,
+                                },
+                            },
+                        },
+                    },
+                },
                 areas: {
                     endpoints: {
                         GET: {

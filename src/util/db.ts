@@ -29,7 +29,7 @@ export interface Database {
     post: PostTable;
     team_member: team_member;
     area: AreaTable;
-    document: DocumentsTable;
+    document: DocumentTable;
     user_scopes_view: UserScopesViewTable;
 }
 
@@ -179,18 +179,18 @@ export type Area = Selectable<AreaTable>;
 export type NewArea = Insertable<AreaTable>;
 export type UpdateArea = Updateable<AreaTable>;
 
-export type DocumentsTable = {
+export type DocumentTable = {
     id: Generated<number>;
     areaid: number;
     title: string;
-    doclink?: string;
+    fileid: string;
     createdat: Generated<Date>;
     updatedat: Generated<Date>;
 };
 
-export type Documents = Selectable<DocumentsTable>;
-export type NewDocuments = Insertable<DocumentsTable>;
-export type UpdateDocuments = Updateable<DocumentsTable>;
+export type Document = Selectable<DocumentTable>;
+export type NewDocument = Insertable<DocumentTable>;
+export type UpdateDocument = Updateable<DocumentTable>;
 
 export interface UserScopesViewTable {
     email: string;

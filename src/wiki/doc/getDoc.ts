@@ -1,16 +1,12 @@
 import { LambdaBuilder } from '../../util/middleware/middleware';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { APIResponse, SuccessResponse } from '../../util/middleware/response';
-// import { InputValidator } from '../util/middleware/inputValidator';
 import { S3 } from 'aws-sdk';
 import { getDatabase } from '../../util/db';
 
 const db = getDatabase();
 
-export const handler = new LambdaBuilder(router)
-    // .use(new InputValidator())
-    // Add any additional middleware as needed
-    .build();
+export const handler = new LambdaBuilder(router).build();
 
 export async function router(
     event: APIGatewayProxyEvent
@@ -19,41 +15,46 @@ export async function router(
         throw new Error('Event not found');
     }
 
-    if (
-        event.pathParameters === null ||
-        !event.pathParameters.docid ||
-        !event.pathParameters.areaid
-    ) {
+    if (event.pathParameters === null || !event.pathParameters.docid) {
         throw new Error('Request is missing parameters');
     }
 
-    const docid = event.pathParameters.docid as unknown as number;
-    const areaName = event.pathParameters.areaid;
+    const docid = event.pathParameters.docid;
 
-    // then check if a document with the specified title and areaID exists
-    const docRes = await db
-        .selectFrom('documents')
-        .select(['doclink'])
-        .where('id', '=', docid)
-        .innerJoin('area', 'documents.areaid', 'area.id')
-        .where('area.name', '=', areaName)
-        .executeTakeFirst();
+    let docRes;
 
+    if (event.pathParameters.areaid) {
+        const areaid = event.pathParameters.areaid as unknown as number;
+        docRes = await db
+            .selectFrom('document')
+            .selectAll()
+            .where('document.id', '=', docid as unknown as number)
+            .innerJoin('area', 'document.areaid', 'area.id')
+            .where('area.id', '=', areaid)
+            .executeTakeFirst();
+    } else {
+        docRes = await db
+            .selectFrom('document')
+            .selectAll()
+            .innerJoin('area', 'document.areaid', 'area.id')
+            .where('document.fileid', '=', docid)
+            .executeTakeFirst();
+    }
     if (!docRes) {
         throw new Error('Document not found');
     }
 
     const contentQueryParam =
-        Boolean(event.queryStringParameters?.content || false) ?? false;
+        event.queryStringParameters?.content === 'true' ? true : false;
     const content = contentQueryParam
-        ? await getContentTrue(docRes.doclink)
+        ? await getContentTrue(docRes.fileid)
         : null;
     return new SuccessResponse(
         contentQueryParam ? { ...docRes, content } : { ...docRes }
     );
 }
 
-export async function getContentTrue(doclink: string): Promise<any> {
+export async function getContentTrue(fileid: string): Promise<any> {
     try {
         const s3 = new S3({
             accessKeyId: process.env.ACCESS_KEY,
@@ -61,19 +62,17 @@ export async function getContentTrue(doclink: string): Promise<any> {
         });
 
         const bucketName = process.env.BUCKET_NAME;
-
         if (!bucketName) {
             throw new Error('Bucket not connected');
         }
 
         const getObjectParams: S3.GetObjectRequest = {
             Bucket: bucketName,
-            Key: doclink,
+            Key: fileid,
         };
 
         const s3Object = await s3.getObject(getObjectParams).promise();
         const objectData = s3Object.Body?.toString('utf-8');
-        console.log('objectData:', objectData);
 
         return objectData;
     } catch (error) {

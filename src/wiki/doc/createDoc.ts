@@ -7,7 +7,8 @@ import {
     APIErrorResponse,
 } from '../../util/middleware/response';
 // import { Authorizer } from '../../util/middleware/authorizer';
-import { NewDocuments, getDatabase } from '../../util/db';
+import { NewDocument, getDatabase } from '../../util/db';
+import { v4 as uuidv4 } from 'uuid';
 
 const s3 = new S3({
     accessKeyId: process.env.ACCESS_KEY,
@@ -48,7 +49,7 @@ export async function router(
     }
 
     try {
-        await verifyDocumentCreation(areaid, docData);
+        await verifyDocumentCreation(areaid);
         await createDocument(areaid, docData);
         return new SuccessResponse({
             message: 'Document created successfully',
@@ -63,37 +64,28 @@ export const createDocument = async (
     areaid: string,
     docData: { title: string; content: string }
 ) => {
-    const docArgs: NewDocuments = {
+    const objectid = uuidv4();
+    const docArgs: NewDocument = {
         areaid: Number(areaid),
         title: docData.title,
+        fileid: objectid,
     };
+
+    const putObjectParams: S3.PutObjectRequest = {
+        Bucket: bucketName,
+        Key: objectid,
+        Body: docData.content,
+        ContentType: 'text/html',
+    };
+    await s3.putObject(putObjectParams).promise();
     const { insertId } = await db
         .insertInto('document')
         .values(docArgs)
         .executeTakeFirst();
-
-    const objectKey = `${areaid}/${insertId}.md`;
-    const putObjectParams: S3.PutObjectRequest = {
-        Bucket: bucketName,
-        Key: objectKey,
-        Body: docData.content,
-        ContentType: 'text/html',
-    };
-
-    await s3.putObject(putObjectParams).promise();
-    await db
-        .updateTable('document')
-        .set({ ...docArgs, doclink: objectKey })
-        .where('id', '=', Number(insertId))
-        .execute();
-
     return insertId;
 };
 
-export const verifyDocumentCreation = async (
-    areaid: string,
-    docData: { title: string; content: string }
-) => {
+export const verifyDocumentCreation = async (areaid: string) => {
     const areaIdKey = Number(areaid);
     const areaRes = await db
         .selectFrom('area')
