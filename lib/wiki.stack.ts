@@ -6,15 +6,19 @@ import { LPStack, StackInfo } from './util/LPStack';
 import { ApiService, IApiResources } from './templates/apigateway';
 // import * as s3 from 'aws-cdk-lib/aws-s3';
 import { Role, ServicePrincipal, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { IDatabaseConfig } from '../config/database.config';
 config();
 
 export const WIKI_STACK_INFO: StackInfo = { NAME: 'hub-wiki-stack' };
 
+export interface WikiStackProps extends cdk.StackProps {
+    databaseConfig: IDatabaseConfig;
+}
 export class WikiStack extends LPStack {
     public STACK_INFO: StackInfo = WIKI_STACK_INFO;
     apiService: ApiService;
 
-    constructor(scope: Construct, id: string, props: cdk.StackProps) {
+    constructor(scope: Construct, id: string, props: WikiStackProps) {
         super(scope, id, props);
 
         const role = new Role(this, 'MyLambdaRole', {
@@ -39,14 +43,13 @@ export class WikiStack extends LPStack {
                 BUCKET_ARN: process.env.BUCKET_NAME || '',
                 ACCESS_KEY: process.env.IAM_ACCESS_KEY || '',
                 SECRET_ACCESS_KEY: process.env.IAM_SECRET_ACCESS_KEY || '',
-                DATABASE_USERNAME: process.env.DATABASE_USERNAME || '',
-                DATABASE_PASSWORD: process.env.DATABASE_PASSWORD || '',
-                DATABASE_HOST: process.env.DATABASE_HOST || '',
+                ...props.databaseConfig,
             },
             role: role,
         };
 
-        const baseLambdaDir = 'dist/wiki';
+        const areaLambdaDir = 'dist/wiki/area';
+        const docLambdaDir = 'dist/wiki/doc';
 
         const apiResources: IApiResources = {
             subresources: {
@@ -54,11 +57,11 @@ export class WikiStack extends LPStack {
                     endpoints: {
                         GET: {
                             id: 'getAreas',
-                            path: `${baseLambdaDir}/getAreas`,
+                            path: `${areaLambdaDir}/getAreas`,
                         },
                         POST: {
                             id: 'createArea',
-                            path: `${baseLambdaDir}/createArea`,
+                            path: `${areaLambdaDir}/createArea`,
                         },
                     },
                     subresources: {
@@ -66,33 +69,39 @@ export class WikiStack extends LPStack {
                             endpoints: {
                                 GET: {
                                     id: 'getArea',
-                                    path: `${baseLambdaDir}/getArea`,
+                                    path: `${areaLambdaDir}/getArea`,
                                 },
                                 DELETE: {
                                     id: 'deleteArea',
-                                    path: `${baseLambdaDir}/deleteArea`,
+                                    path: `${areaLambdaDir}/deleteArea`,
                                 },
                                 PATCH: {
                                     id: 'updateArea',
-                                    path: `${baseLambdaDir}/updateArea`,
+                                    path: `${areaLambdaDir}/updateArea`,
                                 },
                             },
                             subresources: {
-                                doc: {
+                                docs: {
+                                    endpoints: {
+                                        POST: {
+                                            id: 'createDoc',
+                                            path: `${docLambdaDir}/createDoc`,
+                                        },
+                                    },
                                     subresources: {
                                         '{docid}': {
                                             endpoints: {
                                                 DELETE: {
                                                     id: 'deleteDoc',
-                                                    path: `${baseLambdaDir}/deletedoc`,
+                                                    path: `${docLambdaDir}/deleteDoc`,
                                                 },
                                                 GET: {
                                                     id: 'getDoc',
-                                                    path: `${baseLambdaDir}/getdoc`,
+                                                    path: `${docLambdaDir}/getDoc`,
                                                 },
                                                 PUT: {
                                                     id: 'putDoc',
-                                                    path: `${baseLambdaDir}/putdoc`,
+                                                    path: `${docLambdaDir}/putDoc`,
                                                 },
                                             },
                                             // subresources: {

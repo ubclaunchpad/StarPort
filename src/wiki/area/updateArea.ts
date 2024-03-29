@@ -1,13 +1,13 @@
-import { LambdaBuilder } from '../util/middleware/middleware';
+import { LambdaBuilder } from '../../util/middleware/middleware';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import {
     APIResponse,
     SuccessResponse,
     APIErrorResponse,
-} from '../util/middleware/response';
-import { Authorizer } from '../util/middleware/authorizer';
-import { InputValidator } from '../util/middleware/inputValidator';
-import { getDatabase } from '../util/db';
+} from '../../util/middleware/response';
+import { Authorizer } from '../../util/middleware/authorizer';
+import { InputValidator } from '../../util/middleware/inputValidator';
+import { getDatabase } from '../../util/db';
 
 const db = getDatabase();
 
@@ -41,7 +41,7 @@ export async function updateAreaRequest(
 
 export async function updateArea(areaId: number, updatedData: any) {
     const existingArea = await db
-        .selectFrom('Area')
+        .selectFrom('area')
         .select('id')
         .where('id', '=', areaId)
         .executeTakeFirst();
@@ -51,7 +51,7 @@ export async function updateArea(areaId: number, updatedData: any) {
     }
 
     const res = await db
-        .updateTable('Area')
+        .updateTable('area')
         .set(updatedData)
         .where('id', '=', areaId)
         .execute();

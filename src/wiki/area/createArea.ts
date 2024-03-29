@@ -1,19 +1,17 @@
-import { LambdaBuilder } from '../util/middleware/middleware';
+import { LambdaBuilder } from '../../util/middleware/middleware';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import {
     APIResponse,
     SuccessResponse,
     APIErrorResponse,
-} from '../util/middleware/response';
-import { Authorizer } from '../util/middleware/authorizer';
-import { InputValidator } from '../util/middleware/inputValidator';
-import { NewArea, getDatabase } from '../util/db';
+} from '../../util/middleware/response';
+import { Authorizer } from '../../util/middleware/authorizer';
+import { NewArea, getDatabase } from '../../util/db';
 
 const db = getDatabase();
 
 export const handler = new LambdaBuilder(router)
-    .use(new InputValidator())
-    // .use(new Authorizer())
+    .use(new Authorizer(db))
     .build();
 
 export async function router(
@@ -39,7 +37,7 @@ export async function router(
 export const createArea = async (areaData: NewArea) => {
     try {
         const { insertId } = await db
-            .insertInto('Area')
+            .insertInto('area')
             .values(areaData)
             .executeTakeFirst();
         return insertId;

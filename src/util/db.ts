@@ -28,10 +28,8 @@ export interface Database {
     team_term: TeamTermTable;
     post: PostTable;
     team_member: team_member;
-    Area: AreaTable;
-    Documents: DocumentsTable;
-    Tags: TagsTable;
-    DocumentTags: DocumentTagsTable;
+    area: AreaTable;
+    document: DocumentsTable;
     user_scopes_view: UserScopesViewTable;
 }
 
@@ -173,10 +171,8 @@ export type AreaTable = {
     id: Generated<number>;
     name: string;
     description: string;
-    accessLevel: number;
-    numberOfDocs: number;
-    lastUpdatedDate: Generated<Date>;
-    parentAreaID: number;
+    parent_areaid: number;
+    updatedat: Generated<Date>;
 };
 
 export type Area = Selectable<AreaTable>;
@@ -185,32 +181,17 @@ export type UpdateArea = Updateable<AreaTable>;
 
 export type DocumentsTable = {
     id: Generated<number>;
-    name: string;
-    areaID: number;
+    areaid: number;
     title: string;
-    docLink: string;
-    lastEditedUser: string;
-    creationDate: Date;
-    lastUpdatedDate: Generated<Date>;
+    doclink?: string;
+    createdat: Generated<Date>;
+    updatedat: Generated<Date>;
 };
 
 export type Documents = Selectable<DocumentsTable>;
 export type NewDocuments = Insertable<DocumentsTable>;
 export type UpdateDocuments = Updateable<DocumentsTable>;
 
-export type TagsTable = DictTable<string>;
-export type Tags = Selectable<TagsTable>;
-export type NewTags = Insertable<TagsTable>;
-export type UpdateTags = Updateable<TagsTable>;
-
-export type DocumentTagsTable = {
-    docID: number;
-    tagID: number;
-};
-
-export type DocumentTags = Selectable<DocumentTagsTable>;
-export type NewDocumentTags = Insertable<DocumentTagsTable>;
-export type UpdateDocumentTags = Updateable<DocumentTagsTable>;
 export interface UserScopesViewTable {
     email: string;
     scope_label: string;

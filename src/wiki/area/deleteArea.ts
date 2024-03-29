@@ -1,9 +1,12 @@
-import { getDatabase } from '../util/db';
-import { LambdaBuilder } from '../util/middleware/middleware';
-import { SuccessResponse, APIErrorResponse } from '../util/middleware/response';
-import { InputValidator } from '../util/middleware/inputValidator';
+import { getDatabase } from '../../util/db';
+import { LambdaBuilder } from '../../util/middleware/middleware';
+import {
+    SuccessResponse,
+    APIErrorResponse,
+} from '../../util/middleware/response';
+import { InputValidator } from '../../util/middleware/inputValidator';
 import { APIGatewayEvent } from 'aws-lambda';
-import { Authorizer } from '../util/middleware/authorizer';
+import { Authorizer } from '../../util/middleware/authorizer';
 
 const db = getDatabase();
 
@@ -33,5 +36,5 @@ async function deleteAreaRequest(event: APIGatewayEvent) {
 }
 
 export async function deleteArea(areaId: number) {
-    await db.deleteFrom('Area').where('id', '=', areaId).execute();
+    await db.deleteFrom('area').where('id', '=', areaId).execute();
 }
