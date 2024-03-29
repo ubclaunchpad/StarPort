@@ -11,13 +11,12 @@ export class Authorizer implements IMiddleware<IHandlerEvent, object> {
     private connection: Kysely<Database>;
 
     public handler = async (event: APIGatewayProxyEvent) => {
-        return {};
-        // const auth = event.headers.Authorization;
-        // if (auth === undefined) {
-        //     throw new UnauthorizedError('Authorization header is missing');
-        // }
-        // const user = await this.verifyUserIsLoggedIn(auth);
-        // return { user: user };
+        const auth = event.headers.Authorization;
+        if (auth === undefined) {
+            throw new UnauthorizedError('Authorization header is missing');
+        }
+        const user = await this.verifyUserIsLoggedIn(auth);
+        return { user: user };
     };
 
     verifyUserIsLoggedIn = async (auth: string) => {

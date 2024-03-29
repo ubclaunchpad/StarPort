@@ -44,7 +44,7 @@ export async function router(
 
     const docData = JSON.parse(event.body || '');
 
-    if (!docData || !docData.title || !docData.content) {
+    if (!docData || !docData.title || docData.content === undefined) {
         throw new Error('Request is missing body or body is invalid');
     }
 
