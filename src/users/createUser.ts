@@ -6,8 +6,13 @@ import {
     BadRequestError,
     SuccessResponse,
 } from '../util/middleware/response';
+import {
+    ACCESS_SCOPES,
+    ScopeController,
+} from '../util/middleware/scopeHandler';
 
 const db = getDatabase();
+const validScopes = [ACCESS_SCOPES.ADMIN_WRITE, ACCESS_SCOPES.WRITE_PROFILE];
 
 export const handler = new LambdaBuilder(router)
     .use(new InputValidator())

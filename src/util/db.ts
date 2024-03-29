@@ -13,17 +13,17 @@ import { Link } from './types/general';
 config();
 
 export interface Database {
-    ethnicity: EthnicityTable;
-    faculty: FacultyTable;
-    gender: GenderTable;
+    ethnicity: ResourceTable;
+    faculty: ResourceTable;
+    gender: ResourceTable;
     person: PersonTable;
     person_role: PersonRoleTable;
-    pronouns: PronounsTable;
+    pronouns: ResourceTable;
     role: RoleTable;
     scope: ScopeTable;
     scope_role: ScopeRole;
-    specialization: SpecializationTable;
-    standing: StandingTable;
+    specialization: ResourceTable;
+    standing: ResourceTable;
     team: TeamTable;
     team_term: TeamTermTable;
     post: PostTable;
@@ -32,6 +32,7 @@ export interface Database {
     Documents: DocumentsTable;
     Tags: TagsTable;
     DocumentTags: DocumentTagsTable;
+    user_scopes_view: UserScopesViewTable;
 }
 
 export function getDatabase() {
@@ -51,35 +52,10 @@ export interface DictTable<T> {
     label: T;
 }
 
-export type EthnicityTable = DictTable<string>;
-export type Ethnicity = Selectable<EthnicityTable>;
-export type NewEthnicity = Insertable<EthnicityTable>;
-export type UpdateEthnicity = Updateable<EthnicityTable>;
-
-export type FacultyTable = DictTable<string>;
-export type Faculty = Selectable<FacultyTable>;
-export type NewFaculty = Insertable<FacultyTable>;
-export type UpdateFaculty = Updateable<FacultyTable>;
-
-export type GenderTable = DictTable<string>;
-export type Gender = Selectable<GenderTable>;
-export type NewGender = Insertable<GenderTable>;
-export type UpdateGender = Updateable<GenderTable>;
-
-export type PronounsTable = DictTable<string>;
-export type Pronouns = Selectable<PronounsTable>;
-export type NewPronouns = Insertable<PronounsTable>;
-export type UpdatePronouns = Updateable<PronounsTable>;
-
-export type StandingTable = DictTable<string>;
-export type Standing = Selectable<StandingTable>;
-export type NewStanding = Insertable<StandingTable>;
-export type UpdateStanding = Updateable<StandingTable>;
-
-export type SpecializationTable = DictTable<string>;
-export type Specialization = Selectable<SpecializationTable>;
-export type NewSpecialization = Insertable<SpecializationTable>;
-export type UpdateSpecialization = Updateable<SpecializationTable>;
+export type ResourceTable = DictTable<string>;
+export type Resource = Selectable<ResourceTable>;
+export type NewResource = Insertable<ResourceTable>;
+export type UpdateResource = Updateable<ResourceTable>;
 
 export type RoleTable = DictTable<string>;
 export type Role = Selectable<RoleTable>;
@@ -235,3 +211,11 @@ export type DocumentTagsTable = {
 export type DocumentTags = Selectable<DocumentTagsTable>;
 export type NewDocumentTags = Insertable<DocumentTagsTable>;
 export type UpdateDocumentTags = Updateable<DocumentTagsTable>;
+export interface UserScopesViewTable {
+    email: string;
+    scope_label: string;
+}
+
+export type UserScopesView = Selectable<UserScopesViewTable>;
+export type NewUserScopesView = Insertable<UserScopesViewTable>;
+export type UpdateUserScopesView = Updateable<UserScopesViewTable>;
