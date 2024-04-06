@@ -1,12 +1,11 @@
 import chalk from 'chalk';
-import * as path from 'path';
-import * as fs from 'fs';
 import dotenv from 'dotenv';
+import * as fs from 'fs';
 import mysql, { Connection } from 'mysql2';
+import * as path from 'path';
 dotenv.config();
 
-const DATABASE_META_NAME = 'meta';
-const DATABASE_NAME = 'cosmic-dev';
+const DATABASE_NAME = process.env.DATABASE_NAME;
 const MIGRATION_PATH = './resources/database/migrations';
 
 const setUpDatabase = async (
@@ -60,13 +59,27 @@ const resetDatabase = async (connection: Connection): Promise<void> => {
                         chalk.bold.underline(database.Database)
                 )
             );
+
+            // delete views first
+            const views = await query(
+                connection,
+                `SHOW FULL TABLES IN ?? WHERE TABLE_TYPE = 'VIEW'`,
+                [database.Database]
+            );
+            const viewNames = views.map((view) => Object.values(view)[0]);
+            if (viewNames.length > 0) {
+                const viewDropQuery = `DROP VIEW ${viewNames.join(', ')}`;
+                await query(connection, viewDropQuery);
+            }
+
             const tables = await query(connection, `SHOW TABLES IN ??`, [
                 database.Database,
             ]);
-
             const tableNames = tables.map((table) => Object.values(table)[0]);
-            const queryStr = `DROP TABLE ${tableNames.join(', ')}`;
-            await query(connection, queryStr);
+            if (tableNames.length > 0) {
+                const tableDropQuery = `DROP TABLE ${tableNames.join(', ')}`;
+                await query(connection, tableDropQuery);
+            }
         }
     }
 };
