@@ -153,7 +153,6 @@ export async function getAll(personQuery: IPersonQuery) {
             first_name: user.first_name,
             last_name: user.last_name,
             pref_name: user.pref_name,
-            // person_role_id: user.person_role_id,
             email: user.email || '',
             account_updated: user.account_updated,
             member_since: user.member_since,
