@@ -1,27 +1,36 @@
+
+import { Database, PersonTable, getDatabase } from '../util/db';
+import { IPersonQuery, ORFilterQuery } from '../util/types/general';
+import { APIResponse, SuccessResponse } from '../util/middleware/response';
+import { PaginationHelper, ResponseMetaTagger } from '../util/middleware/paginationHelper';
+import { expressionBuilder } from 'kysely';
 import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
-import { Database, getDatabase } from '../util/db';
-import { IPersonQuery, ORFilterQuery } from '../util/types/general';
 import { LambdaBuilder, LambdaInput } from '../util/middleware/middleware';
-import { APIResponse, SuccessResponse } from '../util/middleware/response';
 import {
-    PaginationHelper,
-    ResponseMetaTagger,
-} from '../util/middleware/paginationHelper';
-import { expressionBuilder } from 'kysely';
+    ACCESS_SCOPES,
+    ScopeController,
+} from '../util/middleware/scopeHandler';
 
+const db = getDatabase();
+const validScopes = [
+    ACCESS_SCOPES.ADMIN_READ,
+    ACCESS_SCOPES.READ_ALL_PROFILE_DATA,
+];
 const DEFAULT_LIMIT = 50;
 const DEFAULT_OFFSET = 0;
-const db = getDatabase();
 
 export const handler = new LambdaBuilder(getUserRequest)
     .use(new InputValidator())
-    // .use(new Authorizer())
+    .use(new Authorizer(db))
+    .use(new ScopeController(db))
     .use(new PaginationHelper({ limit: DEFAULT_LIMIT, offset: DEFAULT_OFFSET }))
     .useAfter(new ResponseMetaTagger())
     .build();
 
 export async function getUserRequest(event: LambdaInput): Promise<APIResponse> {
+    ScopeController.verifyScopes(event.userScopes, validScopes);
+
     if (event.pagination) {
         const count = await countUsers();
         event.pagination.count = count;
@@ -55,7 +64,6 @@ export async function getAll(personQuery: IPersonQuery) {
             'person.first_name',
             'person.last_name',
             'person.pref_name',
-            'person.person_role_id',
             'person.email',
             'person.account_updated',
             'person.member_since',
@@ -98,12 +106,6 @@ export async function getAll(personQuery: IPersonQuery) {
 
     // Define filters based on the query structure
     const filters = [
-        {
-            filterkey: 'person_role_id',
-            dbkey: 'person_role_id',
-            buildExpression: (eb: any, value: any, match: string) =>
-                buildFilterExpression(eb, 'person_role_id', value, match),
-        },
         {
             filterkey: 'first_name',
             dbkey: 'first_name',
@@ -150,7 +152,6 @@ export async function getAll(personQuery: IPersonQuery) {
             first_name: user.first_name,
             last_name: user.last_name,
             pref_name: user.pref_name,
-            person_role_id: user.person_role_id,
             email: user.email || '',
             account_updated: user.account_updated,
             member_since: user.member_since,
