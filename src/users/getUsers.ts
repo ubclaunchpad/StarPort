@@ -60,7 +60,7 @@ export async function getAll(personQuery: IPersonQuery) {
             'person.first_name',
             'person.last_name',
             'person.pref_name',
-            'person.person_role_id',
+            // 'person.person_role_id',
             'person.email',
             'person.account_updated',
             'person.member_since',
