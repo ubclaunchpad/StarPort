@@ -1,7 +1,6 @@
 import { getDatabase } from '../util/db';
 import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
-import { IPersonQuery } from '../util/types/general';
 import { LambdaBuilder, LambdaInput } from '../util/middleware/middleware';
 import {
     PaginationHelper,
@@ -12,11 +11,13 @@ import {
     ACCESS_SCOPES,
     ScopeController,
 } from '../util/middleware/scopeHandler';
+import { IPersonQuery } from '../util/types/general';
 
 const db = getDatabase();
 const validScopes = [
     ACCESS_SCOPES.ADMIN_READ,
     ACCESS_SCOPES.READ_ALL_PROFILE_DATA,
+    ACCESS_SCOPES.READ_OWN_PROFILE,
 ];
 
 const DEFAULT_LIMIT = 50;
