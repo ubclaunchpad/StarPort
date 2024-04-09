@@ -15,7 +15,7 @@ VALUES
     ('Male'),
     ('Female'),
     ('Non-Binary'),
-    ("Other");
+    ('Other');
 
 -- populate ethnicity table
 INSERT INTO ethnicity (label) 

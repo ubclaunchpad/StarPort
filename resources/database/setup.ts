@@ -1,100 +1,92 @@
 import chalk from 'chalk';
 import dotenv from 'dotenv';
 import * as fs from 'fs';
-import mysql, { Connection } from 'mysql2';
 import * as path from 'path';
+import { Client } from 'pg';
 dotenv.config();
 
 const DATABASE_NAME = process.env.DATABASE_NAME;
 const MIGRATION_PATH = './resources/database/migrations';
 
 const setUpDatabase = async (
-    connection: Connection,
+    client: Client,
     withReset = false
 ): Promise<void> => {
+    await client.connect();
     console.log(chalk.blue('INFO: ') + 'Setting up database');
-    const tables = await query(connection, `SHOW TABLES IN ?? LIKE ?`, [
-        DATABASE_NAME,
-        'migrations',
-    ]);
+    createDatabaseIfNotExists(client, DATABASE_NAME);
+    const dbClient = new Client({
+        host: process.env.DATABASE_HOST,
+        user: process.env.DATABASE_USERNAME,
+        password: process.env.DATABASE_PASSWORD,
+        database: DATABASE_NAME,
+        port: parseInt(process.env.DATABASE_PORT || '5432'),
+    });
 
-    if (withReset || tables.length === 0) {
-        await initializeDatabase(connection);
+    await dbClient.connect();
+
+    console.log(chalk.blue('INFO: ') + 'Checking if migrations table exists');
+
+    if (withReset) {
+        await initializeDatabase(dbClient);
     } else {
         console.log(
             chalk.blue('INFO: ') +
                 'Migrations table already exists. Skipping initialization'
         );
     }
-    await runMigrations(connection);
+    await runMigrations(dbClient);
+    await dbClient.end();
 };
 
-const initializeDatabase = async (connection: Connection): Promise<void> => {
-    await resetDatabase(connection);
-    await query(connection, `CREATE DATABASE IF NOT EXISTS ??`, [
-        DATABASE_NAME,
-    ]);
-    await query(connection, `USE ??`, [DATABASE_NAME]);
-    await query(
-        connection,
-        `CREATE TABLE IF NOT EXISTS migrations (
-       id INT AUTO_INCREMENT PRIMARY KEY,
-       timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-       status VARCHAR(255) NOT NULL DEFAULT 'pending'
-     )`
+const initializeDatabase = async (client: Client): Promise<void> => {
+    await resetDatabase(client);
+    console.log(
+        chalk.blue('INFO: ') +
+            'Creating database ' +
+            chalk.bold.underline(DATABASE_NAME)
     );
+
+    await client.query(`CREATE TABLE IF NOT EXISTS migrations (
+             id SERIAL PRIMARY KEY,
+             timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+             status VARCHAR(255) NOT NULL DEFAULT 'pending'
+         )`);
 };
 
-const resetDatabase = async (connection: Connection): Promise<void> => {
-    const result = await query(
-        connection,
-        `SHOW DATABASES WHERE \`Database\` NOT IN ('mysql', 'information_schema', 'performance_schema', 'sys')`
+const resetDatabase = async (client: Client): Promise<void> => {
+    const result = await client.query(
+        `SELECT table_name 
+        FROM information_schema.tables 
+        WHERE table_schema NOT IN ('pg_catalog', 'information_schema') 
+        AND table_schema = 'public'
+        AND table_type = 'BASE TABLE';`
     );
 
-    for (const database of result) {
-        if (database.Database === DATABASE_NAME) {
-            console.log(
-                chalk.bold(
-                    'Emptying database ' +
-                        chalk.bold.underline(database.Database)
-                )
-            );
+    console.log(
+        chalk.bold('Emptying database ' + chalk.bold.underline(DATABASE_NAME))
+    );
+    console.log(result.rows);
+    const tableNames = result.rows.map((table) => table.table_name);
 
-            // delete views first
-            const views = await query(
-                connection,
-                `SHOW FULL TABLES IN ?? WHERE TABLE_TYPE = 'VIEW'`,
-                [database.Database]
-            );
-            const viewNames = views.map((view) => Object.values(view)[0]);
-            if (viewNames.length > 0) {
-                const viewDropQuery = `DROP VIEW ${viewNames.join(', ')}`;
-                await query(connection, viewDropQuery);
-            }
-
-            const tables = await query(connection, `SHOW TABLES IN ??`, [
-                database.Database,
-            ]);
-            const tableNames = tables.map((table) => Object.values(table)[0]);
-            if (tableNames.length > 0) {
-                const tableDropQuery = `DROP TABLE ${tableNames.join(', ')}`;
-                await query(connection, tableDropQuery);
-            }
-        }
+    if (tableNames.length > 0) {
+        const tableDropQuery = `DROP TABLE IF EXISTS ${tableNames.join(
+            ', '
+        )} CASCADE`;
+        await client.query(tableDropQuery);
     }
 };
 
-async function runMigrations(connection: Connection): Promise<void> {
+async function runMigrations(client: Client): Promise<void> {
     let files = fs.readdirSync(MIGRATION_PATH);
 
     console.log(chalk.blue('INFO: ') + 'Running migrations');
 
-    const res = await query(
-        connection,
+    const res = await client.query(
         `SELECT id, timestamp FROM migrations ORDER BY id DESC LIMIT 1`
     );
 
-    const lastMigration = res || [];
+    const lastMigration = res.rows || [];
 
     if (lastMigration.length > 0) {
         const lastMigrationTimestamp = Math.floor(
@@ -124,18 +116,15 @@ async function runMigrations(connection: Connection): Promise<void> {
             chalk.bold.underline(files.length)
     );
 
-    const currentDB = await query(connection, 'SELECT database() AS db');
+    const currentDB = await client.query('SELECT current_database() AS db');
     console.log(
         chalk.blue('INFO: ') +
             'Database selected: ' +
-            chalk.bold.underline(currentDB[0].db)
+            chalk.bold.underline(currentDB.rows[0].db)
     );
-    await migrate(connection, files);
+    await migrate(client, files);
     console.log(chalk.greenBright('SUCCESS: ') + 'Migrations complete');
-    await query(
-        connection,
-        `INSERT INTO migrations (status) VALUES ('success')`
-    );
+    await client.query(`INSERT INTO migrations (status) VALUES ('success')`);
 
     console.log(
         chalk.greenBright('SUCCESS: ') +
@@ -143,27 +132,24 @@ async function runMigrations(connection: Connection): Promise<void> {
     );
 }
 
-async function migrate(connection: Connection, files: string[]): Promise<void> {
+async function migrate(client: Client, files: string[]): Promise<void> {
     for (const file of files) {
         const data = fs.readFileSync(
             path.resolve(MIGRATION_PATH, file),
             'utf8'
         );
-        await executeSqlFile(data, connection, file);
+        await executeSqlFile(data, client, file);
     }
 }
 
 async function executeSqlFile(
     sqlScripts: string,
-    connection: Connection,
+    client: Client,
     fileName: string
 ): Promise<void> {
     const sqlStatements = sqlScripts.split(/;\s*$/m);
-    await executeStatements(sqlStatements, connection);
-    await query(
-        connection,
-        `INSERT INTO migrations (status) VALUES ('success')`
-    );
+    await executeStatements(sqlStatements, client);
+    await client.query(`INSERT INTO migrations (status) VALUES ('success')`);
 
     console.log(
         chalk.greenBright('SUCCESS: ') +
@@ -175,30 +161,38 @@ async function executeSqlFile(
 
 async function executeStatements(
     sqlStatements: string[],
-    connection: Connection
+    client: Client
 ): Promise<void> {
     console.log(chalk.blue('INFO: ') + 'Executing statements');
     for (const statement of sqlStatements) {
         if (statement.trim() !== '') {
-            await query(connection, statement);
+            await client.query(statement);
         }
     }
 }
 
-function query(
-    connection: Connection,
-    query: string,
-    params?: any[]
-): Promise<any[]> {
-    return new Promise<any[] | any>((resolve, reject) => {
-        connection.query(query, params, (error, results) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(results);
-            }
-        });
-    });
+async function createDatabaseIfNotExists(client, databaseName) {
+    try {
+        // Sanitize database name (basic protection)
+        const sanitizedName = databaseName.replace(/[^a-z0-9_]/gi, '');
+
+        // Check if database exists
+        const existsResult = await client.query(
+            `SELECT EXISTS (SELECT FROM pg_database WHERE datname = $1)`,
+            [sanitizedName]
+        );
+
+        if (!existsResult.rows[0].exists) {
+            // Create the database
+            await client.query(`CREATE DATABASE ${sanitizedName}`);
+            console.log(`Database ${sanitizedName} created successfully`);
+        } else {
+            console.log(`Database ${sanitizedName} already exists`);
+        }
+    } catch (error) {
+        console.error('Error creating database:', error);
+        // Handle the error appropriately (e.g., rethrow, log, or return an error message)
+    }
 }
 
 const run = (): void => {
@@ -207,17 +201,20 @@ const run = (): void => {
         console.error(chalk.bgRed('No database connection URL provided'));
         return;
     }
-    const connection = mysql.createConnection(connectionUrl);
-    setUpDatabase(connection, false)
+    const client = new Client({ connectionString: connectionUrl });
+
+    console.log(client);
+    setUpDatabase(client, true)
         .then(() => {
             console.log(chalk.bgGreen('Database setup completed'));
         })
         .catch((err) => {
             console.error(chalk.bgRed(err));
+            console.error(err.stack);
         })
         .finally(() => {
             console.log('Closing connection');
-            connection.end();
+            client.end();
         });
 };
 

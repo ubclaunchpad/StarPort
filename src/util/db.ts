@@ -6,10 +6,13 @@ import {
     Updateable,
     ColumnType,
     JSONColumnType,
+    PostgresDialect,
 } from 'kysely';
 import { config } from 'dotenv';
-import { PlanetScaleDialect } from 'kysely-planetscale';
 import { Link } from './types/general';
+import { PostgresJSDialect } from 'kysely-postgres-js';
+import postgres from 'postgres';
+
 config();
 
 export interface Database {
@@ -35,10 +38,15 @@ export interface Database {
 
 export function getDatabase() {
     const db = new Kysely<Database>({
-        dialect: new PlanetScaleDialect({
-            host: process.env.DATABASE_HOST,
-            username: process.env.DATABASE_USERNAME,
-            password: process.env.DATABASE_PASSWORD,
+        dialect: new PostgresJSDialect({
+            postgres: postgres({
+                max: 20,
+                database: process.env.DATABASE_NAME,
+                user: process.env.DATABASE_USERNAME,
+                password: process.env.DATABASE_PASSWORD,
+                host: process.env.DATABASE_HOST,
+                port: parseInt(process.env.DATABASE_PORT || '5432'),
+            }),
         }),
     });
 
