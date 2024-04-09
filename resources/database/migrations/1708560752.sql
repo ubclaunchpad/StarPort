@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS team (
 CREATE TABLE IF NOT EXISTS team_term (
     term_year INT NOT NULL,
     teamid INT NOT NULL,
-    PRIMARY KEY (term_year, teamid) 
+    PRIMARY KEY (term_year, teamid),
+    FOREIGN KEY (teamid) REFERENCES team(id) ON DELETE CASCADE
 );
 
 -- Create post table
@@ -26,7 +27,9 @@ CREATE TABLE IF NOT EXISTS post (
     type TEXT CHECK(type IN ('event', 'news', 'update','discussion', 'announcement')) DEFAULT 'update',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    contents JSON
+    contents JSON,
+    FOREIGN KEY (teamid) REFERENCES team(id) ON DELETE CASCADE,
+    FOREIGN KEY (userid) REFERENCES user(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS team_member (
@@ -35,4 +38,6 @@ CREATE TABLE IF NOT EXISTS team_member (
     team_role TEXT CHECK(team_role IN ('tech lead', 'developer', 'designer', 'design lead', 'other')) DEFAULT 'other',
     member_since TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (teamid, userid)
+    FOREIGN KEY (teamid) REFERENCES team(id) ON DELETE CASCADE,
+    FOREIGN KEY (userid) REFERENCES user(id) ON DELETE CASCADE
 );
