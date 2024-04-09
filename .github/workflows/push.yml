@@ -1,10 +1,21 @@
-name: PR
+name: Deploy to Production
 
 on:
   push:
-    branches: [ "main", "userbase" ]
+    branches: [ "main" ]
 
 jobs:
+  migrate-db:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: install dependencies
+      run: npm install
+    - name: run migrations
+      run: |
+        echo "${{ secrets.ENV_FILE }}" > .env
+        echo "Running migrations"
+        npm run db:setup
   deploy-lamda:
     runs-on: ubuntu-latest
     steps:
@@ -14,16 +25,22 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
-    - name: Install AWS CDK
-      run: npm install -g aws-cdk
+        aws-region: us-west-2
+    - name: Install AWS CDK and compile
+      run: |
+       echo "installing aws-cdk and compiling"
+       echo "${{ secrets.ENV_FILE }}" > .env
+       npm install -g aws-cdk
+       npm install
+       npm run build
+    - name: Synthasize CDK stack
+      run: |
+        echo "synthasizing CDK stack"
+        cdk synth
     - name: Build and deploy CDK stack
       run: |
-        npm install
+        echo "deploying CDK stack"
         echo "${{ secrets.ENV_FILE }}" > .env
-        npm run build
-        cdk diff
-        cdk synth
-        cdk bootstrap
-        cdk deploy "*"
+        cdk deploy --all --require-approval never
+        echo "CDK stacks deployed"
     
