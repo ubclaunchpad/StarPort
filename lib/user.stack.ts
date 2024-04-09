@@ -25,7 +25,7 @@ export class UserStack extends LPStack {
             environment: {
                 ...databaseConfig,
                 mode: props.mode,
-                MAIN_DATABASE_URL: process.env.MAIN_DATABASE_URL || '',
+                ...databaseConfig,
             },
         };
 
