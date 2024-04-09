@@ -21,7 +21,6 @@ export class DATABASE_CONFIG {
     public static readonly DB_NAME: string | undefined =
         process.env.DATABASE_NAME;
 
-
     public static getDBConfig(): IDatabaseConfig {
         if (
             !DATABASE_CONFIG.DB_HOST ||

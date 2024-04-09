@@ -10,9 +10,8 @@ import {
 } from 'kysely';
 import { config } from 'dotenv';
 import { Link } from './types/general';
-import {PostgresJSDialect} from 'kysely-postgres-js'
-import postgres from 'postgres'
-
+import { PostgresJSDialect } from 'kysely-postgres-js';
+import postgres from 'postgres';
 
 config();
 
@@ -47,7 +46,7 @@ export function getDatabase() {
                 password: process.env.DATABASE_PASSWORD,
                 host: process.env.DATABASE_HOST,
                 port: parseInt(process.env.DATABASE_PORT || '5432'),
-            })
+            }),
         }),
     });
 

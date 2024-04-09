@@ -25,10 +25,7 @@ const setUpDatabase = async (
 
     await dbClient.connect();
 
-    console.log(
-        chalk.blue('INFO: ') +
-            'Checking if migrations table exists'
-    );
+    console.log(chalk.blue('INFO: ') + 'Checking if migrations table exists');
 
     if (withReset) {
         await initializeDatabase(dbClient);
@@ -43,14 +40,14 @@ const setUpDatabase = async (
 };
 
 const initializeDatabase = async (client: Client): Promise<void> => {
-        await resetDatabase(client);
-        console.log(
-            chalk.blue('INFO: ') +
-                'Creating database ' +
-                chalk.bold.underline(DATABASE_NAME)
-        );
-       
-        await client.query(`CREATE TABLE IF NOT EXISTS migrations (
+    await resetDatabase(client);
+    console.log(
+        chalk.blue('INFO: ') +
+            'Creating database ' +
+            chalk.bold.underline(DATABASE_NAME)
+    );
+
+    await client.query(`CREATE TABLE IF NOT EXISTS migrations (
              id SERIAL PRIMARY KEY,
              timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
              status VARCHAR(255) NOT NULL DEFAULT 'pending'
@@ -64,18 +61,21 @@ const resetDatabase = async (client: Client): Promise<void> => {
         WHERE table_schema NOT IN ('pg_catalog', 'information_schema') 
         AND table_schema = 'public'
         AND table_type = 'BASE TABLE';`
-    )
+    );
 
-    console.log(chalk.bold('Emptying database ' + chalk.bold.underline(DATABASE_NAME)));
-    console.log(result.rows)
+    console.log(
+        chalk.bold('Emptying database ' + chalk.bold.underline(DATABASE_NAME))
+    );
+    console.log(result.rows);
     const tableNames = result.rows.map((table) => table.table_name);
 
     if (tableNames.length > 0) {
-        const tableDropQuery = `DROP TABLE IF EXISTS ${tableNames.join(', ')} CASCADE`;
+        const tableDropQuery = `DROP TABLE IF EXISTS ${tableNames.join(
+            ', '
+        )} CASCADE`;
         await client.query(tableDropQuery);
-    
-        }
-}
+    }
+};
 
 async function runMigrations(client: Client): Promise<void> {
     let files = fs.readdirSync(MIGRATION_PATH);
@@ -124,9 +124,7 @@ async function runMigrations(client: Client): Promise<void> {
     );
     await migrate(client, files);
     console.log(chalk.greenBright('SUCCESS: ') + 'Migrations complete');
-    await client.query(
-        `INSERT INTO migrations (status) VALUES ('success')`
-    );
+    await client.query(`INSERT INTO migrations (status) VALUES ('success')`);
 
     console.log(
         chalk.greenBright('SUCCESS: ') +
@@ -151,9 +149,7 @@ async function executeSqlFile(
 ): Promise<void> {
     const sqlStatements = sqlScripts.split(/;\s*$/m);
     await executeStatements(sqlStatements, client);
-    await client.query(
-        `INSERT INTO migrations (status) VALUES ('success')`
-    );
+    await client.query(`INSERT INTO migrations (status) VALUES ('success')`);
 
     console.log(
         chalk.greenBright('SUCCESS: ') +
@@ -177,29 +173,27 @@ async function executeStatements(
 
 async function createDatabaseIfNotExists(client, databaseName) {
     try {
-      // Sanitize database name (basic protection)
-      const sanitizedName = databaseName.replace(/[^a-z0-9_]/gi, ''); 
-  
-      // Check if database exists
-      const existsResult = await client.query(
-          `SELECT EXISTS (SELECT FROM pg_database WHERE datname = $1)`,
-          [sanitizedName] 
-      );
-  
-      if (!existsResult.rows[0].exists) {
-        // Create the database
-        await client.query(`CREATE DATABASE ${sanitizedName}`); 
-        console.log(`Database ${sanitizedName} created successfully`);
-      } else {
-        console.log(`Database ${sanitizedName} already exists`);
-      }
-    } catch (error) {
-      console.error("Error creating database:", error);
-      // Handle the error appropriately (e.g., rethrow, log, or return an error message)
-    }
-  }
-  
+        // Sanitize database name (basic protection)
+        const sanitizedName = databaseName.replace(/[^a-z0-9_]/gi, '');
 
+        // Check if database exists
+        const existsResult = await client.query(
+            `SELECT EXISTS (SELECT FROM pg_database WHERE datname = $1)`,
+            [sanitizedName]
+        );
+
+        if (!existsResult.rows[0].exists) {
+            // Create the database
+            await client.query(`CREATE DATABASE ${sanitizedName}`);
+            console.log(`Database ${sanitizedName} created successfully`);
+        } else {
+            console.log(`Database ${sanitizedName} already exists`);
+        }
+    } catch (error) {
+        console.error('Error creating database:', error);
+        // Handle the error appropriately (e.g., rethrow, log, or return an error message)
+    }
+}
 
 const run = (): void => {
     const connectionUrl = process.env.DATABASE_URL;
@@ -207,16 +201,16 @@ const run = (): void => {
         console.error(chalk.bgRed('No database connection URL provided'));
         return;
     }
-    const client = new Client({connectionString: connectionUrl});
-   
-    console.log(client );
+    const client = new Client({ connectionString: connectionUrl });
+
+    console.log(client);
     setUpDatabase(client, true)
         .then(() => {
             console.log(chalk.bgGreen('Database setup completed'));
         })
         .catch((err) => {
             console.error(chalk.bgRed(err));
-            console.error(err.stack)
+            console.error(err.stack);
         })
         .finally(() => {
             console.log('Closing connection');
