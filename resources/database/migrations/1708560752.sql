@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS post (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     contents JSON,
     FOREIGN KEY (teamid) REFERENCES team(id) ON DELETE CASCADE,
-    FOREIGN KEY (userid) REFERENCES user(id) ON DELETE CASCADE
+    FOREIGN KEY (userid) REFERENCES person(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS team_member (
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS team_member (
     userid INT NOT NULL,
     team_role TEXT CHECK(team_role IN ('tech lead', 'developer', 'designer', 'design lead', 'other')) DEFAULT 'other',
     member_since TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (teamid, userid)
+    PRIMARY KEY (teamid, userid),
     FOREIGN KEY (teamid) REFERENCES team(id) ON DELETE CASCADE,
-    FOREIGN KEY (userid) REFERENCES user(id) ON DELETE CASCADE
+    FOREIGN KEY (userid) REFERENCES person(id) ON DELETE CASCADE
 );
