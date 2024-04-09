@@ -66,6 +66,7 @@ const resetDatabase = async (client: Client): Promise<void> => {
     console.log(
         chalk.bold('Emptying database ' + chalk.bold.underline(DATABASE_NAME))
     );
+
     const tableNames = result.rows.map((table) => table.table_name);
 
     if (tableNames.length > 0) {
