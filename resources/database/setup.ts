@@ -208,7 +208,7 @@ const run = (): void => {
         return;
     }
     const connection = mysql.createConnection(connectionUrl);
-    setUpDatabase(connection, true)
+    setUpDatabase(connection, false)
         .then(() => {
             console.log(chalk.bgGreen('Database setup completed'));
         })

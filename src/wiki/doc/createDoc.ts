@@ -11,7 +11,7 @@ import { NewDocument, getDatabase } from '../../util/db';
 import { v4 as uuidv4 } from 'uuid';
 
 const s3 = new S3({
-    accessKeyId: process.env.ACCESS_KEY,
+    accessKeyId: process.env.ACCESS_KEY_ID,
     secretAccessKey: process.env.SECRET_ACCESS_KEY,
 });
 const bucketName = process.env.BUCKET_NAME || '';
