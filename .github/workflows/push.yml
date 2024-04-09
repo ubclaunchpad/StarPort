@@ -15,7 +15,7 @@ jobs:
       run: |
         echo "${{ secrets.ENV_FILE }}" > .env
         echo "Running migrations"
-        npm run db:setup
+        npm run db:up
   deploy-lamda:
     runs-on: ubuntu-latest
     steps:
