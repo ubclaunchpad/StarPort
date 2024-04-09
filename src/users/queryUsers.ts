@@ -1,8 +1,10 @@
-
 import { Database, PersonTable, getDatabase } from '../util/db';
 import { IPersonQuery, ORFilterQuery } from '../util/types/general';
 import { APIResponse, SuccessResponse } from '../util/middleware/response';
-import { PaginationHelper, ResponseMetaTagger } from '../util/middleware/paginationHelper';
+import {
+    PaginationHelper,
+    ResponseMetaTagger,
+} from '../util/middleware/paginationHelper';
 import { expressionBuilder } from 'kysely';
 import { Authorizer } from '../util/middleware/authorizer';
 import { InputValidator } from '../util/middleware/inputValidator';
