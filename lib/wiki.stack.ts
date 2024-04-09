@@ -42,8 +42,8 @@ export class WikiStack extends LPStack {
             environment: {
                 BUCKET_NAME: process.env.BUCKET_NAME || '',
                 BUCKET_ARN: process.env.BUCKET_NAME || '',
-                ACCESS_KEY: process.env.IAM_ACCESS_KEY || '',
-                SECRET_ACCESS_KEY: process.env.IAM_SECRET_ACCESS_KEY || '',
+                ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID || '',
+                SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY || '',
                 ...props.databaseConfig,
             },
             role: role,
