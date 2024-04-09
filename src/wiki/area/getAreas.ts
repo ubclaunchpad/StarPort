@@ -1,4 +1,3 @@
-import { InputValidator } from '../../util/middleware/inputValidator';
 import { getDatabase } from '../../util/db';
 import { IAreaQuery } from '../../util/types/general';
 import { LambdaBuilder, LambdaInput } from '../../util/middleware/middleware';
@@ -18,7 +17,7 @@ const db = getDatabase();
 const LIMIT = 50;
 const OFFSET = 0;
 export const handler = new LambdaBuilder(getRequest)
-    .use(new InputValidator())
+    // .use(new InputValidator())
     .use(new Authorizer(db))
     .use(new PaginationHelper({ limit: LIMIT, offset: OFFSET }))
     .useAfter(new ResponseMetaTagger())
@@ -41,8 +40,6 @@ export async function getAll(areaQuery: IAreaQuery) {
     const res = await db
         .selectFrom('area')
         .selectAll()
-        // .limit(areaQuery.limit || 10)
-        // .offset(areaQuery.offset || 0)
         .execute();
     return res;
 }
