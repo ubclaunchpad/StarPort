@@ -17,7 +17,6 @@ const db = getDatabase();
 const LIMIT = 50;
 const OFFSET = 0;
 export const handler = new LambdaBuilder(getRequest)
-    // .use(new InputValidator())
     .use(new Authorizer(db))
     .use(new PaginationHelper({ limit: LIMIT, offset: OFFSET }))
     .useAfter(new ResponseMetaTagger())
@@ -35,11 +34,10 @@ export async function getRequest(event: LambdaInput): Promise<APIResponse> {
 }
 
 export async function getAll(areaQuery: IAreaQuery) {
-    console.log('areaQuery:', areaQuery);
-    console.log('db:', await db);
     const res = await db
         .selectFrom('area')
         .selectAll()
+        .where('area.parent_areaid', 'is', null)
         .execute();
     return res;
 }
