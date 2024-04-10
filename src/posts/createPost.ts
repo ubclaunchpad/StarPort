@@ -21,7 +21,6 @@ export async function router(event: LambdaInput): Promise<APIResponse> {
 }
 export const createPost = async (newPost: NewPost) => {
     newPost.contents = JSON.stringify(newPost.contents);
-
     try {
         const { insertId } = await db
             .insertInto('post')

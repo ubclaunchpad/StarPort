@@ -28,7 +28,6 @@ export interface Database {
     specialization: ResourceTable;
     standing: ResourceTable;
     team: TeamTable;
-    team_term: TeamTermTable;
     post: PostTable;
     team_member: team_member;
     area: AreaTable;
@@ -96,6 +95,7 @@ export interface TeamTable {
     meta_data: JSONColumnType<{
         links: Link[];
     }>;
+    year: number;
 }
 
 export type Team = Selectable<TeamTable>;
