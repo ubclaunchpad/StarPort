@@ -47,7 +47,7 @@ export async function updateArea(areaId: number, updatedData: any) {
         .executeTakeFirst();
 
     if (!existingArea) {
-        throw new Error(`User with id ${areaId} not found`);
+        throw new Error(`area with id ${areaId} not found`);
     }
 
     const res = await db

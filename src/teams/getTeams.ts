@@ -18,12 +18,24 @@ export async function router(
     return new SuccessResponse(teams);
 }
 export const getTeams = async (filter: any) => {
-    return await db.selectFrom('team')
-    .select(['team.id','team.label','team.description','team.created_at','team.updated_at','team.image_link','team.meta_data','team.year', 'team.type'])
-    .$if(filter.userid !== undefined, (query) =>
-        query.innerJoin('team_member', 'team.id', 'team_member.teamid')
-        .where('team_member.userid','=',filter.userid)
-    )
-    .orderBy('team.year desc')
-    .execute();
+    return await db
+        .selectFrom('team')
+        .select([
+            'team.id',
+            'team.label',
+            'team.description',
+            'team.created_at',
+            'team.updated_at',
+            'team.image_link',
+            'team.meta_data',
+            'team.year',
+            'team.type',
+        ])
+        .$if(filter.userid !== undefined, (query) =>
+            query
+                .innerJoin('team_member', 'team.id', 'team_member.teamid')
+                .where('team_member.userid', '=', filter.userid)
+        )
+        .orderBy('team.year desc')
+        .execute();
 };

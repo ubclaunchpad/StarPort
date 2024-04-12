@@ -88,10 +88,6 @@ export class WikiStack extends LPStack {
                                                     id: 'deleteItem',
                                                     path: `${itemsLambdaDir}/removeItem`,
                                                 },
-                                                GET: {
-                                                    id: 'getItem',
-                                                    path: `${itemsLambdaDir}/getItem`,
-                                                },
                                             },
                                         },
                                     },

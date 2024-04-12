@@ -26,26 +26,28 @@ const setUpDatabase = async (
     });
 
     try {
-    await dbClient.connect();
+        await dbClient.connect();
 
-    console.log(chalk.blue('INFO: ') + 'Checking if migrations table exists');
-
-    if (withReset) {
-        await initializeDatabase(dbClient);
-    } else {
         console.log(
-            chalk.blue('INFO: ') +
-                'Migrations table already exists. Skipping initialization'
+            chalk.blue('INFO: ') + 'Checking if migrations table exists'
         );
+
+        if (withReset) {
+            await initializeDatabase(dbClient);
+        } else {
+            console.log(
+                chalk.blue('INFO: ') +
+                    'Migrations table already exists. Skipping initialization'
+            );
+        }
+        await runMigrations(dbClient);
+    } catch (error) {
+        console.error(chalk.bgRed('Error setting up database:'));
+        await dbClient.end();
+        throw error;
+    } finally {
+        await dbClient.end();
     }
-    await runMigrations(dbClient);
-} catch (error) {
-    console.error(chalk.bgRed('Error setting up database:'));
-    await dbClient.end();
-    throw error;
-} finally {
-    await dbClient.end();
-}
 };
 
 const initializeDatabase = async (client: Client): Promise<void> => {
