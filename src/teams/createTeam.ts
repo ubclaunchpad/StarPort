@@ -3,12 +3,13 @@ import { LambdaBuilder } from '../util/middleware/middleware';
 import { APIResponse, SuccessResponse } from '../util/middleware/response';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { APIGatewayProxyEvent } from 'aws-lambda';
+import { Authorizer } from '../util/middleware/authorizer';
 
 const db = getDatabase();
 
 export const handler = new LambdaBuilder(router)
     .use(new InputValidator())
-    // .use(new Authorizer())
+    .use(new Authorizer(db))
     .build();
 
 export async function router(
@@ -25,18 +26,9 @@ export async function router(
 export const createTeam = async (newTeam: NewTeam & { term_year: number }) => {
     const { term_year, ...team } = newTeam;
     team.meta_data = JSON.stringify(team.meta_data);
-
     const { insertId } = await db
         .insertInto('team')
         .values(team)
         .executeTakeFirst();
-
-    if (!insertId) throw new Error('Failed to create team');
-
-    await db
-        .insertInto('team_term')
-        .values({ teamid: Number(insertId), term_year })
-        .executeTakeFirst();
-
     return insertId;
 };

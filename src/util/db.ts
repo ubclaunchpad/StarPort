@@ -28,19 +28,21 @@ export interface Database {
     specialization: ResourceTable;
     standing: ResourceTable;
     team: TeamTable;
-    team_term: TeamTermTable;
     post: PostTable;
     team_member: team_member;
     area: AreaTable;
     document: DocumentTable;
     user_scopes_view: UserScopesViewTable;
+    collection: CollectionTable;
+    collection_item: CollectionItemTable;
+    team_collection: TeamCollectionTable;
 }
 
 export function getDatabase() {
     const db = new Kysely<Database>({
         dialect: new PostgresJSDialect({
             postgres: postgres({
-                max: 20,
+                // max: 20,
                 database: process.env.DATABASE_NAME,
                 user: process.env.DATABASE_USERNAME,
                 password: process.env.DATABASE_PASSWORD,
@@ -96,6 +98,7 @@ export interface TeamTable {
     meta_data: JSONColumnType<{
         links: Link[];
     }>;
+    year: number;
 }
 
 export type Team = Selectable<TeamTable>;
@@ -208,3 +211,33 @@ export interface UserScopesViewTable {
 export type UserScopesView = Selectable<UserScopesViewTable>;
 export type NewUserScopesView = Insertable<UserScopesViewTable>;
 export type UpdateUserScopesView = Updateable<UserScopesViewTable>;
+
+export interface CollectionTable {
+    id: Generated<number>;
+    name: string;
+    description: string;
+    updated_at: ColumnType<Date, string | undefined>;
+}
+
+export type Collection = Selectable<CollectionTable>;
+export type NewCollection = Insertable<CollectionTable>;
+export type UpdateCollection = Updateable<CollectionTable>;
+
+export interface CollectionItemTable {
+    collectionid: number;
+    itemid: number;
+    itemtype: string;
+}
+
+export type CollectionItem = Selectable<CollectionItemTable>;
+export type NewCollectionItem = Insertable<CollectionItemTable>;
+export type UpdateCollectionItem = Updateable<CollectionItemTable>;
+
+export interface TeamCollectionTable {
+    teamid: number;
+    collectionid: number;
+}
+
+export type TeamCollection = Selectable<TeamCollectionTable>;
+export type NewTeamCollection = Insertable<TeamCollectionTable>;
+export type UpdateTeamCollection = Updateable<TeamCollectionTable>;

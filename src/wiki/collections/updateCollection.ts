@@ -7,16 +7,16 @@ import {
 } from '../../util/middleware/response';
 import { Authorizer } from '../../util/middleware/authorizer';
 import { InputValidator } from '../../util/middleware/inputValidator';
-import { getDatabase } from '../../util/db';
+import { UpdateCollection, getDatabase } from '../../util/db';
 
 const db = getDatabase();
 
-export const handler = new LambdaBuilder(updateAreaRequest)
+export const handler = new LambdaBuilder(updateCollectionRequest)
     .use(new InputValidator())
-    // .use(new Authorizer())
+    .use(new Authorizer(db))
     .build();
 
-export async function updateAreaRequest(
+export async function updateCollectionRequest(
     event: APIGatewayProxyEvent
 ): Promise<APIResponse> {
     if (
@@ -27,11 +27,11 @@ export async function updateAreaRequest(
         throw new Error('Invalid request');
     }
 
-    const areaId = event.pathParameters.areaid;
+    const collectionId = event.pathParameters.collectionid;
     const updatedData = JSON.parse(event.body);
 
     try {
-        await updateArea(areaId as unknown as number, updatedData);
+        await updateCollection(collectionId as unknown as number, updatedData);
         return new SuccessResponse({ message: 'Area updated successfully' });
     } catch (error) {
         console.error('Error in updateArea:', error);
@@ -39,20 +39,13 @@ export async function updateAreaRequest(
     }
 }
 
-export async function updateArea(areaId: number, updatedData: any) {
-    const existingArea = await db
-        .selectFrom('area')
-        .select('id')
-        .where('id', '=', areaId)
-        .executeTakeFirst();
-
-    if (!existingArea) {
-        throw new Error(`area with id ${areaId} not found`);
-    }
-
-    const res = await db
-        .updateTable('area')
+export async function updateCollection(
+    collectionId: number,
+    updatedData: UpdateCollection
+) {
+    await db
+        .updateTable('collection')
         .set(updatedData)
-        .where('id', '=', areaId)
+        .where('id', '=', collectionId)
         .execute();
 }

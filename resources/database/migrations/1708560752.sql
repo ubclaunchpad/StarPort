@@ -7,14 +7,8 @@ CREATE TABLE IF NOT EXISTS team (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     image_link VARCHAR(255),
+    year INT NOT NULL,
     meta_data JSON
-);
-
-CREATE TABLE IF NOT EXISTS team_term (
-    term_year INT NOT NULL,
-    teamid INT NOT NULL,
-    PRIMARY KEY (term_year, teamid),
-    FOREIGN KEY (teamid) REFERENCES team(id) ON DELETE CASCADE
 );
 
 -- Create post table

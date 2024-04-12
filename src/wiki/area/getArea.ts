@@ -3,8 +3,8 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 import { APIResponse, SuccessResponse } from '../../util/middleware/response';
 import { Authorizer } from '../../util/middleware/authorizer';
 import { InputValidator } from '../../util/middleware/inputValidator';
-import { Database, getDatabase } from '../../util/db';
-import { jsonArrayFrom } from 'kysely/helpers/postgres'
+import { getDatabase } from '../../util/db';
+import { jsonArrayFrom } from 'kysely/helpers/postgres';
 
 const db = getDatabase();
 

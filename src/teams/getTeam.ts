@@ -7,12 +7,12 @@ import {
 } from '../util/middleware/response';
 import { InputValidator } from '../util/middleware/inputValidator';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-
+import { Authorizer } from '../util/middleware/authorizer';
 const db = getDatabase();
 
 export const handler = new LambdaBuilder(router)
     .use(new InputValidator())
-    // .use(new Authorizer())
+    .use(new Authorizer(db))
     .build();
 
 export async function router(

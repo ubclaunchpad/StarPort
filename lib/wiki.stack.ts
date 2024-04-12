@@ -51,9 +51,61 @@ export class WikiStack extends LPStack {
 
         const areaLambdaDir = 'dist/wiki/area';
         const docLambdaDir = 'dist/wiki/doc';
+        const collectionLambdaDir = 'dist/wiki/collections';
+        const itemsLambdaDir = 'dist/wiki/collections/items';
 
         const apiResources: IApiResources = {
             subresources: {
+                collections: {
+                    subresources: {
+                        '{collectionid}': {
+                            endpoints: {
+                                GET: {
+                                    id: 'getCollection',
+                                    path: `${collectionLambdaDir}/getCollection`,
+                                },
+                                DELETE: {
+                                    id: 'deleteCollection',
+                                    path: `${collectionLambdaDir}/deleteCollection`,
+                                },
+                                PATCH: {
+                                    id: 'updateCollection',
+                                    path: `${collectionLambdaDir}/updateCollection`,
+                                },
+                            },
+                            subresources: {
+                                items: {
+                                    endpoints: {
+                                        POST: {
+                                            id: 'addItem',
+                                            path: `${itemsLambdaDir}/addItem`,
+                                        },
+                                    },
+                                    subresources: {
+                                        '{itemid}': {
+                                            endpoints: {
+                                                DELETE: {
+                                                    id: 'deleteItem',
+                                                    path: `${itemsLambdaDir}/removeItem`,
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    endpoints: {
+                        GET: {
+                            id: 'getCollections',
+                            path: `${collectionLambdaDir}/getCollections`,
+                        },
+                        POST: {
+                            id: 'createCollection',
+                            path: `${collectionLambdaDir}/createCollection`,
+                        },
+                    },
+                },
                 doc: {
                     subresources: {
                         '{docid}': {

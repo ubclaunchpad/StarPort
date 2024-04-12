@@ -16,28 +16,31 @@ const db = getDatabase();
 
 const LIMIT = 50;
 const OFFSET = 0;
-export const handler = new LambdaBuilder(getRequest)
+
+export const handler = new LambdaBuilder(getCollectionsRequest)
     .use(new Authorizer(db))
     .use(new PaginationHelper({ limit: LIMIT, offset: OFFSET }))
     .useAfter(new ResponseMetaTagger())
     .build();
 
-export async function getRequest(event: LambdaInput): Promise<APIResponse> {
+export async function getCollectionsRequest(
+    event: LambdaInput
+): Promise<APIResponse> {
     try {
-        const areaQuery = ((event && event.queryStringParameters) ||
-            {}) as unknown as IAreaQuery;
-        return new SuccessResponse(await getAll(areaQuery));
+        const getCollectionsQuery = ((event && event.queryStringParameters) ||
+            {}) as unknown as any;
+        return new SuccessResponse(await getCollections(getCollectionsQuery));
     } catch (error) {
         console.error('Error in getRequest:', error);
         return new APIErrorResponse(error);
     }
 }
 
-export async function getAll(areaQuery: IAreaQuery) {
+export async function getCollections(getCollectionsQuery: any) {
     const res = await db
-        .selectFrom('area')
+        .selectFrom('collection')
         .selectAll()
-        .where('area.parent_areaid', 'is', null)
+        .orderBy('collection.updated_at', 'desc')
         .execute();
     return res;
 }

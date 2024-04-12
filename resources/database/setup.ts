@@ -7,6 +7,8 @@ dotenv.config();
 
 const DATABASE_NAME = process.env.DATABASE_NAME;
 const MIGRATION_PATH = './resources/database/migrations';
+const withResetFlagIndex = process.argv.indexOf('--withreset');
+const withReset = withResetFlagIndex !== -1;
 
 const setUpDatabase = async (
     client: Client,
@@ -23,20 +25,29 @@ const setUpDatabase = async (
         port: parseInt(process.env.DATABASE_PORT || '5432'),
     });
 
-    await dbClient.connect();
+    try {
+        await dbClient.connect();
 
-    console.log(chalk.blue('INFO: ') + 'Checking if migrations table exists');
-
-    if (withReset) {
-        await initializeDatabase(dbClient);
-    } else {
         console.log(
-            chalk.blue('INFO: ') +
-                'Migrations table already exists. Skipping initialization'
+            chalk.blue('INFO: ') + 'Checking if migrations table exists'
         );
+
+        if (withReset) {
+            await initializeDatabase(dbClient);
+        } else {
+            console.log(
+                chalk.blue('INFO: ') +
+                    'Migrations table already exists. Skipping initialization'
+            );
+        }
+        await runMigrations(dbClient);
+    } catch (error) {
+        console.error(chalk.bgRed('Error setting up database:'));
+        await dbClient.end();
+        throw error;
+    } finally {
+        await dbClient.end();
     }
-    await runMigrations(dbClient);
-    await dbClient.end();
 };
 
 const initializeDatabase = async (client: Client): Promise<void> => {
@@ -203,7 +214,7 @@ const run = (): void => {
     }
     const client = new Client({ connectionString: connectionUrl });
 
-    setUpDatabase(client, true)
+    setUpDatabase(client, withReset)
         .then(() => {
             console.log(chalk.bgGreen('Database setup completed'));
         })
@@ -212,7 +223,6 @@ const run = (): void => {
             console.error(err.stack);
         })
         .finally(() => {
-            console.log('Closing connection');
             client.end();
         });
 };
